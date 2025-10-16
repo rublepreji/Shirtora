@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Address Book</title>
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    /* small custom tweaks to match the look in the reference */
+    .card-shadow {
+      box-shadow: 0 8px 20px rgba(16,24,40,0.06);
+    }
+
+    /* subtle thin border used for address boxes */
+    .fine-border {
+      border: 1px solid rgba(34,34,34,0.12);
+    }
+
+    /* small pill used for edit/delete */
+    .btn-small {
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      line-height: 1;
+    }
+
+    /* subtle top-right label inside box */
+    .label-top-right {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      font-size: 0.78rem;
+      color: rgba(0,0,0,0.55);
+    }
+
+    /* keep maximal visual fidelity on very wide screens */
+    @media (min-width: 1400px) {
+      .container-max { max-width: 1060px; }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-900 antialiased">
+  <div class="min-h-screen flex items-start justify-center py-16 px-4">
+    <div class="w-full container-max max-w-4xl">
+      <!-- header / welcome (keeps same minimal feel as screenshot) -->
+      <div class="flex justify-between items-center mb-8">
+        <div class="text-sm text-gray-500">Home / <span class="text-gray-900 font-medium">My Account</span></div>
+        <div class="text-sm text-gray-500">Welcome! <span class="font-medium">Customer Name</span></div>
+      </div>
+
+      <!-- main white card -->
+      <section class="bg-white rounded-lg card-shadow p-8 md:p-10">
+        <h2 class="text-base md:text-lg font-medium mb-6">Here you can manage your addresses</h2>
+
+        <!-- addresses stack -->
+        <div class="space-y-5">
+          <!-- Address item -->
+          <article class="relative fine-border rounded-lg p-4 md:p-5 bg-white">
+            <div class="label-top-right">Primary</div>
+
+            <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
+              <div class="md:col-span-4 text-sm text-gray-800 leading-tight">
+                <div class="font-medium">Name, House</div>
+                <div>Place, Kerala</div>
+                <div>689201</div>
+                <div class="mt-2">Contact : +91 98765 86265</div>
+              </div>
+
+              <!-- action buttons column -->
+              <div class="md:col-span-2 flex items-end md:items-center justify-start md:justify-end">
+                <div class="flex gap-3">
+                  <button type="button" class="btn-small bg-black text-white shadow-sm">Edit</button>
+                  <button type="button" class="btn-small bg-gray-200 text-gray-800">Delete</button>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- second item -->
+          <article class="relative fine-border rounded-lg p-4 md:p-5 bg-white">
+            <div class="label-top-right">set as primary</div>
+
+            <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
+              <div class="md:col-span-4 text-sm text-gray-800 leading-tight">
+                <div class="fo

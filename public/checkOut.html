@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Checkout — Billing Details</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'ui-sans-serif', 'system-ui']
+            }
+          }
+        }
+      }
+    </script>
+
+    <style>
+      body { background: #ffffff; }
+    </style>
+  </head>
+  <body class="antialiased text-gray-800 font-sans">
+
+    <div class="max-w-7xl mx-auto px-6 py-12">
+
+      <div class="text-sm text-gray-500 mb-6">Account / Product / View Cart / <span class="text-gray-900 font-medium">CheckOut</span></div>
+
+      <h1 class="text-3xl md:text-4xl font-semibold mb-8">Billing Details</h1>
+
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+
+        <div class="md:col-span-7">
+          <section class="bg-white border border-gray-200 rounded-lg p-6">
+            <h2 class="text-lg font-medium mb-4">Delivery Address</h2>
+
+            <div class="space-y-4">
+              <label class="block relative rounded-md border-2 border-gray-300  p-4">
+                <input type="radio" name="address" checked class="absolute right-4 top-4 h-4 w-4 text-blue-600" />
+                <p class="text-sm leading-relaxed text-gray-800">
+                  <strong class="block">Name, House</strong>
+                  Place, Kerala<br>
+                  689201<br>
+                  <span class="text-sm text-gray-700">Contact : +91 98765 86265</span>
+                </p>
+              </label>
+
+              <label class="block rounded-md border border-gray-300 p-4 relative">
+                <input type="radio" name="address" class="absolute right-4 top-4 h-4 w-4 text-blue-600" />
+                <p class="text-sm leading-relaxed text-gray-800">
+                  <strong class="block">Name, House</strong>
+                  Place, Kerala<br>
+                  689201<br>
+                  <span class="text-sm text-gray-700">Contact : +91 98765 86265</span>
+                </p>
+              </label>
+
+              <div class="pt-2">
+                <button id="openModal" class="bg-black text-white px-5 py-3 rounded-md shadow-sm">Add New Address</button>
+              </div>
+            </div>
+          </section>
+
+          <section class="mt-8 bg-white border border-gray-200 rounded-lg p-6">
+            <h3 class="text-lg font-medium mb-4">Payment Methods</h3>
+            <p class="text-sm text-gray-500 mb-4">Select any payment methods</p>
+
+            <fieldset class="space-y-4">
+              <label class="flex items-center gap-3">
+                <input type="radio" name="payment" class="h-4 w-4 text-blue-600" />
+                <span class="text-sm">Debit Card / Credit Card</span>
+                <div class="ml-4 flex items-center gap-2">
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png" alt="visa" class="h-4"/>
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png" alt="mc" class="h-4"/>
+                </div>
+              </label>
+
+              <label class="flex items-center gap-3">
+                <input type="radio" name="payment" class="h-4 w-4 text-blue-600" />
+                <span class="text-sm">Bank</span>
+              </label>
+
+              <label class="flex items-center gap-3">
+                <input type="radio" name="payment" class="h-4 w-4 text-blue-600" />
+                <span class="text-sm">UPI Method</span>
+              </label>
+
+              <label class="flex items-center gap-3">
+                <input type="radio" name="payment" class="h-4 w-4 text-blue-600" />
+                <span class="text-sm">Cash on delivery</span>
+              </label>
+            </fieldset>
+          </section>
+        </div>
+
+        <aside class="md:col-span-5">
+          <div class="bg-white border border-gray-200 rounded-lg p-6">
+            <ul class="divide-y divide-gray-200">
+              <li class="flex items-center py-4">
+                <img src="https://via.placeholder.com/72" alt="product" class="w-16 h-16 object-cover rounded" />
+                <div class="flex-1 ml-4">
+                  <div class="text-sm font-medium">Deadpool figurine</div>
+                </div>
+                <div class="text-sm">₹3,499</div>
+              </li>
+              <li class="flex items-center py-4">
+                <img src="https://via.placeholder.com/72" alt="product" class="w-16 h-16 object-cover rounded" />
+                <div class="flex-1 ml-4">
+                  <div class="text-sm font-medium">Knitted polo top white</div>
+                </div>
+                <div class="text-sm">₹3,150</div>
+              </li>
+              <li class="flex items-center py-4">
+                <img src="https://via.placeholder.com/72" alt="product" class="w-16 h-16 object-cover rounded" />
+                <div class="flex-1 ml-4">
+                  <div class="text-sm font-medium">Lymio Casual Shirt</div>
+                </div>
+                <div class="text-sm">₹3,599</div>
+              </li>
+            </ul>
+
+            <div class="mt-6 border-t border-gray-200 pt-4">
+              <div class="flex justify-between text-sm text-gray-700 mb-2">
+                <span>Subtotal:</span>
+                <span class="font-medium">₹10,248</span>
+              </div>
+              <div class="flex justify-between text-sm text-gray-700 mb-4">
+                <span>Shipping:</span>
+                <span class="font-medium">Free</span>
+              </div>
+              <div class="flex justify-between items-center text-base md:text-lg font-semibold mb-4">
+                <span>Total:</span>
+                <span>₹10,248</span>
+              </div>
+              <div class="flex gap-3 mb-4">
+                <input type="text" placeholder="Coupon Code" class="flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-gray-300" />
+                <button class="bg-black text-white px-4 py-2 rounded">Apply Coupon</button>
+              </div>
+              <button class="w-full bg-black text-white py-3 rounded">Place Order</button>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="hidden fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg w-full max-w-2xl p-6 shadow-xl relative">
+        <div class="flex justify-between items-center mb-4 border-b pb-2">
+          <h2 class="text-lg font-semibold text-purple-700">Add New Address</h2>
+          <span class="text-sm text-gray-500">Personal Information</span>
+        </div>
+
+        <form class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+          <div>
+            <label class="block text-gray-700 mb-1">First Name</label>
+            <input type="text" placeholder="Firstname" class="w-full border border-gray-300 rounded px-3 py-2 focus:ring-1 focus:ring-gray-400" />
+          </div>
+          <div>
+            <label class="block text-gray-700 mb-1">Last Name</label>
+            <input type="text" placeholder="Lastname" class="w-full border border-gray-300 rounded px-3 py-2 focus:ring-1 focus:ring-gray-400" />
+          </div>
+          <div>
+            <label class="block text-gray-700 mb-1">Email</label>
+            <input type="email" placeholder="example@gmail.com" class="w-full border border-gray-300 rounded px-3 py-2 focus:ring-1 focus:ring-gray-400" />
+          </div>
+          <div>
+            <label class="block text-gray-700 mb-1">Phone</label>
+            <input type="tel" placeholder="+91 12345 67890" class="w-full border border-gray-300 rounded px-3 py-2 focus:ring-1 focus:ring-gray-400" />
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-gray-700 mb-1">Address</label>
+            <input type="text" placeholder="House Name, House Number, Locality" class="w-full border border-gray-300 rounded px-3 py-2 focus:ring-1 focus:ring-gray-400" />
+          </div>
+          <div>
+            <label class="block text-gray-700 mb-1">District / Town</label>
+            <input type="text" placeholder="eg: Ernakulam" class="w-full border border-gray-300 rounded px-3 py-2 focus:ring-1 focus:ring-gray-400" />
+          </div>
+          <div>
+            <label class="block text-gray-700 mb-1">State</label>
+            <input type="text" placeholder="eg: Kerala" class="w-full border border-gray-300 rounded px-3 py-2 focus:ring-1 focus:ring-gray-400" />
+          </div>
+          <div>
+            <label class="block text-gray-700 mb-1">Landmark (optional)</label>
+            <input type="text" placeholder="eg: Hospital" class="w-full border border-gray-300 rounded px-3 py-2 focus:ring-1 focus:ring-gray-400" />
+          </div>
+          <div>
+            <label class="block text-gray-700 mb-1">Pin Code</label>
+            <input type="text" placeholder="eg: 689230" class="w-full border border-gray-300 rounded px-3 py-2 focus:ring-1 focus:ring-gray-400" />
+          </div>
+
+          <div class="md:col-span-2">
+            <label class="block text-gray-700 mb-1">Address Type</label>
+            <div class="flex gap-4">
+              <label class="flex items-center gap-2">
+                <input type="radio" name="type" class="text-blue-600" /> Home
+              </label>
+              <label class="flex items-center gap-2">
+                <input type="radio" name="type" class="text-blue-600" /> Work
+              </label>
+            </div>
+          </div>
+
+          <div class="md:col-span-2 flex justify-end gap-3 mt-4">
+            <button type="button" id="closeModal" class="bg-green-200 text-gray-800 px-5 py-2 rounded">Cancel</button>
+            <button type="submit" class="bg-black text-white px-5 py-2 rounded">Add Address</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      const modal = document.getElementById('modal');
+      const openModal = document.getElementById('openModal');
+      const closeModal = document.getElementById('closeModal');
+      openModal.addEventListener('click', () => modal.classList.remove('hidden'));
+      closeModal.addEventListener('click', () => modal.classList.add('hidden'));
+      window.addEventListener('click', (e) => { if(e.target === modal) modal.classList.add('hidden'); });
+    </script>
+
+  </body>
+</html>

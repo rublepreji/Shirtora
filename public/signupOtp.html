@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enter the OTP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #ffffff;
+            /* Ensure body takes up full height to allow centering */
+            min-height: 100vh; 
+        }
+        /* Custom styling for the thin, bottom-line inputs */
+        .input-line {
+            border: none;
+            border-bottom: 1px solid #000000; /* Thin black line */
+            padding-bottom: 0.5rem;
+            outline: none;
+            transition: border-color 0.2s;
+            background-color: transparent; /* Ensure no background color interferes */
+        }
+        .input-line:focus {
+            border-bottom-color: #000000;
+        }
+    </style>
+</head>
+<!-- The body class ensures the content is centered horizontally and vertically -->
+<body class="flex items-center justify-center p-4">
+
+    <!-- Centered Container matching the screenshot width -->
+    <!-- Removed top padding (pt-*) to allow perfect vertical centering -->
+    <div class="w-full max-w-xl mx-auto border-solid">
+
+        <!-- Title Section -->
+        <h1 class="text-3xl sm:text-4xl font-normal text-black mb-4">Enter the OTP</h1>
+        <p class="text-gray-600 mb-12">The OTP has sent to your registered email</p>
+
+        <form class="space-y-8">
+            
+            <!-- OTP Input and Resend Button Group -->
+            <div class="flex items-center space-x-4 max-w-md">
+                <div class="flex-grow">
+                    <!-- The input field replicates the bottom-line look -->
+                    <label for="otp" class="text-sm text-gray-600 block mb-1">Enter the otp</label>
+                    <input 
+                        type="text" 
+                        id="otp" 
+                        placeholder="" 
+                        class="input-line w-full text-lg focus:outline-none" 
+                        maxlength="6"
+                        required
+                    />
+                </div>
+                
+                <!-- Resend OTP Button -->
+                <button type="button" id="resend-button" class="flex-shrink-0 px-6 py-2 text-white bg-black hover:bg-gray-800 font-medium rounded-md transition duration-200">
+                    Resend OTP
+                </button>
+            </div>
+
+            <!-- Timer/Countdown Display -->
+            <div class="text-red-600 font-medium text-sm -mt-2" id="timer">
+                0 : 57 seconds remaining
+            </div>
+
+            <!-- Verification Button Group -->
+            <div class="flex justify-between items-center pt-8 max-w-md">
+                <!-- Go back link -->
+                <a href="#" class="text-black text-lg hover:underline transition duration-200">Go back</a>
+
+                <!-- Verify Button -->
+                <button type="submit" class="px-10 py-3 text-white bg-black hover:bg-gray-800 font-medium rounded-md transition duration-200">
+                    Verify
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Simple JavaScript for the Timer (Optional but good for completeness) -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const timerDisplay = document.getElementById('timer');
+            const resendButton = document.getElementById('resend-button');
+            let timeLeft = 57; // Start timer at 57 seconds as per the screenshot
+
+            function updateTimer() {
+                if (timeLeft <= 0) {
+                    timerDisplay.textContent = 'OTP Expired. Resend available.';
+                    resendButton.disabled = false; // Enable resend
+                    clearInterval(timerInterval);
+                    return;
+                }
+                
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timerDisplay.textContent = `${minutes}: ${seconds < 10 ? '0' : ''}${seconds} seconds remaining`;
+                timeLeft--;
+            }
+
+            // Initial call and set interval
+            updateTimer();
+            let timerInterval = setInterval(updateTimer, 1000);
+
+            // Handle Resend button click
+            resendButton.addEventListener('click', () => {
+                // Mock resend logic
+                resendButton.disabled = true;
+                timeLeft = 59; // Reset timer to 59 seconds
+                timerDisplay.classList.remove('text-red-600');
+                timerDisplay.classList.add('text-gray-600');
+                clearInterval(timerInterval);
+                timerInterval = setInterval(updateTimer, 1000);
+                timerDisplay.textContent = `0: ${timeLeft} seconds remaining`;
+                setTimeout(() => {
+                    timerDisplay.classList.add('text-red-600');
+                    timerDisplay.classList.remove('text-gray-600');
+                }, 1000);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,152 @@
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Available Coupons</title>
+        <!-- Include Tailwind CSS -->
+        <script src="https://cdn.tailwindcss.com"></script>
+        <style>
+            /* Custom font family setting for a cleaner look */
+            body {
+                font-family: 'Inter', sans-serif;
+            }
+
+            /* Custom border styling to match the thin, black line in the image */
+            .coupon-border {
+                border: 1px solid #000;
+            }
+        </style>
+    </head>
+    <body class="bg-white min-h-screen">
+
+        <div class="container mx-auto p-4 sm:p-8 max-w-4xl">
+
+            <!-- Header -->
+            <div class="flex justify-end mb-8">
+                <p class="text-black text-sm sm:text-base font-normal">
+                    Welcome! Customer Name
+                </p>
+            </div>
+
+            <!-- Title -->
+            <h1 class="text-2xl font-bold text-gray-800 mb-8 sm:mb-10">
+                Available Coupons
+            </h1>
+
+            <!-- Coupon List Container -->
+            <div class="space-y-4">
+                <!-- Coupon Card Component -->
+                <div class="coupon-border rounded-lg p-4 sm:p-6 flex flex-col md:flex-row justify-between items-start md:items-center">
+                    <!-- Left Side: Offer Details -->
+                    <div class="mb-4 md:mb-0 w-full md:w-auto">
+                        <!-- Main Offer Title -->
+                        <p class="text-lg font-bold uppercase text-black mb-1">
+                            EXTRA 10% OFF
+                        </p>
+                        <!-- Small Offer Description -->
+                        <p class="text-sm font-normal text-gray-700">
+                            Extra 10 % Off ( Valid till : 11:59 PM, 25 Feb)
+                        </p>
+                    </div>
+
+                    <!-- Right Side: Code and Expiry -->
+                    <div class="flex flex-col items-start md:items-end space-y-2 text-right">
+                        <!-- Expiration Date -->
+                        <p class="text-sm font-normal text-gray-700 whitespace-nowrap">
+                            Valid till 25 Feb, 2025
+                        </p>
+                        <!-- Coupon Code & Description (Bold code) -->
+                        <p class="text-sm font-normal text-black whitespace-nowrap">
+                            <span class="font-bold">SAVE10</span> - 10% off on your first purchase
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Coupon Card Component 2 (Different title/description) -->
+                <div class="coupon-border rounded-lg p-4 sm:p-6 flex flex-col md:flex-row justify-between items-start md:items-center">
+                    <!-- Left Side: Offer Details -->
+                    <div class="mb-4 md:mb-0 w-full md:w-auto">
+                        <!-- Main Offer Title -->
+                        <p class="text-lg font-bold uppercase text-black mb-1">
+                            BBD / SPL - PD 50% OFF
+                        </p>
+                        <!-- Small Offer Description -->
+                        <p class="text-sm font-normal text-gray-700">
+                            BBD / SPL - Progressive Offer ( Valid till : 11:59 PM, 20 Feb)
+                        </p>
+                    </div>
+
+                    <!-- Right Side: Code and Expiry -->
+                    <div class="flex flex-col items-start md:items-end space-y-2 text-right">
+                        <!-- Expiration Date -->
+                        <p class="text-sm font-normal text-gray-700 whitespace-nowrap">
+                            Valid till 20 Feb, 2025
+                        </p>
+                        <!-- Coupon Code & Description (Bold code) -->
+                        <p class="text-sm font-normal text-black whitespace-nowrap">
+                            <span class="font-bold">WELCOME20</span> - 20% off for new users
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Coupon Card Component 3 -->
+                <div class="coupon-border rounded-lg p-4 sm:p-6 flex flex-col md:flex-row justify-between items-start md:items-center">
+                    <!-- Left Side: Offer Details -->
+                    <div class="mb-4 md:mb-0 w-full md:w-auto">
+                        <!-- Main Offer Title -->
+                        <p class="text-lg font-bold uppercase text-black mb-1">
+                            EXTRA 10% OFF
+                        </p>
+                        <!-- Small Offer Description -->
+                        <p class="text-sm font-normal text-gray-700">
+                            Extra 10 % Off ( Valid till : 11:59 PM, 13 Feb)
+                        </p>
+                    </div>
+
+                    <!-- Right Side: Code and Expiry -->
+                    <div class="flex flex-col items-start md:items-end space-y-2 text-right">
+                        <!-- Expiration Date -->
+                        <p class="text-sm font-normal text-gray-700 whitespace-nowrap">
+                            Valid till 13 Feb, 2025
+                        </p>
+                        <!-- Coupon Code & Description (Bold code) -->
+                        <p class="text-sm font-normal text-black whitespace-nowrap">
+                            <span class="font-bold">SAVE10</span> - 10% off on your first purchase
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Coupon Card Component 4 -->
+                <div class="coupon-border rounded-lg p-4 sm:p-6 flex flex-col md:flex-row justify-between items-start md:items-center">
+                    <!-- Left Side: Offer Details -->
+                    <div class="mb-4 md:mb-0 w-full md:w-auto">
+                        <!-- Main Offer Title -->
+                        <p class="text-lg font-bold uppercase text-black mb-1">
+                            EXTRA 10% OFF
+                        </p>
+                        <!-- Small Offer Description -->
+                        <p class="text-sm font-normal text-gray-700">
+                            Extra 10 % Off ( Valid till : 11:59 PM, 07 Feb)
+                        </p>
+                    </div>
+
+                    <!-- Right Side: Code and Expiry -->
+                    <div class="flex flex-col items-start md:items-end space-y-2 text-right">
+                        <!-- Expiration Date -->
+                        <p class="text-sm font-normal text-gray-700 whitespace-nowrap">
+                            Valid till 07 Feb, 2025
+                        </p>
+                        <!-- Coupon Code & Description (Bold code) -->
+                        <p class="text-sm font-normal text-black whitespace-nowrap">
+                            <span class="font-bold">SAVE10</span> - 10% off on your first purchase
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <!-- End of Coupon List Container -->
+
+        </div>
+
+    </body>
+    </html>

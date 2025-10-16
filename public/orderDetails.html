@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details</title>
+    <!-- Include Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Set Inter font */
+        body {
+            font-family: 'Inter', sans-serif;
+            color: #1f2937;
+        }
+        /* Custom styling for the faint pink background under the order status */
+        .status-bg-faint {
+            background-color: #fce7f3; /* Light pink background */
+        }
+        /* Custom styling for the card border */
+        .card-border {
+            border: 1px solid #e5e7eb; /* Light gray border */
+        }
+        /* Custom style for the large black box icon next to "Just For You" */
+        .black-box {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            background-color: #000;
+            margin-right: 8px;
+            vertical-align: middle;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body class="bg-white min-h-screen">
+
+    <div class="container mx-auto p-4 sm:p-8 max-w-7xl">
+
+        <!-- Top Header and Breadcrumbs -->
+        <div class="flex justify-between items-center mb-8">
+            <!-- Breadcrumbs -->
+            <nav class="text-xs sm:text-sm font-normal text-gray-600 space-x-1">
+                <a href="#" class="hover:underline">Home</a>
+                <span>/</span>
+                <a href="#" class="hover:underline">Account</a>
+                <span>/</span>
+                <a href="#" class="hover:underline">My Orders</a>
+                <span>/</span>
+                <span class="font-medium text-gray-800">Order Details</span>
+            </nav>
+            <!-- Welcome Message -->
+            <p class="text-purple-700 text-sm sm:text-base font-medium whitespace-nowrap">
+                Welcome! Customer Name
+            </p>
+        </div>
+
+        <!-- Order Summary Card -->
+        <div class="card-border rounded-lg p-4 sm:p-6 mb-8">
+            
+            <!-- Order Info Header -->
+            <div class="flex justify-between items-start text-xs sm:text-sm mb-4 border-b border-gray-200 pb-2">
+                <p class="text-gray-600">
+                    Ordered on <span class="font-semibold text-black">15 September 2024</span> | Order#: 401-1650830-858158
+                </p>
+                <p class="uppercase text-black font-semibold border border-black px-2 py-0.5">
+                    Invoice
+                </p>
+            </div>
+
+            <!-- Detail Sections (Shipping, Payment, Summary) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
+
+                <!-- 1. Shipping Address -->
+                <div class="text-gray-700">
+                    <p class="font-semibold text-black mb-2 border-b border-gray-200 pb-1">Shipping Address</p>
+                    <p class="text-xs">Customer Name</p>
+                    <p class="text-xs">House, DoorNo</p>
+                    <p class="text-xs">Road, AreaName</p>
+                    <p class="text-xs">District - Pin Code</p>
+                    <p class="text-xs">Contact number:</p>
+                </div>
+
+                <!-- 2. Payment Method -->
+                <div class="text-gray-700">
+                    <p class="font-semibold text-black mb-2 border-b border-gray-200 pb-1">Payment Method</p>
+                    <p class="text-xs">Cash On Delivery</p>
+                </div>
+
+                <!-- 3. Order Summary -->
+                <div class="text-gray-700">
+                    <p class="font-semibold text-black mb-2 border-b border-gray-200 pb-1">Order Summary</p>
+                    
+                    <div class="grid grid-cols-2 text-xs gap-y-1">
+                        <span class="text-left">Item Total</span>
+                        <span class="text-right">₹348.00</span>
+                        
+                        <span class="text-left">Shipping Charge</span>
+                        <span class="text-right">₹99.00</span>
+                        
+                        <span class="text-left">Tax & Others</span>
+                        <span class="text-right">₹50.00</span>
+                        
+                        <span class="text-left font-bold text-black border-t border-black mt-1 pt-1">Grand Total</span>
+                        <span class="text-right font-bold text-black border-t border-black mt-1 pt-1">₹508.00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Details Section -->
+        <div class="card-border rounded-lg p-4 sm:p-6 mb-12">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center">
+                
+                <!-- Product Image -->
+                <div class="flex-shrink-0 w-32 h-32 mr-6 mb-4 sm:mb-0 rounded-md overflow-hidden card-border">
+                    <!-- Placeholder image to match the product image aspect ratio and style -->
+                    <img src="https://placehold.co/128x128/9d7768/000?text=Brown+Shirt" alt="Brown Shirt" class="w-full h-full object-cover">
+                </div>
+                
+                <!-- Product Info and Actions -->
+                <div class="flex-grow flex flex-col justify-between w-full">
+                    <div class="mb-4">
+                        <p class="text-lg font-semibold text-black">Brown shirt for men</p>
+                        <p class="text-sm text-gray-600">Price: ₹250.00</p>
+                    </div>
+
+                    <!-- Status and Buttons -->
+                    <div class="flex justify-between items-end flex-wrap gap-4">
+                        <!-- Status Badge (Faint Pink background, purple border/text) -->
+                        <div class="flex items-center status-bg-faint p-2 rounded-md border border-purple-300">
+                            <p class="text-sm font-semibold text-purple-700 uppercase">
+                                Status: PROCESSING
+                            </p>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="flex space-x-3">
+                            <button class="px-4 py-2 text-sm font-medium border border-gray-500 text-black rounded-md hover:bg-gray-100 transition duration-150">
+                                Track Order
+                            </button>
+                            <button class="px-4 py-2 text-sm font-medium border border-red-500 text-red-500 rounded-md hover:bg-red-50 transition duration-150">
+                                Cancel Order
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Just For You / Recommendations Section -->
+        <div class="mb-6 flex justify-between items-center">
+            <h2 class="text-xl sm:text-2xl font-bold text-black">
+                <span class="black-box"></span>Just For You
+            </h2>
+            <button class="border border-gray-400 px-4 py-2 text-sm font-medium text-black rounded-md hover:bg-gray-50 transition duration-150">
+                See All
+            </button>
+        </div>
+
+        <!-- Recommendation Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
+            
+            <!-- Recommendation Item 1: Henley T-Shirt (Yellow) -->
+            <div class="flex flex-col items-center text-center">
+                <img src="https://placehold.co/200x250/dbe878/000?text=Yellow+T-Shirt" alt="Henley T-Shirt" class="w-full h-auto object-cover mb-2 rounded-md card-border">
+                <p class="text-sm font-semibold mb-1">Henley T-Shirt</p>
+                <div class="flex items-center text-xs space-x-1 mb-1">
+                    <span class="text-black font-bold">₹7,499</span>
+                    <span class="line-through text-gray-500">₹8,000</span>
+                </div>
+                <div class="text-yellow-500 text-xs">★★★★☆</div>
+            </div>
+
+            <!-- Recommendation Item 2: Short Sleeve Performance (Orange) -->
+            <div class="flex flex-col items-center text-center">
+                <img src="https://placehold.co/200x250/f08e40/000?text=Orange+T-Shirt" alt="Short Sleeve Performance" class="w-full h-auto object-cover mb-2 rounded-md card-border">
+                <p class="text-sm font-semibold mb-1">Short Sleeve Performance</p>
+                <div class="flex items-center text-xs space-x-1 mb-1">
+                    <span class="text-black font-bold">₹4,499</span>
+                    <span class="line-through text-gray-500">₹5,499</span>
+                </div>
+                <div class="text-yellow-500 text-xs">★★★★☆</div>
+            </div>
+
+            <!-- Recommendation Item 3: Lymio Casual Shirt (White/Pattern) -->
+            <div class="flex flex-col items-center text-center">
+                <img src="https://placehold.co/200x250/ffffff/000?text=Patterned+Shirt" alt="Lymio Casual Shirt" class="w-full h-auto object-cover mb-2 rounded-md card-border">
+                <p class="text-sm font-semibold mb-1">Lymio Casual Shirt</p>
+                <div class="flex items-center text-xs space-x-1 mb-1">
+                    <span class="text-black font-bold">₹3,599</span>
+                    <span class="line-through text-gray-500">₹3,999</span>
+                </div>
+                <div class="text-yellow-500 text-xs">★★★★☆</div>
+            </div>
+
+            <!-- Recommendation Item 4: Henley Short Sleeve (Grey) -->
+            <div class="flex flex-col items-center text-center">
+                <img src="https://placehold.co/200x250/8a8a8a/000?text=Grey+T-Shirt" alt="Henley Short Sleeve" class="w-full h-auto object-cover mb-2 rounded-md card-border">
+                <p class="text-sm font-semibold mb-1">Henley Short Sleeve</p>
+                <div class="flex items-center text-xs space-x-1 mb-1">
+                    <span class="text-black font-bold">₹105,167</span>
+                    <span class="line-through text-gray-500">₹1,16,842</span>
+                </div>
+                <div class="text-yellow-500 text-xs">★★★★☆</div>
+            </div>
+
+        </div>
+        <!-- End of Recommendation Grid -->
+
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Orders - UI Mock</title>
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* small extra tweaks to match the screenshot feel */
+        body { background: #fff; }
+        .card-border { border: 1px solid rgba(0,0,0,0.35); }
+        .muted { color: #8b8b8b; }
+        .purple { color: #7b3fbf; }
+        /* Custom styles for the modal overlay and content */
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(2px);
+        }
+    </style>
+</head>
+<body class="antialiased text-gray-800">
+    <div class="max-w-5xl mx-auto px-6 py-12">
+        <!-- top right welcome text -->
+        <div class="flex justify-end mb-6">
+            <div class="text-sm text-gray-700">Welcome! <span class="font-medium">Customer Name</span></div>
+        </div>
+
+        <!-- main white panel -->
+        <div class="bg-white shadow-lg rounded-sm p-8">
+
+            <!-- Orders list -->
+            <div class="space-y-6">
+
+                <!-- Order item (repeatable) - 1: PROCESSING -->
+                <article class="card-border rounded-sm overflow-hidden">
+                    <!-- top summary row -->
+                    <div class="grid grid-cols-3 gap-4 items-center px-4 py-3 text-sm bg-white">
+                        <div class="flex flex-col">
+                            <span class="text-xs text-gray-600">Order Placed</span>
+                            <span class="text-sm font-medium mt-1">6 February 2025</span>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-xs text-gray-600">Total</span>
+                            <span class="text-sm font-medium mt-1">₹289.00</span>
+                        </div>
+                        <div class="flex justify-end items-center space-x-4">
+                            <div class="text-right">
+                                <div class="text-xs text-gray-600">Ship To</div>
+                                <div class="text-sm font-medium">Customer Name</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-200 px-4 py-6 md:flex md:items-start md:space-x-6">
+                        <!-- image -->
+                        <div class="w-28 h-28 flex-shrink-0">
+                            <img src="https://images.unsplash.com/photo-1520975681910-9f61e3f9466d?q=80&w=400&auto=format&fit=crop&crop=faces" alt="product" class="w-full h-full object-cover rounded" />
+                        </div>
+
+                        <!-- details -->
+                        <div class="flex-1 mt-2 md:mt-0">
+                            <h3 class="text-lg font-semibold">Henley Short Sleeve</h3>
+                            <p class="text-sm mt-2">Price : <span class="font-medium">₹4,949.00</span></p>
+                            <p class="text-xs muted mt-2">Return eligible through 21-Feb-2025</p>
+                        </div>
+
+                        <!-- status & actions -->
+                        <div class="mt-4 md:mt-0 md:w-48 md:flex md:flex-col md:items-end md:justify-between">
+                            <div class="text-sm text-right">
+                                <div class="muted">Order # 407-3553833-251990</div>
+                                <div class="mt-3">Status : <span class="font-semibold">PROCESSING</span></div>
+                            </div>
+
+                            <div class="mt-4 md:mt-0 flex items-center space-x-3 justify-end">
+                                <button class="px-3 py-1 text-sm border rounded bg-gray-200 text-gray-700">Cancel Order</button>
+                                <a href="#" class="text-sm underline">Invoice</a>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Order item (repeatable) - 2: DELIVERED (Return button enabled) -->
+                <article class="card-border rounded-sm overflow-hidden">
+                    <div class="grid grid-cols-3 gap-4 items-center px-4 py-3 text-sm bg-white">
+                        <div class="flex flex-col">
+                            <span class="text-xs text-gray-600">Order Placed</span>
+                            <span class="text-sm font-medium mt-1">1 February 2025</span>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-xs text-gray-600">Total</span>
+                            <span class="text-sm font-medium mt-1">₹3,150.00</span>
+                        </div>
+                        <div class="flex justify-end items-center space-x-4">
+                            <div class="text-right">
+                                <div class="text-xs text-gray-600">Ship To</div>
+                                <div class="text-sm font-medium">Customer Name</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-200 px-4 py-6 md:flex md:items-start md:space-x-6">
+                        <div class="w-28 h-28 flex-shrink-0">
+                            <img src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=400&auto=format&fit=crop&crop=faces" alt="product" class="w-full h-full object-cover rounded" />
+                        </div>
+
+                        <div class="flex-1 mt-2 md:mt-0">
+                            <h3 class="text-lg font-semibold">Lymio Casual Shirt for Men</h3>
+                            <p class="text-sm mt-2">Price : <span class="font-medium">₹3,150.00</span></p>
+                            <p class="text-xs muted mt-2">Return eligible through 15-Feb-2025</p>
+                        </div>
+
+                        <div class="mt-4 md:mt-0 md:w-48 md:flex md:flex-col md:items-end md:justify-between">
+                            <div class="text-sm text-right">
+                                <div class="muted">Order # 407-3553833-2519931</div>
+                                <div class="mt-3">Status : <span class="purple font-semibold">DELIVERED</span></div>
+                            </div>
+
+                            <div class="mt-4 md:mt-0 flex items-center space-x-3 justify-end">
+                                <!-- Return button that triggers the modal -->
+                                <button class="px-3 py-1 text-sm border rounded bg-gray-200 text-gray-700 hover:bg-gray-300 transition" onclick="showModal()">Return</button>
+                                <a href="#" class="text-sm underline">Invoice</a>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Order item (repeatable) - 3: DELIVERED -->
+                <article class="card-border rounded-sm overflow-hidden">
+                    <div class="grid grid-cols-3 gap-4 items-center px-4 py-3 text-sm bg-white">
+                        <div class="flex flex-col">
+                            <span class="text-xs text-gray-600">Order Placed</span>
+                            <span class="text-sm font-medium mt-1">29 January 2024</span>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-xs text-gray-600">Total</span>
+                            <span class="text-sm font-medium mt-1">₹3,599.00</span>
+                        </div>
+                        <div class="flex justify-end items-center space-x-4">
+                            <div class="text-right">
+                                <div class="text-xs text-gray-600">Ship To</div>
+                                <div class="text-sm font-medium">Customer Name</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-200 px-4 py-6 md:flex md:items-start md:space-x-6">
+                        <div class="w-28 h-28 flex-shrink-0">
+                            <img src="https://images.unsplash.com/photo-1519741493775-0a9f6f4e7b9c?q=80&w=400&auto=format&fit=crop&crop=faces" alt="product" class="w-full h-full object-cover rounded" />
+                        </div>
+
+                        <div class="flex-1 mt-2 md:mt-0">
+                            <h3 class="text-lg font-semibold">Short Sleeve Performance Pocket T-Shirt</h3>
+                            <p class="text-sm mt-2">Price : <span class="font-medium">₹3,599.00</span></p>
+                            <p class="text-xs muted mt-2">Return eligible through 13-Feb-2025</p>
+                        </div>
+
+                        <div class="mt-4 md:mt-0 md:w-48 md:flex md:flex-col md:items-end md:justify-between">
+                            <div class="text-sm text-right">
+                                <div class="muted">Order # 407-3553833-2518531</div>
+                                <div class="mt-3">Status : <span class="purple font-semibold">DELIVERED</span></div>
+                            </div>
+
+                            <div class="mt-4 md:mt-0 flex items-center space-x-3 justify-end">
+                                <button class="px-3 py-1 text-sm border rounded bg-gray-200 text-gray-700 hover:bg-gray-300 transition" onclick="showModal()">Return</button>
+                                <a href="#" class="text-sm underline">Invoice</a>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Return Reason Modal (Hidden by default) -->
+    <div id="return-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-overlay transition-opacity duration-300" onclick="if(event.target.id === 'return-modal') hideModal()">
+        
+        <!-- Modal Content -->
+        <div class="bg-white rounded-lg shadow-2xl p-6 w-11/12 max-w-sm" onclick="event.stopPropagation()">
+            
+            <!-- Header -->
+            <div class="flex justify-between items-center pb-3 border-b border-gray-200 mb-4">
+                <h3 class="text-lg font-bold text-gray-800">Reason for Return</h3>
+                <button onclick="hideModal()" class="text-gray-500 hover:text-gray-900 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <!-- Input Field -->
+            <div class="mb-6">
+                <textarea id="return-reason" rows="4" class="w-full p-3 border rounded-md focus:ring-1 focus:ring-black focus:border-black transition resize-none text-sm card-border" placeholder="Please explain the reason for your return..."></textarea>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-end space-x-3">
+                <button onclick="hideModal()" class="px-4 py-2 text-sm border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 transition">
+                    Cancel
+                </button>
+                <button onclick="sendReturnReason()" class="px-4 py-2 text-sm font-medium rounded-md bg-black text-white hover:bg-gray-800 transition">
+                    Send
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Function to display the modal
+        function showModal() {
+            const modal = document.getElementById('return-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.style.overflow = 'hidden'; // Prevent scrolling
+        }
+
+        // Function to hide the modal
+        function hideModal() {
+            const modal = document.getElementById('return-modal');
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+            document.body.style.overflow = ''; // Restore scrolling
+        }
+
+        // Function to handle the Send button click
+        function sendReturnReason() {
+            const reason = document.getElementById('return-reason').value;
+            console.log('Return Reason Submitted:', reason);
+            
+            // In a real application, you would send this data to a server.
+            // For now, we'll just log it and hide the modal.
+            
+            // Clear the textarea after submission (optional)
+            document.getElementById('return-reason').value = ''; 
+            
+            hideModal();
+            // You might add a success message here, replacing the alert()
+            console.log("Return request submitted successfully!");
+        }
+    </script>
+</body>
+</html>

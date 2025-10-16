@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>404 Not Found</title>
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for the clean, high-contrast look */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fff;
+            color: #000;
+        }
+        /* Container to center the main content vertically and horizontally */
+        .center-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Top Breadcrumb Section -->
+    <div class="absolute top-0 left-0 pt-8 pl-8 text-sm font-normal text-black">
+        <a href="#" class="hover:underline">Home</a> / 404 Error
+    </div>
+
+    <div class="center-container text-center">
+        
+        <!-- Main Error Code and Title -->
+        <h1 class="text-6xl sm:text-8xl md:text-9xl font-normal tracking-tight mb-10 select-none">
+            404 Not Found
+        </h1>
+
+        <!-- Subtext -->
+        <p class="text-base sm:text-lg font-normal text-gray-700 mb-12 max-w-sm mx-auto">
+            Your visited page not found. You may go home page.
+        </p>
+
+        <!-- Action Button -->
+        <a 
+            href="#" 
+            class="px-8 py-3 text-base font-medium rounded-sm bg-black text-white shadow-lg hover:bg-gray-800 transition duration-200"
+        >
+            Back to home page
+        </a>
+
+    </div>
+
+</body>
+</html>

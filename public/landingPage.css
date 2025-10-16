@@ -1,0 +1,13 @@
+.main-banner{
+    background-image: url(./img/banner-edit.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    width: 70%;
+    margin: auto;
+    padding: 0;
+}
+.banner-text{
+    background-color: oklch(46.345% 0.23837 280.829 / 0);
+    border: none;
+    box-shadow: none;
+}

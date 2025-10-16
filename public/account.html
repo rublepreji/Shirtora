@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Account - My Profile</title>
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .glass-card {
+      background: white;
+      box-shadow: 0 10px 18px rgba(0,0,0,0.08);
+      border-radius: 6px;
+    }
+    .hr-accent {
+      height: 2px;
+      background: linear-gradient(90deg,#111 0%, #111 40%, rgba(0,0,0,0.05) 100%);
+    }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-900 antialiased">
+  <div class="min-h-screen flex">
+    <!-- Left Sidebar (navigation) -->
+    <aside class="w-full max-w-xs bg-transparent p-8 hidden md:block">
+      <nav class="sticky top-8">
+        <div class="flex items-center space-x-4 mb-6">
+          <div class="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">
+            <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 20a6 6 0 0112 0"></path>
+            </svg>
+          </div>
+          <div>
+            <div class="px-3 py-1 rounded bg-gray-200 text-sm text-gray-700">Customer Name</div>
+          </div>
+        </div>
+
+        <ul class="space-y-3 text-sm">
+          <li><button class="w-full text-left px-2 py-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition">My Profile</button></li>
+          <li><button class="w-full text-left px-2 py-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition">Address Book</button></li>
+          <li><button class="w-full text-left px-2 py-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition">My Orders</button></li>
+          <li><button class="w-full text-left px-2 py-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition">My WishList</button></li>
+          <li><button class="w-full text-left px-2 py-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition">Wallet</button></li>
+          <li><button class="w-full text-left px-2 py-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition">Coupons</button></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- Main content -->
+    <main class="flex-1 p-6 md:p-12">
+      <div class="max-w-4xl mx-auto">
+        <div class="flex justify-between items-center mb-6">
+          <div class="text-sm text-gray-500">Home / <span class="text-gray-900 font-medium">My Account</span></div>
+          <div class="text-sm text-gray-500">Welcome! <span class="font-medium">Customer Name</span></div>
+        </div>
+
+        <section class="glass-card p-8 md:p-10">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-semibold">Your Details</h2>
+            <h3 class="text-lg font-medium text-gray-700">Personal Information</h3>
+          </div>
+          <div class="hr-accent mb-8"></div>
+
+          <form class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm text-gray-600 mb-2">First Name</label>
+                <input type="text" placeholder="Mary" class="w-full bg-gray-100 rounded px-4 py-3 outline-none focus:ring-2 focus:ring-gray-200" />
+              </div>
+              <div>
+                <label class="block text-sm text-gray-600 mb-2">Last Name</label>
+                <input type="text" placeholder="Jane" class="w-full bg-gray-100 rounded px-4 py-3 outline-none focus:ring-2 focus:ring-gray-200" />
+              </div>
+
+              <div class="md:col-span-2">
+                <label class="block text-sm text-gray-600 mb-2">Email</label>
+                <input type="email" placeholder="example@gmail.com" class="w-full bg-gray-100 rounded px-4 py-3 outline-none focus:ring-2 focus:ring-gray-200" />
+              </div>
+
+              <div>
+                <label class="block text-sm text-gray-600 mb-2">Phone</label>
+                <input type="tel" placeholder="+91 12345 67890" class="w-full bg-gray-100 rounded px-4 py-3 outline-none focus:ring-2 focus:ring-gray-200" />
+              </div>
+              <div>
+                <label class="block text-sm text-gray-600 mb-2">Date of Birth</label>
+                <input type="date" class="w-full bg-gray-100 rounded px-4 py-3 outline-none focus:ring-2 focus:ring-gray-200" value="2003-09-02" />
+              </div>
+            </div>
+
+            <div class="mt-8 flex flex-wrap gap-6">
+              <button type="button" class="px
+            

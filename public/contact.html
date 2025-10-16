@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - Exclusive</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f8f8; /* Light gray background for contrast */
+            min-height: 100vh;
+        }
+        /* Style for the input fields to match the light gray background */
+        .form-input {
+            /* CHANGED: Updated bg-gray-100 to bg-gray-200 for a slightly darker light grey background */
+            @apply w-full p-4 bg-gray-200 border-none rounded-sm placeholder-gray-500 focus:ring-0 focus:border-black;
+        }
+    </style>
+    <!-- Placeholder SVG for Icons (for phone and envelope) -->
+    <script>
+        function getIcon(name) {
+            const icons = {
+                phone: `<path d="M2 12A10 10 0 1 0 12 2 10 10 0 0 0 2 12zM12 18h-1a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1zm-3-3h6V9H9zM12 8a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>`,
+                mail: `<path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-1 14H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1z"/>`
+            };
+            // Using a simple telephone icon path (or mail path)
+            const svgContent = name === 'mail' ? `<path d="M2.01 5.43l9.96 6.01 9.97-6.01c0.04-0.03 0.04-0.08 0-0.1L12.01 0.43c-0.12-0.07-0.27-0.07-0.39 0L2.01 5.33c-0.04 0.02-0.04 0.07 0 0.1zM2 7v10c0 1.1 0.9 2 2 2h16c1.1 0 2-0.9 2-2V7L12 13 2 7z"/>` : `<path d="M18.8 17.6c-1.1-1-2.4-1.5-3.7-1.5-1.4 0-2.7 0.5-3.7 1.5l-2 2c-0.4 0.4-1 0.4-1.4 0L6 18c-0.4-0.4-0.4-1 0-1.4l2-2c0.4-0.4 0.4-1 0-1.4L4.3 9c-0.4-0.4-1-0.4-1.4 0l-2 2c-0.4 0.4-0.4 1 0 1.4l2 2c0.4 0.4 0.4 1 0 1.4l-2 2c-0.4 0.4-0.4 1 0 1.4l2 2c0.4 0.4 1 0.4 1.4 0l2-2c0.4-0.4 1-0.4 1.4 0l2 2c0.4 0.4 1 0.4 1.4 0l2-2c0.4-0.4 0.4-1 0-1.4l-2-2c-0.4-0.4-0.4-1 0-1.4l2-2c0.4-0.4 1-0.4 1.4 0l2 2c0.4 0.4 0.4 1 0 1.4l-2 2zM12 12c-2.8 0-5 2.2-5 5s2.2 5 5 5 5-2.2 5-5-2.2-5-5-5z"/>`;
+            
+            return `<svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">${svgContent}</svg>`;
+        }
+    </script>
+</head>
+<body class="p-4 sm:p-10 lg:p-20">
+
+    <div class="max-w-7xl mx-auto">
+        
+        <!-- Breadcrumbs -->
+        <div class="mb-16 text-sm text-gray-500">
+            <a href="#" class="hover:text-black">Home</a> /
+            <span class="font-medium text-gray-700">Contact</span>
+        </div>
+
+        <!-- Main Content Grid (Contact Info on Left, Form on Right) -->
+        <!-- Flex on mobile, 2-column grid on desktop -->
+        <div class="flex flex-col lg:flex-row gap-8 lg:gap-16">
+
+            <!-- Left Panel: Contact Information Card -->
+            <div class="w-full lg:w-1/3 p-8 bg-white rounded-lg shadow-md border border-gray-100">
+                <div class="space-y-10">
+                    
+                    <!-- Call To Us Section -->
+                    <div>
+                        <div class="flex items-center space-x-4 mb-4">
+                            <!-- Phone Icon -->
+                            <div class="text-black" id="phone-icon">
+                                <script>document.getElementById('phone-icon').innerHTML = getIcon('phone');</script>
+                            </div>
+                            <h2 class="text-xl font-medium text-black">Call To Us</h2>
+                        </div>
+                        
+                        <p class="text-sm text-gray-600 mb-2">We are available 24/7, 7 days a week.</p>
+                        <p class="text-sm text-gray-600">Phone: +8801611112222</p>
+                        
+                        <!-- Divider Line -->
+                        <div class="border-t border-gray-300 my-6"></div>
+                    </div>
+                    
+                    <!-- Write To Us Section -->
+                    <div>
+                        <div class="flex items-center space-x-4 mb-4">
+                            <!-- Mail Icon -->
+                            <div class="text-black" id="mail-icon">
+                                <script>document.getElementById('mail-icon').innerHTML = getIcon('mail');</script>
+                            </div>
+                            <h2 class="text-xl font-medium text-black">Write To US</h2>
+                        </div>
+
+                        <p class="text-sm text-gray-600 mb-4">Fill out our form and we will contact you within 24 hours.</p>
+                        
+                        <p class="text-sm text-gray-600">Emails: customer@exclusive.com</p>
+                        <p class="text-sm text-gray-600">Emails: support@exclusive.com</p>
+                    </div>
+                    
+                </div>
+            </div>
+
+            <!-- Right Panel: Contact Form -->
+            <div class="w-full lg:w-2/3 p-8 bg-white rounded-lg shadow-md border border-gray-100">
+                <form class="space-y-6">
+                    
+                    <!-- Top Row: Name, Email, Phone (3 columns on desktop, stack on mobile) -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <input class="bg-gray-100" type="text" placeholder="Your Name *" required class="form-input">
+                        <input class="bg-gray-100" type="email" placeholder="Your Email *" required class="form-input">
+                        <input class="bg-gray-100" type="tel" placeholder="Your Phone *" class="form-input">
+                    </div>
+
+                    <!-- Message Area -->
+                    <div>
+                        <textarea placeholder="Your Message" rows="8" class="form-input resize-none bg-gray-100 w-full"></textarea>
+                    </div>
+
+                    <!-- Submit Button (Aligned to the right) -->
+                    <div class="flex justify-end">
+                        <button type="submit" class="bg-black text-white font-medium py-3 px-8 rounded-sm hover:bg-gray-800 transition duration-200 shadow-lg">
+                            Send Message
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>
