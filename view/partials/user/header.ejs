@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Shirtora Header (Tailwind Responsive)</title>
+
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+      integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+  </head>
+
+  <body class="font-sans">
+    <header>
+      <!-- Top Bar -->
+      <div
+        class="bg-black text-white text-sm flex flex-col md:flex-row justify-between items-center py-2 px-5 text-center gap-2 md:gap-0"
+      >
+        <p class="font-normal">
+          Summer Sale For All merch And Free Express Delivery - OFF 10%!
+          <a href="#" class="underline ml-1 cursor-pointer">ShopNow</a>
+        </p>
+        <div class="flex items-center gap-1 cursor-pointer select-none">
+          <span>English</span>
+          <span class="text-xs">&#9662;</span>
+        </div>
+      </div>
+
+      <!-- Navigation Bar -->
+      <nav class="bg-white shadow-sm">
+        <div
+          class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center py-4"
+        >
+          <!-- Logo -->
+          <div class="flex-shrink-0">
+            <img src="./img/Logo.png" alt="Shirtora Logo" class="h-12 w-auto" />
+          </div>
+
+          <!-- Desktop Nav Links -->
+          <div class="hidden md:flex gap-6">
+            <a
+              href="#"
+              class="text-black font-medium text-base border-b-2 border-transparent hover:border-black pb-1 transition-all"
+              >Home</a
+            >
+            <a
+              href="#"
+              class="text-black font-medium text-base border-b-2 border-transparent hover:border-black pb-1 transition-all"
+              >Contact</a
+            >
+            <a
+              href="#"
+              class="text-black font-medium text-base border-b-2 border-transparent hover:border-black pb-1 transition-all"
+              >About</a
+            >
+            <a
+              href="#"
+              class="text-black font-medium text-base border-b-2 border-transparent hover:border-black pb-1 transition-all"
+              >Sign Up</a
+            >
+          </div>
+
+          <!-- Search + Icons (hidden on very small screens) -->
+          <div class="hidden md:flex items-center gap-3">
+            <div class="relative">
+              <input
+                type="text"
+                placeholder="What are you looking for?"
+                class="border border-gray-300 bg-gray-100 text-sm px-3 py-2 w-56 rounded outline-none"
+              />
+              <i
+                class="fa-solid fa-magnifying-glass absolute top-2.5 right-3 text-gray-600 text-base"
+              ></i>
+            </div>
+
+            <i
+              class="fa-regular fa-heart text-xl text-gray-700 hover:text-black cursor-pointer transition"
+            ></i>
+
+            <button
+              class="text-xl text-gray-700 hover:text-black cursor-pointer transition"
+            >
+              🛒
+            </button>
+          </div>
+
+          <!-- Mobile Menu Button -->
+          <button
+            id="menu-btn"
+            class="md:hidden text-2xl text-gray-700 focus:outline-none"
+          >
+            <i class="fa-solid fa-bars"></i>
+          </button>
+        </div>
+
+        <!-- Mobile Dropdown Menu -->
+        <div id="mobile-menu" class="hidden md:hidden flex flex-col items-center gap-4 pb-4">
+          <a href="#" class="text-black font-medium hover:text-gray-700">Home</a>
+          <a href="#" class="text-black font-medium hover:text-gray-700">Contact</a>
+          <a href="#" class="text-black font-medium hover:text-gray-700">About</a>
+          <a href="#" class="text-black font-medium hover:text-gray-700">Sign Up</a>
+
+          <!-- Mobile Search -->
+          <div class="relative w-4/5">
+            <input
+              type="text"
+              placeholder="Search..."
+              class="border border-gray-300 bg-gray-100 text-sm px-3 py-2 w-full rounded outline-none"
+            />
+            <i
+              class="fa-solid fa-magnifying-glass absolute top-2.5 right-3 text-gray-600 text-base"
+            ></i>
+          </div>
+
+          <div class="flex gap-6">
+            <i
+              class="fa-regular fa-heart text-xl text-gray-700 hover:text-black cursor-pointer transition"
+            ></i>
+            <button
+              class="text-xl text-gray-700 hover:text-black cursor-pointer transition"
+            >
+              🛒
+            </button>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <!-- Script for mobile toggle -->
+    <script>
+      const menuBtn = document.getElementById("menu-btn");
+      const mobileMenu = document.getElementById("mobile-menu");
+
+      menuBtn.addEventListener("click", () => {
+        mobileMenu.classList.toggle("hidden");
+      });
+    </script>
+  </body>
+</html>
