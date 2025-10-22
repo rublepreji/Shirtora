@@ -22,7 +22,7 @@ let userSchema=new mongoose.Schema({
     },
     googleId:{
         type:String,
-        unique:true
+        // unique:true
     },
     password:{
         type:String,
@@ -30,27 +30,27 @@ let userSchema=new mongoose.Schema({
     },
     isBlocked:{
         type:Boolean,
-        default:false 
+        // default:false 
     },
     isAdmin:{
         type:Boolean,
         default:false
     },
     cart:[{
-        type:Schema.Types.ObjectId,
-        ref:"Cart"
+        // type:Schema.Types.ObjectId,
+        // ref:"Cart"
     }],
     wallet:[{
-        type:Schema.Types.ObjectId,
-        ref:"wallet"
+        // type:Schema.Types.ObjectId,
+        // ref:"wallet"
     }],
     orderHistory:[{
-        type:Schema.Types.ObjectId,
-        ref:"order"
+        // type:Schema.Types.ObjectId,
+        // ref:"order"
     }],
     createOn:{
         type:Date,
-        default:Date.now
+        // default:Date.now
     },
     referralCode:{
         type:String
@@ -59,13 +59,13 @@ let userSchema=new mongoose.Schema({
         type:Boolean
     },
     redeemedUsers:[{
-        type:Schema.Types.ObjectId,
-        ref:"User"
+        // type:Schema.Types.ObjectId,
+        // ref:"User"
     }],
     searchHistory:[{
         category:{
-            type: Schema.Types.ObjectId,
-            ref:"category"
+            // type: Schema.Types.ObjectId,
+            // ref:"category"
         },
         brand:{
             type:String
@@ -77,5 +77,5 @@ let userSchema=new mongoose.Schema({
     }]
 })
 
-const User= mongoose.model('User',userSchema)
+const User= mongoose.model('users',userSchema)
 module.exports=User

@@ -1,13 +1,24 @@
 require('dotenv').config()
-let express=require('express')
-let app=express()
-let db=require('./config/db')
-let path=require('path')
-let userRoute=require('./routes/userRouter')
+const express=require('express')
+const app=express() 
+const session= require('express-session')  
+const db=require('./config/db')
+const path=require('path')
+const userRoute=require('./routes/userRouter')
 
 
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
+app.use(session({
+    secret:process.env.sessionSecret,
+    resave:false,
+    saveUninitialized:true,
+    cookie:{
+        secure:false,
+        httpOnly:true,
+        maxAge:72*60*60*100
+    }
+}))
 
 app.set("view engine","ejs")
 app.set('views',[path.join(__dirname,"view/user"),path.join(__dirname,"view/admin")])
