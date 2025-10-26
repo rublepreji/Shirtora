@@ -39,13 +39,16 @@
             font-size: 0.875rem; /* sm text size */
             color: #4b5563; /* gray-600 */
             pointer-events: none;
-            transition: all 0.2s;
+            transition: all 0.2s;   
         }
         .input-line:not(:placeholder-shown) + label,
         .input-line:focus + label {
             top: 0.25rem; /* Move label up when input is focused or filled */
             font-size: 0.75rem; /* xs text size */
             color: #1f2937; /* dark text when active */
+        }
+        .errorDisplay{
+            color: rgb(214, 0, 0);
         }
     </style>
 </head>
@@ -78,20 +81,26 @@
                     <h1 class="text-3xl sm:text-4xl font-semibold text-gray-900 mb-2">Log in to Exclusive</h1>
                     <p class="text-gray-600 mb-8">Enter your details below</p>
 
-                    <form class="space-y-4">
+                    <form class="space-y-4" action="/signin" method="post" id="loginForm" novalidate>
 
                         <!-- Email Input with Custom Label/Placeholder effect -->
                         <div class="input-container">
-                            <input type="email" id="email" placeholder="Email" class="input-line w-full" required>
+                            <input type="email" id="email" name="email" placeholder="Email" class="input-line w-full" >
                             <label for="email">Email</label>
                         </div>
+                        <div class="errorDisplay" id="emailError"></div>
                         
                         <!-- Password Input with Custom Label/Placeholder effect -->
                         <div class="input-container">
-                            <input type="password" id="password" placeholder="Password" class="input-line w-full" required>
+                            <input type="password" id="password" name="password" placeholder="Password" class="input-line w-full" required>
                             <label for="password">Password</label>
                         </div>
-
+                        <div class="errorDisplay" id="passwordError"></div>
+                        <%if(locals.message && message.length>0){%>
+                        <div class="errorDisplay">
+                            <%=message%>
+                        </div>
+                        <%}%>
                         <!-- Forgot Password Link -->
                         <div class="text-right pt-2">
                             <a href="#" class="text-red-500 text-sm font-medium hover:underline">Forget Password?</a>
@@ -104,7 +113,7 @@
                     </form>
 
                     <!-- Sign in with Google Button -->
-                    <button class="w-full py-3 border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 font-medium rounded-md transition duration-200 flex items-center justify-center space-x-2 shadow-sm mt-4">
+                    <a href="/auth/google" class="w-full py-3 border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 font-medium rounded-md transition duration-200 flex items-center justify-center space-x-2 shadow-sm mt-4">
                         <!-- Google Icon SVG -->
                         <svg class="w-5 h-5" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
                             <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,7.917-11.303,7.917c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,19.044-8.136,19.044-19.957C43.644,21.187,43.63,20.623,43.611,20.083z"/>
@@ -113,17 +122,59 @@
                             <path fill="#1976D2" d="M24,8c3.018,0,5.656,1.064,7.77,3.181l4.242-4.242C33.195,5.807,29.351,4,24,4C16.921,4,10.873,6.883,6.306,11.691l4.242,4.242C12.435,13.644,15.938,12,24,12c4.046,0,7.742,1.383,10.609,3.904l-2.73,1.677c-1.223-2.553-3.818-4.356-6.864-4.356c-3.059,0-5.842,1.154-7.961,3.039l-5.657-5.657C14.046,6.053,18.824,4,24,4z"/>
                         </svg>
                         <span>Sign in with Google</span>
-                    </button>
+                    </a>
                     
                     <!-- Sign Up Link -->
                     <p class="text-center text-gray-600 mt-8">
                         Don't have account? 
-                        <a href="#" class="text-black font-medium hover:underline ml-1">Sign Up</a>
+                        <a href="/signup" class="text-black font-medium hover:underline ml-1">Sign Up</a>
                     </p>
                 </div>
             </div>
 
         </div>
     </div>
+
+    <script>
+        const loginForm= document.getElementById('loginForm')
+        const email= document.getElementById('email')
+        const password= document.getElementById('password')
+        const emailError= document.getElementById('emailError')
+        const passwordError= document.getElementById('passwordError')
+
+        function verifyEmail(){
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const emailVal= email.value
+            if(emailVal.trim()==""){
+                emailError.style.display='block'
+                emailError.innerHTML='Email is required'
+                return false
+            }else if(!emailPattern.test(emailVal)){
+                emailError.style.display='block'
+                emailError.innerHTML='Email format is not proper'
+                return false
+            }
+            return true
+        }
+        function verifyPassword(){
+            if(password.value.trim()==""){
+                passwordError.style.display='block'
+                passwordError.innerHTML='Password is required'
+                return false
+            }
+            return true
+        }
+        loginForm.addEventListener('submit',(e)=>{
+            emailError.style.display='none'
+            passwordError.style.display='none'
+
+            const verifedEmail= verifyEmail()
+            const verifedPassword= verifyPassword()
+            const valid= verifedEmail && verifedPassword
+            if(!valid){
+                e.preventDefault()
+            }
+        })
+    </script>
 </body>
 </html>

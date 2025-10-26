@@ -16,13 +16,13 @@ let userSchema=new mongoose.Schema({
     },
     phone:{
         type:Number,
-        required:false,
-        unique:false,
+       
         default:null
     },
     googleId:{
         type:String,
-        // unique:true
+        unique:true,
+        sparse:true
     },
     password:{
         type:String,

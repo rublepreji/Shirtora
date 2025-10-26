@@ -22,6 +22,12 @@
         .input-line:focus {
             border-bottom-color: #000000;
         }
+        .errorDisplay{
+            background-color: rgb(232, 80, 80);
+            border-radius: 5px;
+            color: rgb(214, 0, 0);
+            padding: 10px;
+        }
     </style>
 </head>
 <body>
@@ -87,6 +93,12 @@
                         <input type="text" placeholder="Referral code (optional)" id="referralCode" class="input-line w-full" name="referralCode">
                         <div class="text-red-500 text-sm" id="error7"></div>
 
+                        <%if(locals.message && message.length>0){%>
+                        <div class="errorDisplay">
+                            <%=message%>
+                        </div>
+                        <%}%>
+
                         <!-- Create Account Button (Black) -->
                         <button type="submit" class="w-full py-3 text-white bg-black hover:bg-gray-800 font-medium rounded-md transition duration-200 mt-6 shadow-md">
                             Create Account
@@ -107,13 +119,13 @@
                             <path fill="#4CAF50" d="M11.691,28.309c-1.503-1.553-2.274-3.778-2.274-6.331C9.417,19.455,10.188,17.23,11.691,15.677L8.961,14C7.351,15.556,6.306,17.787,6.306,20.198C6.306,22.609,7.351,24.84,8.961,26.395L11.691,28.309z"/>
                             <path fill="#1976D2" d="M24,8c3.018,0,5.656,1.064,7.77,3.181l4.242-4.242C33.195,5.807,29.351,4,24,4C16.921,4,10.873,6.883,6.306,11.691l4.242,4.242C12.435,13.644,15.938,12,24,12c4.046,0,7.742,1.383,10.609,3.904l-2.73,1.677c-1.223-2.553-3.818-4.356-6.864-4.356c-3.059,0-5.842,1.154-7.961,3.039l-5.657-5.657C14.046,6.053,18.824,4,24,4z"/>
                         </svg>
-                        <span>Sign up with Google</span>
+                        <a href="/auth/google"><span>Sign up with Google</span></a>
                     </button>
                     
                     <!-- Login Link -->
                     <p class="text-center text-gray-600 mt-8">
                         Already have account? 
-                        <a href="#" class="text-black font-medium hover:underline">Log in</a>
+                        <a href="/signin" class="text-black font-medium hover:underline">Log in</a>
                     </p>
                 </div>
             </div>

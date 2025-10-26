@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Men's Collection - Shop</title>
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+</head>
+
+<body class="font-inter bg-white text-slate-900">
+  <!-- Header Include -->
+  <%- include("../../view/partials/user/header") %>
+
+  <!-- HERO / BANNER -->
+  <section 
+    class="main-banner h-[350px] sm:h-[400px] md:h-[500px] bg-cover bg-center flex items-center justify-center px-6"
+    style="background-image: url('../../public/img/Banner.jpg');"
+  >
+    <div class="banner-text text-center bg-white/80 p-6 sm:p-8 shadow-lg max-w-md">
+      <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold text-blue-900 mb-2 leading-tight">
+        MEN'S<br/>COLLECTION
+      </h1>
+      <p class="text-base sm:text-lg md:text-2xl font-semibold text-gray-700 mb-5 tracking-wide">
+        CLOTHING | FOOTWEAR | ACCESSORIES
+      </p>
+      <a href="#" class="inline-block bg-red-700 text-white px-5 sm:px-6 py-2 rounded hover:bg-red-800 transition font-semibold text-base sm:text-lg">
+        SHOP NOW
+      </a>
+    </div>
+  </section>
+
+  <!-- FLASH SALES -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+    <div class="flex flex-wrap items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
+      <span class="w-3 h-3 sm:w-4 sm:h-4 bg-black inline-block rounded"></span>
+      <span class="text-base sm:text-lg font-medium text-slate-700">Today's</span>
+      <h2 class="text-2xl sm:text-3xl font-bold tracking-wide">Flash Sales</h2>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6 md:gap-8">
+      <!-- Product Card -->
+      <% for(let i=0;i<5;i++){ %>
+      <div class="bg-white rounded-lg shadow p-4 flex flex-col items-center group hover:shadow-xl transition">
+        <img src="./img/0733ba760b29378474dea0fdbcb97107.png" alt="Shirt Linen Striped" class="h-36 sm:h-40 w-full object-cover rounded mb-3">
+        <div class="font-medium text-gray-900 text-center truncate">Shirt Linen Striped</div>
+        <div class="flex items-center gap-2 mb-1">
+          <span class="text-base sm:text-lg font-semibold text-slate-900">&#8377;176,400</span>
+          <span class="text-xs sm:text-sm text-gray-400 line-through">&#8377;196,000</span>
+        </div>
+        <div class="text-yellow-400 text-sm sm:text-base">★★★★★</div>
+      </div>
+      <% } %>
+    </div>
+
+    <div class="mt-6 sm:mt-8 flex justify-center sm:justify-end">
+      <a href="#" class="bg-black text-white px-6 sm:px-7 py-2 rounded shadow hover:bg-gray-900 font-medium transition text-sm sm:text-base">View All Products</a>
+    </div>
+  </section>
+
+  <!-- CATEGORIES -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+    <div class="flex items-center gap-3 mb-6">
+      <span class="w-3 h-3 sm:w-4 sm:h-4 bg-black inline-block rounded"></span>
+      <h3 class="font-semibold text-lg sm:text-xl">Categories</h3>
+    </div>
+
+    <div class="flex flex-wrap justify-center sm:justify-start gap-4 sm:gap-8 md:gap-12">
+      <button class="bg-black text-white px-8 sm:px-10 py-3 rounded font-bold tracking-widest hover:bg-gray-900 transition text-sm sm:text-base">FORMAL</button>
+      <button class="bg-black text-white px-8 sm:px-10 py-3 rounded font-bold tracking-widest hover:bg-gray-900 transition text-sm sm:text-base">CASUALS</button>
+      <button class="bg-black text-white px-8 sm:px-10 py-3 rounded font-bold tracking-widest hover:bg-gray-900 transition text-sm sm:text-base">PARTYWEAR</button>
+      <button class="bg-black text-white px-8 sm:px-10 py-3 rounded font-bold tracking-widest hover:bg-gray-900 transition text-sm sm:text-base">T-SHIRTS</button>
+    </div>
+  </section>
+
+  <!-- NEW ARRIVALS -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+    <div class="flex items-center gap-3 mb-4">
+      <span class="w-4 h-4 sm:w-5 sm:h-5 bg-black inline-block rounded"></span>
+      <span class="font-bold text-base sm:text-lg text-slate-800">Featured</span>
+    </div>
+    <h2 class="text-3xl sm:text-4xl font-bold mb-6 sm:mb-8">New Arrival</h2>
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
+      <% for(let i=0;i<4;i++){ %>
+      <div class="bg-white rounded-lg shadow p-4 flex flex-col items-center group hover:shadow-xl transition">
+        <img src="./img/71wAR5-lggL._AC_UY1100_.jpg" alt="Lymio Casual Shirt for Men" class="h-44 sm:h-52 w-full object-cover rounded mb-4">
+        <div class="font-semibold text-center text-sm sm:text-lg mb-2">Lymio Casual Shirt for Men</div>
+        <div class="flex items-center gap-2 mb-1">
+          <span class="text-base sm:text-lg font-bold">&#8377;3,150</span>
+          <span class="text-xs sm:text-base text-gray-300 line-through">&#8377;3,499</span>
+        </div>
+        <div class="text-yellow-400 text-base sm:text-xl">★★★★★</div>
+      </div>
+      <% } %>
+    </div>
+  </section>
+
+  <!-- BEST SELLING PRODUCTS -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6 sm:mb-8">
+      <div class="flex items-center gap-3">
+        <span class="w-4 h-4 sm:w-5 sm:h-5 bg-black rounded"></span>
+        <span class="font-bold text-base sm:text-lg text-slate-700">This Month</span>
+      </div>
+      <a href="#" class="bg-black text-white px-5 sm:px-6 py-2 rounded font-medium hover:bg-gray-900 transition text-sm sm:text-base">View All</a>
+    </div>
+    <h2 class="text-3xl sm:text-4xl font-bold mb-6 sm:mb-10">Best Selling Products</h2>
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
+      <% for(let i=0;i<4;i++){ %>
+      <div class="bg-white rounded-lg shadow p-4 flex flex-col items-center group hover:shadow-xl transition">
+        <img src="./img/197e4611-8c41-4f93-8a70-ff1be695491f.jpg" class="h-44 sm:h-48 w-full object-cover rounded mb-4" alt="Naruto Figurine">
+        <div class="font-semibold text-center text-sm sm:text-lg mb-2">Naruto Shippuden Kakashi Figurine</div>
+        <div class="flex items-center gap-2 mb-1">
+          <span class="text-base sm:text-lg font-bold">&#8377;3,150</span>
+          <span class="text-xs sm:text-base text-gray-300 line-through">&#8377;3,499</span>
+        </div>
+        <div class="text-yellow-400 text-base sm:text-xl">★★★★★</div>
+      </div>
+      <% } %>
+    </div>
+  </section>
+  <%- include("../../view/partials/user/footer") %>
+</body>
+</html>

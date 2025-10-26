@@ -61,7 +61,26 @@
               class="text-black font-medium text-base border-b-2 border-transparent hover:border-black pb-1 transition-all"
               >About</a
             >
-            <a
+           <% if(locals.user){%>
+              <div class="relative inline-block text-left">
+                <!-- Dropdown Button -->
+                <button id="dropdownButton" class="flex items-center gap-1 text-black font-medium text-base border-b-2 border-transparent hover:border-black pb-1 transition-all focus:outline-none"
+>                   <%=locals.user.firstName+' '+locals.user.lastName%>
+                  <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                <!-- Dropdown Menu -->
+                <div id="dropdownMenu" class="hidden absolute right-0 z-10 mt-2 w-40 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5">
+                  <div class="py-1">
+                    <a href="/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
+                    <a href="/logout" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</a>
+                  </div>
+                </div>
+              </div>
+            <%}else{%>
+                <a
               href="/signup"
               class="text-black font-medium text-base border-b-2 border-transparent hover:border-black pb-1 transition-all"
               >Sign Up</a
@@ -71,6 +90,7 @@
               class="text-black font-medium text-base border-b-2 border-transparent hover:border-black pb-1 transition-all"
               >Sign In</a
             >
+              <%}%>
           </div>
 
           <!-- Search + Icons (hidden on very small screens) -->
@@ -146,6 +166,20 @@
 
       menuBtn.addEventListener("click", () => {
         mobileMenu.classList.toggle("hidden");
+      });
+
+      const button = document.getElementById('dropdownButton');
+      const menu = document.getElementById('dropdownMenu');
+
+      button.addEventListener('click', () => {
+        menu.classList.toggle('hidden');
+      });
+
+      // Close dropdown when clicking outside
+      window.addEventListener('click', (e) => {
+        if (!button.contains(e.target) && !menu.contains(e.target)) {
+          menu.classList.add('hidden');
+        }
       });
     </script>
   </body>
