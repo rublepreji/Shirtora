@@ -7,8 +7,9 @@ const path=require('path')
 const userRoute=require('./routes/userRouter')
 const passport= require('./config/passport')
 const adminRouter= require('./routes/adminRouter')
+const cors= require('cors')
 
-
+app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 app.use(session({

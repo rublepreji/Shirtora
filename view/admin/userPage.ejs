@@ -1,0 +1,223 @@
+  <!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Users | Admin Panel</title>
+      <script src="https://cdn.tailwindcss.com"></script>
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    </head>
+
+    <body class="bg-gray-50 min-h-screen flex">
+
+      <!-- Sidebar -->
+      <%- include("../../view/partials/admin/sideBar") %>
+
+      <!-- Main Section -->
+      <main class="lg:ml-64 ml-0 flex-1 px-6 py-10">
+        
+        <!-- Header -->
+        <div class="flex flex-row items-start justify-start mb-8">
+
+          <h1 class="text-2xl font-bold text-gray-800 mb-6 text-center">User Management</h1>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="flex justify-around mr-3 mb-6">
+          <div></div>
+            <!-- Centered Search Bar -->
+          <form action="/admin/users" method="get" class="relative w-full sm:w-96">
+            <input
+              type="text"
+              name="search"
+              value="<%=search || ''%>"
+              placeholder="Search users..."
+              class="w-full border border-gray-300 rounded-full py-2 pl-10 pr-4 text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+            <button
+              type="submit"
+              class="absolute right-2 top-1.5 bg-indigo-500 text-white px-3 py-1.5 rounded-full shadow-md hover:bg-indigo-600 focus:ring-2 focus:ring-indigo-400 transition duration-200 flex items-center justify-center"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+                stroke="currentColor"
+                class="w-4 h-4"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1010.5 18a7.5 7.5 0 006.15-3.35z"
+                />
+              </svg>
+            </button>
+          </form>
+          <div class="flex items-center border rounded-xl px-4 py-2 bg-white shadow-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2l-7 9v5l-4-2v-3L3 6V4z" />
+            </svg>
+            <label for="filter" class="mr-2 text-gray-700 text-sm font-medium">Filter By</label>
+
+            <select id="filter" class="border-none text-gray-700 focus:outline-none">
+              <option value="blocked" <%=filter==='blocked'?'selected':''%>>Blocked</option>
+              <option value="active" <%=filter==='active'?'selected':''%>>Active</option>
+              <option value="all" <%=filter=='all'?'selected':''%>>All</option>
+            </select>
+
+          </div>
+        </div>
+
+        <!-- User Table -->
+        <div class="overflow-x-auto bg-white rounded-2xl shadow-sm">
+          <table class="w-full text-left text-gray-700">
+            <thead>
+              <tr class="bg-indigo-500 text-white text-sm">
+                <th class="py-3 px-4 rounded-tl-2xl">S.No</th>
+                <th class="py-3 px-4">Name</th>
+                <th class="py-3 px-4">Email</th>
+                <th class="py-3 px-4">Mobile</th>
+                <th class="py-3 px-4 rounded-tr-2xl">Update</th>
+              </tr>
+            </thead>
+
+            <tbody class="text-sm">
+              <%for(i=0;i<data.length;i++){%>
+              <tr class="border-b hover:bg-gray-50">
+                <td class="py-3 px-4"><%=i+1%></td>
+                <td class="py-3 px-4"><%=data[i].fullName%></td>
+                <td class="py-3 px-4"><%=data[i].email%></td>
+                <td class="py-3 px-4"><%=data[i].phone || 'null'%></td>
+                <td class="py-3 px-4 flex items-center gap-3">
+                  <% if (!data[i].isBlocked) { %>
+                    <button 
+                      class="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-md block-btn"
+                      data-id="<%= data[i]._id %>"
+                      data-action="blockuser">
+                      Block
+                    </button>
+                  <% } else { %>
+                    <button 
+                      class="text-xs bg-green-100 text-green-600 px-2 py-1 rounded-md unblock-btn"
+                      data-id="<%= data[i]._id %>"
+                      data-action="unblockuser">
+                      Unblock
+                    </button>
+                  <% } %>
+                </td>
+
+              </tr>
+              <%}%>
+            
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination Section -->
+  <div class="flex justify-center mt-6">
+    <nav class="inline-flex items-center space-x-2">
+
+      <% if (currentPage > 1) { %>
+        <a href="/admin/users?page=<%= currentPage - 1 %>&search=<%= search || '' %>&filter=<%=filter || 'all'%>">
+          <button class="px-3 py-1 border rounded-md text-gray-600 hover:bg-gray-100">
+            Previous
+          </button>
+        </a>
+      <% } %>
+
+      <% for (let i = 1; i <= totalPages; i++) { %>
+        <a href="/admin/users?page=<%= i %>&search=<%= search || '' %>&filter=<%=filter||'all'%>">
+          <button class="px-3 py-1 border rounded-md <%= i == currentPage ? 'bg-indigo-500 text-white' : 'text-gray-600 hover:bg-gray-100' %>">
+            <%= i %>
+          </button>
+        </a>
+      <% } %>
+
+      <% if (currentPage < totalPages) { %>
+        <a href="/admin/users?page=<%= parseInt(currentPage) + 1 %>&search=<%= search || '' %>&filter=<%=filter || 'all'%>">
+          <button class="px-3 py-1 border rounded-md text-gray-600 hover:bg-gray-100">
+            Next
+          </button>
+        </a>
+      <% } %>
+    </nav>
+  </div>
+  </main>
+
+   <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const buttons = document.querySelectorAll(".block-btn, .unblock-btn");
+
+    buttons.forEach(button => {
+      button.addEventListener("click", async (e) => {
+        const userId = e.target.dataset.id;
+        const action = e.target.dataset.action;
+
+        const isBlock=action=="blockuser"
+        const titleText= isBlock?"Block this user":"Unblock this user"
+        const confirmText= isBlock?"Yes, block":"Yes, unblock"
+        const successText= isBlock?"User has been blocked!":"User has been unblocked!"
+
+        const result = await Swal.fire({
+          title: titleText,
+          text: "Are you sure you want to proceed?",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: isBlock ? "#d33" : "#3085d6",
+          cancelButtonColor: "#aaa",
+          confirmButtonText: confirmText,
+        });
+
+        if(!result.isConfirmed) return
+
+        try {
+          const response = await fetch(`/admin/${action}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: userId })
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            
+            // Update button text and color dynamically without reload
+            if (action === "blockuser") {
+              e.target.textContent = "Unblock";
+              e.target.classList.remove("bg-orange-100", "text-orange-600");
+              e.target.classList.add("bg-green-100", "text-green-600");
+              e.target.dataset.action = "unblockuser";
+            } else {
+              e.target.textContent = "Block";
+              e.target.classList.remove("bg-green-100", "text-green-600");
+              e.target.classList.add("bg-orange-100", "text-orange-600");
+              e.target.dataset.action = "blockuser";
+            }
+
+
+            Swal.fire({
+              title: "Success!",
+              text: successText,
+              icon: "success",
+              timer: 1200,
+              showConfirmButton: false
+            });
+          }
+          else {
+            Swal.fire("Error!", "Action failed. Try again.", "error");
+          }
+        } catch (err) {
+          Swal.fire("Error!", "Something went wrong!", "error");
+          console.error("Error:", err);
+        }
+      });
+    });
+  });
+  document.getElementById('filter').addEventListener('change',function(){
+    const filter= this.value 
+    const search="<%=search ||''%>"
+    window.location.href=`/admin/users?filter=${filter}&search=${search}`
+  })
+  </script>

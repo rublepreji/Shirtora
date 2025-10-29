@@ -4,6 +4,8 @@ const bcrypt= require('bcrypt')
 
 async function adminLogout(req,res){
     try {
+        console.log('logout');
+        
         req.session.destroy(err=>{
             if(err){
                 console.log("Error occur during logout(Session destroy)");

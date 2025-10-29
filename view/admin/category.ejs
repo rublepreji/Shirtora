@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Category Management | Shirtora Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+      /* smooth transition for sidebar */
+      .sidebar {
+        transition: all 0.3s ease-in-out;
+      }
+    </style>
+  </head>
+
+  <body class="bg-gray-50 min-h-screen flex font-inter overflow-hidden">
+    <!-- Sidebar -->
+    <aside
+      class="sidebar w-64 bg-white border-r border-gray-200 hidden md:flex flex-col fixed inset-y-0 left-0 z-30"
+    >
+      <%- include("../../view/partials/admin/sideBar") %>
+    </aside>
+
+    <!-- Main Content -->
+    <main
+      class="flex-1 md:ml-64 p-6 md:p-10 transition-all duration-300 overflow-x-auto"
+    >
+      <!-- Header -->
+      <div class="flex justify-between items-center mb-8">
+        <h1 class="text-xl md:text-2xl font-semibold text-gray-800">
+          Category
+        </h1>
+        <a href="/admin/addcategory"><button
+          class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md transition"
+        >
+          + Add Category
+        </button></a>
+      </div>
+
+      <!-- Table Section -->
+      <div
+        class="overflow-x-auto rounded-lg shadow-md border border-gray-200 bg-white mt-8"
+      >
+        <table class="w-full text-sm text-left">
+          <thead class="bg-indigo-500 text-white">
+            <tr>
+              <th class="px-4 py-3 w-16">S.No</th>
+              <th class="px-4 py-3">Category Name</th>
+              <th class="px-4 py-3">Description</th>
+              <th class="px-4 py-3 text-center">List / Unlist</th>
+            </tr>
+          </thead>
+          <tbody class="text-gray-700">
+            <!-- Row 1 -->
+             <%category.forEach((cat,index)=>{%>
+            <tr class="border-t">
+              <td class="px-4 py-3 font-medium"><%=index+1%></td>
+              <td class="px-4 py-3"><%=cat.name%></td>
+              <td class="px-4 py-3">
+                <%=cat.description%>
+              </td>
+              <td class="py-3 px-4 text-center">
+              <div class="flex justify-center items-center gap-2">
+                <% if (cat.isListed) { %>
+                  <button 
+                    class="text-xs bg-orange-100 text-orange-600 px-3 py-1 rounded-md unlist-btn hover:bg-orange-200 transition"
+                    data-id="<%= cat._id %>"
+                    data-action="unlistCategory">
+                    Unlist
+                  </button>
+                <% } else { %>
+                  <button 
+                    class="text-xs bg-green-100 text-green-600 px-3 py-1 rounded-md list-btn hover:bg-green-200 transition"
+                    data-id="<%= cat._id %>"
+                    data-action="listCategory">
+                    List
+                  </button>
+                <% } %>
+                <a href="/admin/editCategory/<%= cat._id %>">
+                  <button 
+                    class="text-xs bg-blue-100 text-blue-600 px-3 py-1 rounded-md hover:bg-blue-200 transition">
+                    Edit
+                  </button>
+                </a>
+              </div>
+            </td>
+
+            </tr>
+            <%})%>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="flex justify-center mt-6">
+    <nav class="inline-flex items-center space-x-2">
+
+      <% if (currentPage > 1) { %>
+        <a href="/admin/category?page=<%= currentPage - 1 %>">
+          <button class="px-3 py-1 border rounded-md text-gray-600 hover:bg-gray-100">
+            Previous
+          </button>
+        </a>
+      <% } %>
+
+      <% for (let i = 1; i <= totalPages; i++) { %>
+        <a href="/admin/category?page=<%= i %>">
+          <button class="px-3 py-1 border rounded-md <%= i == currentPage ? 'bg-indigo-500 text-white' : 'text-gray-600 hover:bg-gray-100' %>">
+            <%= i %>
+          </button>
+        </a>
+      <% } %>
+
+      <% if (currentPage < totalPages) { %>
+        <a href="/admin/category?page=<%= parseInt(currentPage) + 1%>">
+          <button class="px-3 py-1 border rounded-md text-gray-600 hover:bg-gray-100">
+            Next
+          </button>
+        </a>
+      <% } %>
+    </nav>
+  </div>
+    </main>
+  </body>
+</html>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const buttons = document.querySelectorAll('.unlist-btn, .list-btn');
+
+    buttons.forEach(button => {
+      button.addEventListener('click', async (e) => {
+        const btn = e.currentTarget;
+        const categoryId = btn.dataset.id;
+        const action = btn.dataset.action;
+
+
+        try {
+          const response = await fetch(`/admin/${action}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: categoryId })
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            if (action === "unlistCategory") {
+              btn.textContent = "List";
+              btn.classList.remove("bg-orange-100", "text-orange-600");
+              btn.classList.add("bg-green-100", "text-green-600");
+              btn.dataset.action = "listCategory";
+            } else {
+              btn.textContent = "Unlist";
+              btn.classList.remove("bg-green-100", "text-green-600");
+              btn.classList.add("bg-orange-100", "text-orange-600");
+              btn.dataset.action = "unlistCategory";
+            }
+          } else {
+            Swal.fire("Error!", result.message || "Action failed", "error");
+          }
+        } catch (err) {
+          console.error("Catch block error:", err);
+          Swal.fire("Error!", "Something went wrong!", "error");
+        }
+      });
+    });
+  });
+</script>

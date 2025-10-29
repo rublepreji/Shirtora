@@ -19,20 +19,22 @@ async function userAuth(req,res,next){
     }
 }
 
-async function adminAuth(req,res,next) {
-    User.findOne({isAdmin:true})
-    .then(data=>{
-        if(data){
-            next()
-        }else{
-            res.redirect('/admin/login')
-        }
-    })
-    .catch(error=>{
-        console.log('Error in adminAuth middleware');
-        res.status(500).send('Internal server error',error)
-    })
+function isAdminLogin(req, res, next) {
+  if (req.session.admin) {
+    next();
+  } else {
+    return res.redirect("/admin/login");
+  }
+}
+
+function isAdminLogout(req, res, next) {
+  if (req.session.admin) {
+    return res.redirect("/admin/dashboard");
+  } else {
+    next();
+  }
 }
 
 
-module.exports={userAuth,adminAuth}
+
+module.exports={userAuth,isAdminLogin,isAdminLogout}

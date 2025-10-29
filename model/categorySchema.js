@@ -11,8 +11,8 @@ let categorySchema=new mongoose.Schema({
         required:true
     },
     isListed:{
-        type:String,
-        required:true
+        type:Boolean,
+        default:true
     },
     categoryOffer:{
         type:Number,

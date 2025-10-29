@@ -2,10 +2,11 @@ let express=require('express')
 let router=express.Router()
 let userController= require('../controller/user/userController')
 const passport= require('../config/passport')
+let {userAuth}= require("../middlewares/userAuth")
 
 
-router.get('/',userController.loadHomePage)
-// router.get('/landingPage',userController.loadLandingPage)
+router.get('/',userAuth,userController.loadHomePage)
+router.get('/landingPage',userController.loadLandingPage)
 router.get('/pageNotFound',userController.pageNotFound)
 router.get('/signup',userController.loadSignup)
 router.get('/signin',userController.loadSignin)

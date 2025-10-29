@@ -78,6 +78,7 @@ async function verifyOtp(req,res){
         const newUser= new User({
             firstName:user.firstName,
             lastName:user.lastName,
+            fullName:(user.firstName+user.lastName).toLowerCase(),
             phone:user.phone,
             email:user.email,
             password:passwordHash
@@ -90,7 +91,7 @@ async function verifyOtp(req,res){
         res.status(400).json({success:false,message:"Invalid OTP"}) 
     }
     } catch (error) {
-        console.error('Error verifying   OTP',error)
+        console.error('Error verifying OTP',error)
        return res.status(500).json({success:false,message:'An error occured'})
     }
 }

@@ -1,0 +1,107 @@
+const Category= require('../../model/categorySchema')
+
+
+async function editCategory(req,res) {
+    try {
+        const {name,description,id}=req.body
+        console.log(name);
+        
+        const existCategory= await Category.findOne({name:name})
+        if(existCategory){
+            return res.status(200).json({message:"Category already exist, please choose another name"})
+        }
+        const updateCategory= await Category.findByIdAndUpdate(id,{name:name,description:description},{new:true})
+        if(updateCategory){
+           return res.status(200).json({message:"Category updated successfully"})
+        }else{
+           return res.status(404).json({error:"Category cannot updated"})
+        }
+    } catch (error) {
+       return res.status(500).json({error:'Internal server error'})
+    }
+}
+
+async function loadEditCategory(req,res) {
+    try {
+        const {id}= req.params
+        const category=await Category.findOne({_id:id})
+        return res.render("editCategory",{category:category})
+    } catch (error) {
+        console.log("error on load Edit category");
+        return res.redirect('/pageError')
+    }
+}
+
+async function getlistCategory(req,res) {
+    try {
+    const {id}=req.body
+    await Category.updateOne({_id:id},{$set:{isListed:true}})
+    return res.json({success:true})
+    } catch (error) {
+        return res.json({success:false})
+    }
+}
+async function unlistCategory(req,res) {
+    try {
+        const {id}=req.body
+        await Category.updateOne({_id:id},{$set:{isListed:false}})
+        return res.json({success:true})
+    } catch (error) {
+        return res.json({success:false})
+    }
+}
+
+async function categoryInfo(req,res){
+    try {
+        let page= parseInt(req.query.page)
+        const limit= 3
+        let skip=(page-1)*limit
+        const categoryData=await Category.find()
+            .sort({createdAt:-1})
+            .skip(skip)
+            .limit(limit)
+        let totalCategory= await Category.countDocuments()
+        let totalPages= Math.ceil(totalCategory/limit)
+        return res.render('category',{
+            currentPage:page,
+            category:categoryData,
+            totalPages,
+            totalCategory,
+            
+        })
+    } catch (error) {
+        console.log('Error in:',error);
+        return res.redirect('/pageError')
+    }
+}
+async function addCategory(req,res){
+    try {
+        const {name,description}= req.body
+       
+        const categoryExist= await Category.findOne({name})
+        if(categoryExist){
+            return res.status(400).json({message:"Category already exist"})
+        }
+        const newCategory= new Category({
+            name,
+            description
+        })
+        await newCategory.save()
+        console.log(name+' '+description)
+        return res.json({message:"Category added successfully"})
+    } catch (error) {
+        return res.status(500).json({message:"Internal server error"})
+    }
+}
+async function loadAddCategory(req,res) {
+    try {
+        return res.render('addCategory')
+    } catch (error) {
+        return res.status(500).json({error:"Internal server error"})
+    }
+}
+
+
+
+
+module.exports={categoryInfo,loadAddCategory,addCategory,getlistCategory,unlistCategory,loadEditCategory,editCategory}

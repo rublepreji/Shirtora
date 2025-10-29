@@ -9,6 +9,10 @@ let userSchema=new mongoose.Schema({
         type:String,
         required: true
     },
+    fullName:{
+        type:String,
+        required:true
+    },
     email:{
         type:String,
         required:true,
@@ -30,7 +34,7 @@ let userSchema=new mongoose.Schema({
     },
     isBlocked:{
         type:Boolean,
-        // default:false 
+        default:false 
     },
     isAdmin:{
         type:Boolean,
