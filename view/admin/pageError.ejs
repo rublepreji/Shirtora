@@ -9,11 +9,9 @@
 
   <body class="bg-gray-50 min-h-screen flex">
 
-    <!-- Sidebar -->
-    <%- include("../../view/partials/admin/sideBar") %>
 
     <!-- Main Section -->
-    <main class="ml-64 flex flex-col items-center justify-center w-full px-6 py-16 text-center">
+    <main class="flex flex-col items-center justify-center w-full px-6 py-16 text-center">
       <div class="max-w-lg mx-auto">
         <!-- Error Illustration -->
         <div class="flex justify-center mb-8">
@@ -46,13 +44,13 @@
         <!-- Buttons -->
         <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
           <a
-            href="/admin/dashboard"
+            href="/admin"
             class="px-6 py-3 bg-indigo-600 text-white font-medium rounded-full hover:bg-indigo-700 transition-all"
           >
             ← Back to Dashboard
           </a>
           <a
-            href="/"
+            href="/admin"
             class="px-6 py-3 bg-gray-200 text-gray-800 font-medium rounded-full hover:bg-gray-300 transition-all"
           >
             Go to Homepage

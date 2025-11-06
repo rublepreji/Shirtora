@@ -1,14 +1,28 @@
 const Category= require('../../model/categorySchema')
 
 
+async function deleteCategory(req,res) {
+    try {
+        const id= req.params.id
+        
+        if(!id){
+           return res.status(400).json({message:'Category not found'})
+        }
+        await Category.findByIdAndUpdate(id,{isDeleted:true})
+        return res.status(200).json({message:'Category deleted successufully'})
+    } catch (error) {
+
+        return res.status(500).json({message:"Internal server error"})
+    }
+}
+
 async function editCategory(req,res) {
     try {
         const {name,description,id}=req.body
-        console.log(name);
-        
-        const existCategory= await Category.findOne({name:name})
-        if(existCategory){
-            return res.status(200).json({message:"Category already exist, please choose another name"})
+
+        const existCategory= await Category.findById(id)
+        if(!existCategory){
+            return res.status(200).json({message:"Category not found"})
         }
         const updateCategory= await Category.findByIdAndUpdate(id,{name:name,description:description},{new:true})
         if(updateCategory){
@@ -32,35 +46,16 @@ async function loadEditCategory(req,res) {
     }
 }
 
-async function getlistCategory(req,res) {
-    try {
-    const {id}=req.body
-    await Category.updateOne({_id:id},{$set:{isListed:true}})
-    return res.json({success:true})
-    } catch (error) {
-        return res.json({success:false})
-    }
-}
-async function unlistCategory(req,res) {
-    try {
-        const {id}=req.body
-        await Category.updateOne({_id:id},{$set:{isListed:false}})
-        return res.json({success:true})
-    } catch (error) {
-        return res.json({success:false})
-    }
-}
-
 async function categoryInfo(req,res){
     try {
         let page= parseInt(req.query.page)
         const limit= 3
         let skip=(page-1)*limit
-        const categoryData=await Category.find()
+        const categoryData=await Category.find({isDeleted:false})
             .sort({createdAt:-1})
             .skip(skip)
             .limit(limit)
-        let totalCategory= await Category.countDocuments()
+        let totalCategory= await Category.countDocuments({isDeleted:false})
         let totalPages= Math.ceil(totalCategory/limit)
         return res.render('category',{
             currentPage:page,
@@ -104,4 +99,4 @@ async function loadAddCategory(req,res) {
 
 
 
-module.exports={categoryInfo,loadAddCategory,addCategory,getlistCategory,unlistCategory,loadEditCategory,editCategory}
+module.exports={categoryInfo,loadAddCategory,addCategory,deleteCategory,loadEditCategory,editCategory}

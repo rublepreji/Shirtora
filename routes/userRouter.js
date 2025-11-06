@@ -1,6 +1,7 @@
 let express=require('express')
 let router=express.Router()
 let userController= require('../controller/user/userController')
+const profileController= require('../controller/user/profileController')
 const passport= require('../config/passport')
 let {userAuth}= require("../middlewares/userAuth")
 
@@ -27,6 +28,11 @@ router.get('/auth/google/callback',passport.authenticate('google',{failureRedire
     }
     res.redirect('/')
 })
+
+
+router.get('/forgotpassword',profileController.loadForgotPassword)
+router.post('/verifyemail',profileController.verifyEmail)
+router.post('/verifyPassOtp',profileController.verifyPassOtp)
 
 
 module.exports=router

@@ -5,8 +5,12 @@ let brandSchema=new mongoose.Schema({
         type:String,
         required:true
     },
+    description:{
+        type:String,
+        required:true
+    },
     brandImage:{
-        type:[string],
+        type:String,
         required:true
     },
     isBlocked:{

@@ -13,7 +13,7 @@ app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 app.use(session({
-    secret:process.env.sessionSecret,
+    secret:process.env.SESSIIONSECRET,
     resave:false,
     saveUninitialized:true,
     cookie:{
@@ -34,7 +34,7 @@ app.use('/',userRoute)
 app.use('/admin',adminRouter)
 
 db()
-app.listen(process.env.port,()=>{
+app.listen(process.env.PORT,()=>{
     console.log('server is running');
     
 })

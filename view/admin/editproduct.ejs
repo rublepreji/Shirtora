@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Add New Products | SHIRTORA Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-50 min-h-screen flex">
+
+    <!-- Sidebar (Partial included in your project) -->
+    <aside class="w-64 bg-white shadow-md hidden md:flex flex-col fixed h-full">
+      <%-include("../../view/partials/admin/sideBar")%>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 md:ml-64 p-6">
+      <h1 class="text-2xl font-semibold mb-6">Add new Products</h1>
+
+      <div class="bg-white p-6 rounded-2xl shadow-sm">
+        <form class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+          <!-- Left Section -->
+          <div class="space-y-6">
+            <!-- Product Name -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Product Name</label>
+              <input
+                type="text"
+                placeholder="Type name here"
+                class="w-full mt-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-200"
+              />
+            </div>
+
+            <!-- Description -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Description</label>
+              <textarea
+                rows="4"
+                placeholder="Type description"
+                class="w-full mt-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-200"
+              ></textarea>
+            </div>
+
+            <!-- Category & Brand -->
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Category</label>
+                <select class="w-full mt-1 border border-gray-300 rounded-md px-3 py-2 focus:ring focus:ring-indigo-200">
+                  <option>-Select category-</option>
+                  <option>Formal</option>
+                  <option>Casual</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Brand</label>
+                <select class="w-full mt-1 border border-gray-300 rounded-md px-3 py-2 focus:ring focus:ring-indigo-200">
+                  <option>-Select brand-</option>
+                  <option>Van Heusen</option>
+                  <option>Allen Solly</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Variants -->
+            <div class="border border-gray-200 rounded-lg p-4">
+              <h2 class="font-semibold text-gray-700 mb-4">Variants</h2>
+
+              <div class="grid grid-cols-3 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700">Size</label>
+                  <select class="w-full mt-1 border border-gray-300 rounded-md px-3 py-2">
+                    <option>-Select Size-</option>
+                    <option>S</option>
+                    <option>M</option>
+                    <option>L</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700">Price</label>
+                  <select class="w-full mt-1 border border-gray-300 rounded-md px-3 py-2">
+                    <option>-Select Price-</option>
+                    <option>999</option>
+                    <option>1299</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700">Stock</label>
+                  <select class="w-full mt-1 border border-gray-300 rounded-md px-3 py-2">
+                    <option>-Select Stock-</option>
+                    <option>10</option>
+                    <option>20</option>
+                  </select>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                class="mt-4 px-4 py-2 text-sm bg-indigo-500 text-white rounded-md hover:bg-indigo-600"
+              >
+                Add More
+              </button>
+            </div>
+
+            <!-- Color -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Color</label>
+              <input
+                type="text"
+                placeholder="Enter colour"
+                class="w-full mt-1 border border-gray-300 rounded-md px-3 py-2 focus:ring focus:ring-indigo-200"
+              />
+            </div>
+
+            <!-- Submit -->
+            <div>
+              <button
+                type="submit"
+                class="px-6 py-2 bg-indigo-500 text-white rounded-md font-medium hover:bg-indigo-600 transition"
+              >
+                Add Product
+              </button>
+            </div>
+          </div>
+
+          <!-- Right Section (Images) -->
+          <div class="flex flex-col items-center justify-center">
+            <img
+              src="https://images.unsplash.com/photo-1602810318383-e386cc2a3a3d?auto=format&fit=crop&w=400&q=80"
+              alt="Product"
+              class="rounded-lg shadow-md w-64 h-80 object-cover mb-6"
+            />
+            <div class="flex gap-4">
+              <img
+                src="https://images.unsplash.com/photo-1602810318383-e386cc2a3a3d?auto=format&fit=crop&w=100&q=80"
+                alt="Preview 1"
+                class="w-20 h-24 rounded-md shadow"
+              />
+              <img
+                src="https://images.unsplash.com/photo-1602810318383-e386cc2a3a3d?auto=format&fit=crop&w=100&q=80"
+                alt="Preview 2"
+                class="w-20 h-24 rounded-md shadow"
+              />
+              <img
+                src="https://images.unsplash.com/photo-1602810318383-e386cc2a3a3d?auto=format&fit=crop&w=100&q=80"
+                alt="Preview 3"
+                class="w-20 h-24 rounded-md shadow"
+              />
+            </div>
+          </div>
+        </form>
+      </div>
+    </main>
+
+  </body>
+</html>

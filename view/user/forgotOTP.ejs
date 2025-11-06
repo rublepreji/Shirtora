@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Enter the OTP</title>
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles to match the precise look from the screenshot */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fff;
+            color: #000;
+        }
+        /* Custom style for the thin, black line under the input */
+        .input-underline {
+            border: none;
+            border-bottom: 1px solid #000; /* Thin black line */
+            padding-bottom: 8px; /* Space above the line */
+            background-color: transparent; /* Ensure no background color interferes */
+        }
+        .input-underline:focus {
+            outline: none;
+            border-bottom: 2px solid #000; /* Slightly thicker line on focus */
+        }
+        /* The main container to center everything */
+        .center-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="center-container">
+        
+        <!-- Main Content Card (Keeping it centered for all screen sizes) -->
+        <div class="w-full max-w-md mx-auto py-12 px-4 sm:px-6 lg:px-8">
+
+            <!-- Title -->
+            <h1 class="text-4xl sm:text-5xl font-normal tracking-tight mb-4 text-center sm:text-left">
+                Enter the OTP
+            </h1>
+
+            <!-- Subtitle/Instruction -->
+            <p class="text-lg font-normal text-gray-800 mb-10 text-center sm:text-left">
+                The OTP has sent to your registered email
+            </p>
+
+            <!-- Form Area -->
+            <form class="space-y-12" method="post" action="/verifyPassOtp" novalidate>
+                
+                <!-- OTP Input Group -->
+                <div class="space-y-2">
+                    <div class="flex items-end space-x-4">
+                        <div class="relative flex-1">
+                            <input 
+                                type="text" 
+                                id="otp" 
+                                placeholder="Enter the otp" 
+                                class="w-full text-lg placeholder-gray-400 input-underline transition duration-200"
+                                aria-label="Enter the OTP"
+                                required
+                                maxlength="6"
+                                inputmode="numeric"
+                            />
+                        </div>
+                        
+                        <!-- Resend OTP Button -->
+                        <button 
+                            type="button" 
+                            class="flex-shrink-0 px-4 py-2 text-sm font-medium rounded-sm bg-black text-white shadow-lg hover:bg-gray-800 transition duration-200"
+                            id="resend-button"
+                            disabled
+                        >
+                            Resend OTP
+                        </button>
+                    </div>
+
+                    <!-- Timer Text -->
+                    <p class="text-red-600 text-sm font-normal text-left" id="timer-text">
+                        0:57 seconds remaining
+                    </p>
+                </div>
+
+                <!-- Action Buttons & Link -->
+                <div class="flex flex-col sm:flex-row justify-between items-center pt-8">
+                    
+                    <!-- Back to Login Link -->
+                    <a href="#" class="text-base font-normal text-black underline mb-6 sm:mb-0 sm:no-underline hover:underline transition">
+                        Back to Login
+                    </a>
+
+                    <!-- Verify Button -->
+                    <button 
+                        type="submit" 
+                        class="w-full sm:w-auto px-10 py-3 text-base font-medium rounded-sm bg-black text-white shadow-lg hover:bg-gray-800 transition duration-200"
+                    >
+                        Verify
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+    
+    <script>
+        const TIMER_DURATION = 60; // 60 seconds
+        let remainingTime = TIMER_DURATION;
+        let timerInterval;
+
+        const timerText = document.getElementById('timer-text');
+        const resendButton = document.getElementById('resend-button');
+
+        // Function to update the timer display
+        function updateTimer() {
+            const minutes = Math.floor(remainingTime / 60);
+            const seconds = remainingTime % 60;
+            const timeString = `${minutes}:${seconds < 10 ? '0' : ''}${seconds} seconds remaining`;
+
+            timerText.textContent = timeString;
+
+            if (remainingTime <= 0) {
+                clearInterval(timerInterval);
+                timerText.textContent = "Resend link is active.";
+                timerText.classList.remove('text-red-600');
+                timerText.classList.add('text-black');
+                resendButton.disabled = false;
+                resendButton.classList.remove('bg-gray-400', 'cursor-not-allowed');
+                resendButton.classList.add('bg-black', 'hover:bg-gray-800');
+            } else {
+                remainingTime--;
+            }
+        }
+
+        // Initialize the timer on load (starting from 57 seconds as per screenshot)
+        function startTimer(initialSeconds = TIMER_DURATION - 3) {
+            remainingTime = initialSeconds;
+            resendButton.disabled = true;
+            timerText.classList.remove('text-black');
+            timerText.classList.add('text-red-600');
+            resendButton.classList.add('bg-gray-400', 'cursor-not-allowed');
+            resendButton.classList.remove('bg-black', 'hover:bg-gray-800');
+
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+            timerInterval = setInterval(updateTimer, 1000);
+            updateTimer(); // Initial call to show 57 immediately
+        }
+
+        // Attach event listener for Resend button (if clicked after timer expires)
+        resendButton.addEventListener('click', () => {
+            console.log('OTP Resent. Starting new timer...');
+            // In a real app, you would make an API call here.
+            startTimer(TIMER_DURATION);
+        });
+
+        // Start the timer when the page loads
+        window.onload = () => startTimer(57); // Start at 0:57 as seen in the screenshot
+
+    </script>
+</body>
+</html>

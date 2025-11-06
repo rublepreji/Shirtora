@@ -4,8 +4,8 @@
     require('dotenv').config()
 
     passpord.use(new googleStrategy({
-        clientID: process.env.googleClientID,
-        clientSecret:process.env.googleClientSecret,
+        clientID: process.env.GOOGLECLIENTID,
+        clientSecret:process.env.GOOGLECLIENTSECRET,
         callbackURL:'http://localhost:3000/auth/google/callback',
     },
 

@@ -14,12 +14,7 @@
   </head>
 
   <body class="bg-gray-50 min-h-screen flex font-inter overflow-hidden">
-    <!-- Sidebar -->
-    <aside
-      class="w-64 bg-white border-r border-gray-200 hidden md:flex flex-col fixed inset-y-0 left-0 z-30"
-    >
-      <%- include("../../view/partials/admin/sideBar") %>
-    </aside>
+
 
     <!-- Main Content -->
     <main class="flex-1 md:ml-64 p-6 md:p-10 transition-all duration-300">
@@ -150,13 +145,12 @@
     // Hide previous errors
     errorName.style.display = "none";
     errorDescription.style.display = "none";
-
     const validName = validateName();
     const validDescription = validateDescription();
 
     if (!validName || !validDescription) return;
 
-    const name = nameId.value.trim();
+    const name = nameId.value.toLowerCase().trim();
     const description = descriptionId.value.trim();
 
     try {
@@ -178,7 +172,6 @@
         });
         return;
       }
-
       Swal.fire({
         icon: "success",
         title: "Success!",
@@ -186,7 +179,6 @@
         showConfirmButton: false,
         timer: 2000,
       });
-
       form.reset();
     } catch (err) {
       Swal.fire({

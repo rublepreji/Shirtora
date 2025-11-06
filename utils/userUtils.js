@@ -30,9 +30,36 @@ async function sendEmailVerification(email,otp){
         return false
     }
 }
+
+async function sendEmailForgotPassword(email,otp){    
+    try {
+        const transporter= nodeMailer.createTransport({
+        service:'gmail',
+        port:587,
+        secure:false,
+        requireTLS:true,
+        auth:{
+            user:process.env.NODEMAILEREMAIL,
+            pass:process.env.NODEMAILERPASSWORD
+        }
+    })
+    const info =await transporter.sendMail({
+        from:process.env.nodeMailerEmail,
+        to:email,
+        subject:"Your OTP for Password reset",
+        text:`Your OTP is ${otp}`,
+        html:`<b>Your OTP:${otp}</b>`
+    })
+    return info.accepted.length>0
+    } catch (error) {
+        console.log("Error on sending email ",error);
+        return false
+    }
+}
+
 async function securePassword(password){
     const hashedPassword= bcrypt.hash(password,10)
     return hashedPassword
 }
 
-module.exports={generateOtp,sendEmailVerification,securePassword}
+module.exports={generateOtp,sendEmailVerification,securePassword,sendEmailForgotPassword}

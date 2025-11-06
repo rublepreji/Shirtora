@@ -17,21 +17,13 @@ let productSchema=new mongoose.Schema({
         type:String,
         required:true
     },
-    regularPrice:{
-        type:Number,
-        required:true
-    },
-    salePrice:{
-        type:Number,
+    variants:{
+        type: [],
         required:true
     },
     productOffer:{
         type:Number,
-        required:true
-    },
-    quantity:{
-        type:Number,
-        default:true
+        required:false
     },
     colour:{
         type:String,

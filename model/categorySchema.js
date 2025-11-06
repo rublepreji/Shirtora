@@ -10,9 +10,9 @@ let categorySchema=new mongoose.Schema({
         type:String,
         required:true
     },
-    isListed:{
+    isDeleted:{
         type:Boolean,
-        default:true
+        default:false
     },
     categoryOffer:{
         type:Number,
