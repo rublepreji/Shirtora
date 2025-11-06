@@ -1,49 +1,56 @@
-    let passpord=require('passport')
-    let googleStrategy=require('passport-google-oauth20').Strategy
-    let User= require('../model/userSchema')
-    require('dotenv').config()
+import passport from 'passport';
+import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+import User from '../model/userSchema.js';
+import dotenv from 'dotenv';
 
-    passpord.use(new googleStrategy({
-        clientID: process.env.GOOGLECLIENTID,
-        clientSecret:process.env.GOOGLECLIENTSECRET,
-        callbackURL:'http://localhost:3000/auth/google/callback',
+dotenv.config();
+
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLECLIENTID,
+      clientSecret: process.env.GOOGLECLIENTSECRET,
+      callbackURL: 'http://localhost:3000/auth/google/callback',
     },
 
-    async (accessToken,refreshToken,profile,done)=>{
-        try {
-            let fullName=profile.displayName.split(' ')
-            let firstName=fullName[0]
-            let lastName=fullName.slice(1).join('')
-            let user= await User.findOne({googleId:profile.id})
-            if(user){
-                return done(null,user)
-            }
-            else{
-                const user= new User({
-                    firstName,
-                    lastName,
-                    email:profile.emails[0].value,
-                    googleId:profile.id
-                })
-                await user.save()
-                return done(null,user)
-            }
-        } catch (error) {
-            return done(error,null)
-        }
-    }
-    ))
-    passpord.serializeUser((user,done)=>{
-        done(null,user.id)
-    })
-    passpord.deserializeUser((id,done)=>{
-        User.findById(id)
-        .then(user=>{
-            done(null,user)
-        })
-        .catch(err=>{
-            done(err,null)
-        })
-    })
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        const fullName = profile.displayName.split(' ');
+        const firstName = fullName[0];
+        const lastName = fullName.slice(1).join('');
 
-    module.exports=passpord
+        let user = await User.findOne({ googleId: profile.id });
+        if (user) {
+          return done(null, user);
+        } else {
+          user = new User({
+            firstName,
+            lastName,
+            email: profile.emails[0].value,
+            googleId: profile.id,
+          });
+          await user.save();
+          return done(null, user);
+        }
+      } catch (error) {
+        return done(error, null);
+      }
+    }
+  )
+);
+
+passport.serializeUser((user, done) => {
+  done(null, user.id);
+});
+
+passport.deserializeUser((id, done) => {
+  User.findById(id)
+    .then((user) => {
+      done(null, user);
+    })
+    .catch((err) => {
+      done(err, null);
+    });
+});
+
+export default passport;

@@ -1,65 +1,69 @@
-let nodeMailer=require('nodemailer')
-let bcrypt= require('bcrypt')
+import nodeMailer from 'nodemailer';
+import bcrypt from 'bcrypt';
 
-function generateOtp(){    
-    return Math.floor(100000+Math.random()*900000)
+function generateOtp() {    
+    return Math.floor(100000 + Math.random() * 900000);
 }
 
-async function sendEmailVerification(email,otp){    
+async function sendEmailVerification(email, otp) {    
     try {
-        const transporter= nodeMailer.createTransport({
-        service:'gmail',
-        port:587,
-        secure:false,
-        requireTLS:true,
-        auth:{
-            user:process.env.nodeMailerEmail,
-            pass:process.env.nodeMailerPassword
-        }
-    })
-    const info =await transporter.sendMail({
-        from:process.env.nodeMailerEmail,
-        to:email,
-        subject:"Verify your account",
-        text:`Your OTP is ${otp}`,
-        html:`<b>Your OTP:${otp}</b>`
-    })
-    return info.accepted.length>0
+        const transporter = nodeMailer.createTransport({
+            service: 'gmail',
+            port: 587,
+            secure: false,
+            requireTLS: true,
+            auth: {
+                user: process.env.nodeMailerEmail,
+                pass: process.env.nodeMailerPassword
+            }
+        });
+
+        const info = await transporter.sendMail({
+            from: process.env.nodeMailerEmail,
+            to: email,
+            subject: "Verify your account",
+            text: `Your OTP is ${otp}`,
+            html: `<b>Your OTP:${otp}</b>`
+        });
+
+        return info.accepted.length > 0;
     } catch (error) {
-        console.log("Error on sending email ",error);
-        return false
+        console.log("Error on sending email ", error);
+        return false;
     }
 }
 
-async function sendEmailForgotPassword(email,otp){    
+async function sendEmailForgotPassword(email, otp) {    
     try {
-        const transporter= nodeMailer.createTransport({
-        service:'gmail',
-        port:587,
-        secure:false,
-        requireTLS:true,
-        auth:{
-            user:process.env.NODEMAILEREMAIL,
-            pass:process.env.NODEMAILERPASSWORD
-        }
-    })
-    const info =await transporter.sendMail({
-        from:process.env.nodeMailerEmail,
-        to:email,
-        subject:"Your OTP for Password reset",
-        text:`Your OTP is ${otp}`,
-        html:`<b>Your OTP:${otp}</b>`
-    })
-    return info.accepted.length>0
+        const transporter = nodeMailer.createTransport({
+            service: 'gmail',
+            port: 587,
+            secure: false,
+            requireTLS: true,
+            auth: {
+                user: process.env.NODEMAILEREMAIL,
+                pass: process.env.NODEMAILERPASSWORD
+            }
+        });
+
+        const info = await transporter.sendMail({
+            from: process.env.nodeMailerEmail,
+            to: email,
+            subject: "Your OTP for Password reset",
+            text: `Your OTP is ${otp}`,
+            html: `<b>Your OTP:${otp}</b>`
+        });
+
+        return info.accepted.length > 0;
     } catch (error) {
-        console.log("Error on sending email ",error);
-        return false
+        console.log("Error on sending email ", error);
+        return false;
     }
 }
 
-async function securePassword(password){
-    const hashedPassword= bcrypt.hash(password,10)
-    return hashedPassword
+async function securePassword(password) {
+    const hashedPassword = bcrypt.hash(password, 10);
+    return hashedPassword;
 }
 
-module.exports={generateOtp,sendEmailVerification,securePassword,sendEmailForgotPassword}
+export { generateOtp, sendEmailVerification, securePassword, sendEmailForgotPassword };

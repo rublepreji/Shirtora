@@ -1,27 +1,28 @@
-const mongoose=require('mongoose')
+import mongoose from 'mongoose';
 
-let brandSchema=new mongoose.Schema({
-    brandName:{
-        type:String,
-        required:true
+const brandSchema = new mongoose.Schema({
+    brandName: {
+        type: String,
+        required: true
     },
-    description:{
-        type:String,
-        required:true
+    description: {
+        type: String,
+        required: true
     },
-    brandImage:{
-        type:String,
-        required:true
+    brandImage: {
+        type: String,
+        required: true
     },
-    isBlocked:{
-        type:Boolean,
-        default:false
+    isBlocked: {
+        type: Boolean,
+        default: false
     },
-    createdAt:{
-        type:Date,
-        default:Date.now
+    createdAt: {
+        type: Date,
+        default: Date.now
     }
-})
+});
 
-const Brand= mongoose.model('Brand',brandSchema)
-module.exports=Brand
+const Brand = mongoose.model('Brand', brandSchema);
+
+export default Brand;

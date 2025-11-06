@@ -1,11 +1,11 @@
-const User = require("../model/userSchema");
+import User from '../model/userSchema.js';
 
 // Middleware for authenticating normal users
 async function userAuth(req, res, next) {
   try {
     // 1️⃣ Check if user is logged in
     if (!req.session.user) {
-      return res.redirect("/landingPage");
+      return res.redirect('/landingPage');
     }
 
     // 2️⃣ Fetch user from database
@@ -14,23 +14,23 @@ async function userAuth(req, res, next) {
     // 3️⃣ If user doesn’t exist (deleted)
     if (!user) {
       req.session.destroy();
-      return res.redirect("/landingPage");
+      return res.redirect('/landingPage');
     }
 
     // 4️⃣ Check if user is blocked
     if (user.isBlocked) {
       req.session.destroy();
-      return res.render("blockedPage", {
-        message: "Your account has been blocked by the admin.",
+      return res.render('blockedPage', {
+        message: 'Your account has been blocked by the admin.',
       });
     }
 
     // 5️⃣ Attach fresh user data to request (optional)
     next();
   } catch (error) {
-    console.error("Authentication error:", error);
-    res.redirect("/landingPage");
+    console.error('Authentication error:', error);
+    res.redirect('/landingPage');
   }
 }
 
-module.exports = { userAuth };
+export { userAuth };

@@ -1,40 +1,53 @@
-require('dotenv').config()
-const express=require('express')
-const app=express() 
-const session= require('express-session')  
-const db=require('./config/db')
-const path=require('path')
-const userRoute=require('./routes/userRouter')
-const passport= require('./config/passport')
-const adminRouter= require('./routes/adminRouter')
-const cors= require('cors')
+import dotenv from 'dotenv';
+import express from 'express';
+import session from 'express-session';
+import path from 'path';
+import cors from 'cors';
+import passport from './config/passport.js';
+import db from './config/db.js';
+import userRoute from './routes/userRouter.js';
+import adminRouter from './routes/adminRouter.js';
+import { fileURLToPath } from 'url';
 
-app.use(cors())
-app.use(express.json())
-app.use(express.urlencoded({extended:true}))
-app.use(session({
-    secret:process.env.SESSIIONSECRET,
-    resave:false,
-    saveUninitialized:true,
-    cookie:{
-        secure:false,
-        httpOnly:true,
-        maxAge:72*60*60*100
-    }
-}))
+// For __dirname equivalent
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-app.use(passport.initialize())
-app.use(passport.session())
+dotenv.config();
 
-app.set("view engine","ejs")
-app.set('views',[path.join(__dirname,"view/user"),path.join(__dirname,"view/admin")])
-app.use(express.static(path.join(__dirname,"public")))
+const app = express();
 
-app.use('/',userRoute)
-app.use('/admin',adminRouter)
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-db()
-app.listen(process.env.PORT,()=>{
-    console.log('server is running');
-    
-})
+app.use(
+  session({
+    secret: process.env.SESSIIONSECRET,
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+      secure: false,
+      httpOnly: true,
+      maxAge: 72 * 60 * 60 * 100,
+    },
+  })
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.set('view engine', 'ejs');
+app.set('views', [
+  path.join(__dirname, 'view/user'),
+  path.join(__dirname, 'view/admin'),
+]);
+app.use(express.static(path.join(__dirname, 'public')));
+app.use('/', userRoute);
+app.use('/admin', adminRouter);
+
+db();
+
+app.listen(process.env.PORT, () => {
+  console.log('server is running');
+});
