@@ -1,13 +1,50 @@
 import express from 'express';
-import { loadLogin, login, loadDashboard, pageError, adminLogout } from '../controller/admin/adminController.js';
-import { userInfo, blockUser, unBlockUser } from '../controller/admin/userController.js';
-import {categoryInfo,loadAddCategory,addCategory,deleteCategory,loadEditCategory,editCategory} from '../controller/admin/categoryController.js';
-import { loadProductpage, loadAddProduct, addProduct } from '../controller/admin/productController.js';
-import {loadAddbrand,loadBrandPage,addBrand,blockBrand,unBlockBrand,loadEditBrand,editBrand,dataForBrandPage} from '../controller/admin/brandController.js';
+import { 
+    loadLogin, 
+    login, 
+    loadDashboard,
+    pageError, 
+    adminLogout,
+    } from '../controller/admin/adminController.js';
+
+import { 
+    userInfo,
+    blockUser,
+    unBlockUser
+     } from '../controller/admin/userController.js';
+import {
+    categoryInfo,
+    loadAddCategory,
+    addCategory,
+    deleteCategory,
+    loadEditCategory,
+    editCategory
+    } from '../controller/admin/categoryController.js';
+import { 
+    loadProductpage, 
+    loadAddProduct,
+    addProduct,
+    loadeditproduct,
+    editproduct
+    } from '../controller/admin/productController.js';
+import {
+    loadAddbrand,
+    loadBrandPage,
+    addBrand,
+    blockBrand,
+    unBlockBrand,
+    loadEditBrand,
+    editBrand,
+    dataForBrandPage,
+    
+    } from '../controller/admin/brandController.js';
 import uploadTo from '../middlewares/multerCloudinary.js';
 import multer from 'multer';
 import {storage} from '../helpers/multer.js';
-import { isAdminLogin, isAdminLogout } from '../middlewares/auth.js';
+import { 
+    isAdminLogin,
+     isAdminLogout 
+    } from '../middlewares/auth.js';
 
 const router = express.Router();
 const uploads = multer({ storage: storage });
@@ -45,5 +82,7 @@ router.get('/brand/data', dataForBrandPage);
 router.get('/product', isAdminLogin, loadProductpage);
 router.get('/addproduct', isAdminLogin, loadAddProduct);
 router.post('/addproduct', isAdminLogin, uploadTo('products').array('images', 4),addProduct);
+router.get('/editproduct/:id', isAdminLogin,loadeditproduct)
+router.post('/editproduct',isAdminLogin,editproduct)
 
 export default router;

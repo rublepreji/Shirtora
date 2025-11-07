@@ -7,6 +7,31 @@ import path from 'path';
 import sharp from 'sharp';
 import { json } from 'stream/consumers';
 
+
+
+async function editproduct(req,res) {
+  try {
+    console.log(req.body)
+  } catch (error) {
+    
+  }
+}
+
+async function loadeditproduct(req,res) {
+  try {
+    const id = req.params.id
+    const existProduct= await Product.findOne({_id:id})
+    if(!existProduct){
+      return res.status(400).json('Product not exist')
+    }
+    const category = await Category.find({ isDeleted: false });
+    const brand = await Brand.find({ isBlocked: false });
+    res.render('editproduct',{brand:brand,category:category,product:existProduct})
+  } catch (error) {
+    req.status(500).json({message:"Internal server error"})
+  }
+}
+
 async function addProduct(req, res) {
   try {
     const product = req.body;
@@ -71,4 +96,4 @@ async function loadProductpage(req, res) {
   }
 }
 
-export { loadProductpage, loadAddProduct, addProduct };
+export { loadProductpage, loadAddProduct, addProduct, loadeditproduct, editproduct};
