@@ -1,416 +1,422 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Add New Products | SHIRTORA Admin</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Edit Product | SHIRTORA Admin</title>
+      <script src="https://cdn.tailwindcss.com"></script>
+      <link
+        href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"
+        rel="stylesheet"
+      />
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    </head>
 
-    <link
-    href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"
-    rel="stylesheet"
-    />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <body class="bg-gray-50 min-h-screen flex">
+      <!-- Sidebar -->
+      <aside class="w-64 bg-white shadow-md hidden md:flex flex-col fixed h-full">
+        <%- include("../../view/partials/admin/sideBar") %>
+      </aside>
 
-  </head>
-  <body class="bg-gray-50 min-h-screen flex">
-    <!-- Sidebar -->
-    <aside
-      class="w-64 bg-white shadow-md hidden md:flex flex-col fixed h-full"
-    >
-      <%- include("../../view/partials/admin/sideBar") %>
-    </aside>
+      <!-- Main Content -->
+      <main class="flex-1 md:ml-64 p-6">
+        <h1 class="text-2xl font-semibold mb-6">Edit Product</h1>
 
-    <!-- Main Content -->
-    <main class="flex-1 md:ml-64 p-6">
-      <h1 class="text-2xl font-semibold mb-6">Edit Products</h1>
-
-      <div class="bg-white p-6 rounded-2xl shadow-sm">
-        <form id="productForm" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <!-- Left Section -->
-          <div class="space-y-6">
-            <!-- Product Name -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Product Name</label>
-              <input
-                id="productName"
-                type="text"
-                value="<%=product.productName%>"
-                placeholder="Type name here"
-                class="w-full mt-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-200"
-              />
-              <p class="text-red-500 text-sm mt-1 hidden" id="nameError"></p>
-            </div>
-
-            <!-- Description -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Description</label>
-              <textarea
-                id="description"
-                rows="4"
-                placeholder="Type description"
-                class="w-full mt-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-200"
-              ><%=product.description%></textarea>
-              <p class="text-red-500 text-sm mt-1 hidden" id="descError"></p>
-            </div>
-
-            <!-- Category & Brand -->
-            <div class="grid grid-cols-2 gap-4">
+        <div class="bg-white p-6 rounded-2xl shadow-sm">
+          <form id="productForm" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Left Section -->
+            <div class="space-y-6">
+              <!-- Product Name -->
               <div>
-                <label class="block text-sm font-medium text-gray-700">Category</label>
-                <select
-                  id="category"
-                  class="w-full mt-1 border border-gray-300 rounded-md px-3 py-2 focus:ring focus:ring-indigo-200"
+                <label class="block text-sm font-medium text-gray-700"
+                  >Product Name</label
                 >
-                <option value="<%=product.category%>"><%=product.category%></option>
-                <%category.forEach((val,i)=>{%>
-                  <option value="<%=val.name%>"><%=val.name%></option>
-                  <%})%>
-                </select>
-                <p class="text-red-500 text-sm mt-1 hidden" id="catError"></p>
+                <input
+                  id="productName"
+                  type="text"
+                  value="<%=product.productName%>"
+                  placeholder="Type name here"
+                  class="w-full mt-1 border border-gray-300 rounded-md px-3 py-2 focus:ring focus:ring-indigo-200"
+                />
+                <p class="text-red-500 text-sm mt-1 hidden" id="nameError"></p>
               </div>
 
+              <!-- Description -->
               <div>
-                <label class="block text-sm font-medium text-gray-700">Brand</label>
-                <select
-                  id="brand"
-                  class="w-full mt-1 border border-gray-300 rounded-md px-3 py-2 focus:ring focus:ring-indigo-200"
+                <label class="block text-sm font-medium text-gray-700"
+                  >Description</label
                 >
-                  <option value="<%=product.brand%>"><%=product.brand%></option>
-                  <%brand.forEach((val,i)=>{%>
-                  <option value="<%=val.brandName%>"><%=val.brandName%></option>
-                  <%})%>
-                </select>
-                <p class="text-red-500 text-sm mt-1 hidden" id="brandError"></p>
+                <textarea
+                  id="description"
+                  rows="4"
+                  placeholder="Type description"
+                  class="w-full mt-1 border border-gray-300 rounded-md px-3 py-2 focus:ring focus:ring-indigo-200"
+                ><%=product.description%></textarea>
+                <p class="text-red-500 text-sm mt-1 hidden" id="descError"></p>
               </div>
-            </div>
 
-            <!-- Variants -->
-            <div class="border border-gray-200 rounded-lg p-4">
-              <h2 class="font-semibold text-gray-700 mb-4">Variants</h2>
-              <%product.variants.forEach((val,i)=>{%>
-              <div id="variantSection" class="space-y-3">
-                <div class="grid grid-cols-3 gap-4 variant">
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700">Size</label>
-                    <select
-                      class="variant-size w-full mt-1 border border-gray-300 rounded-md px-3 py-2"
-                    >
-                      <option value="<%=val.size%>"><%=val.size%></option>
-                      <option>S</option>
-                      <option>M</option>
-                      <option>L</option>
-                      <option>XL</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700">Price</label>
-                    <input type="text" value="<%=val.price%>" placeholder="Price" class="variant-price w-full mt-1 border border-gray-300 rounded-md px-3 py-2">
-                  </div>
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700">Stock</label>
-                    <input type="text" placeholder="Stock" value="<%=val.stock%>" class="variant-stock w-full mt-1 border border-gray-300 rounded-md px-3 py-2">
-                  </div>
+              <!-- Category & Brand -->
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700"
+                    >Category</label
+                  >
+                  <select
+                    id="category"
+                    class="w-full mt-1 border border-gray-300 rounded-md px-3 py-2 focus:ring focus:ring-indigo-200"
+                  >
+                    <option value="<%=product.category%>">
+                      <%=product.category%>
+                    </option>
+                    <%category.forEach((val)=>{%>
+                    <option value="<%=val.name%>"><%=val.name%></option>
+                    <%})%>
+                  </select>
+                  <p class="text-red-500 text-sm mt-1 hidden" id="catError"></p>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700"
+                    >Brand</label
+                  >
+                  <select
+                    id="brand"
+                    class="w-full mt-1 border border-gray-300 rounded-md px-3 py-2 focus:ring focus:ring-indigo-200"
+                  >
+                    <option value="<%=product.brand%>">
+                      <%=product.brand%>
+                    </option>
+                    <%brand.forEach((val)=>{%>
+                    <option value="<%=val.brandName%>"><%=val.brandName%></option>
+                    <%})%>
+                  </select>
+                  <p class="text-red-500 text-sm mt-1 hidden" id="brandError"></p>
                 </div>
               </div>
-              <%})%>
-              <button
-                type="button"
-                id="addVariantBtn"
-                class="mt-4 px-4 py-2 text-sm bg-indigo-500 text-white rounded-md hover:bg-indigo-600"
-              >
-                Add More
-              </button>
-              <p class="text-red-500 text-sm mt-1 hidden" id="variantError"></p>
+
+              <!-- Variants -->
+              <div class="border border-gray-200 rounded-lg p-4">
+                <h2 class="font-semibold text-gray-700 mb-4">Variants</h2>
+                <div id="variantSection" class="space-y-3">
+                  <%product.variants.forEach((val)=>{%>
+                  <div class="grid grid-cols-3 gap-4 variant">
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700"
+                        >Size</label
+                      >
+                      <select
+                        class="variant-size w-full mt-1 border border-gray-300 rounded-md px-3 py-2"
+                      >
+                        <option value="<%=val.size%>"><%=val.size%></option>
+                        <option>S</option>
+                        <option>M</option>
+                        <option>L</option>
+                        <option>XL</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700"
+                        >Price</label
+                      >
+                      <input
+                        type="text"
+                        value="<%=val.price%>"
+                        placeholder="Price"
+                        class="variant-price w-full mt-1 border border-gray-300 rounded-md px-3 py-2"
+                      />
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700"
+                        >Stock</label
+                      >
+                      <input
+                        type="text"
+                        value="<%=val.stock%>"
+                        placeholder="Stock"
+                        class="variant-stock w-full mt-1 border border-gray-300 rounded-md px-3 py-2"
+                      />
+                    </div>
+                  </div>
+                  <%})%>
+                </div>
+                <button
+                  type="button"
+                  id="addVariantBtn"
+                  class="mt-4 px-4 py-2 text-sm bg-indigo-500 text-white rounded-md hover:bg-indigo-600"
+                >
+                  Add More
+                </button>
+                <p class="text-red-500 text-sm mt-1 hidden" id="variantError"></p>
+              </div>
+
+              <!-- Color -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700"
+                  >Color</label
+                >
+                <input
+                  id="color"
+                  type="text"
+                  value="<%=product.colour%>"
+                  placeholder="Enter colour"
+                  class="w-full mt-1 border border-gray-300 rounded-md px-3 py-2 focus:ring focus:ring-indigo-200"
+                />
+                <p class="text-red-500 text-sm mt-1 hidden" id="colorError"></p>
+              </div>
+
+              <!-- Submit -->
+              <div>
+                <button
+                  type="submit"
+                  class="px-6 py-2 bg-indigo-500 text-white rounded-md font-medium hover:bg-indigo-600 transition"
+                >
+                  Update Product
+                </button>
+              </div>
             </div>
 
-            <!-- Color -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Color</label>
-              <input
-                id="color"
-                type="text"
-                value="<%=product.colour%>"
-                placeholder="Enter colour"
-                class="w-full mt-1 border border-gray-300 rounded-md px-3 py-2 focus:ring focus:ring-indigo-200"
-              />
-              <p class="text-red-500 text-sm mt-1 hidden" id="colorError"></p>
-            </div>
+            <!-- Right Section (Images) -->
+            <div class="flex flex-col items-center justify-center">
+              <div class="grid grid-cols-2 gap-4 mb-4">
+    <% for(let i=0; i<4; i++){ %>
+    <div class="relative group w-32 h-40">
+      <!-- Image Preview -->
+      <img
+        id="img<%=i+1%>Preview"
+        class="w-full h-full rounded-md shadow object-cover cursor-pointer"
+        src="<%= product.productImage[i] %>"
+        alt="Preview <%=i+1%>"
+        onclick="document.getElementById('img<%=i+1%>Input').click()"
+      />
 
-            <!-- Submit -->
-            <div>
-              <button
-                type="submit"
-                class="px-6 py-2 bg-indigo-500 text-white rounded-md font-medium hover:bg-indigo-600 transition"
-              >
-                Update Product
-              </button>
-            </div>
-          </div>
+      <!-- Hidden File Input for Browsing -->
+      <input
+        type="file"
+        id="img<%=i+1%>Input"
+        accept="image/*"
+        class="hidden"
+        onchange="handleImageBrowse(event, 'img<%=i+1%>Preview', '<%=i+1%>')"
+      />
 
-           <!-- Right Section (Images) -->
-          <div class="flex flex-col items-center justify-center">
-            <div class="grid grid-cols-2 gap-4 mb-4">
-              <div class="relative">
-                <img id="img1Preview" class="w-32 h-40 rounded-md shadow object-cover" src="<%=product.productImage[0]%>" alt="Preview 1" />
-                <input type="file" id="img1" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer" />
-              </div>
-              <div class="relative">
-                <img id="img2Preview" class="w-32 h-40 rounded-md shadow object-cover" src="<%=product.productImage[1]%>" alt="Preview 2" />
-                <input type="file" id="img2" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer" />
-              </div>
-              <div class="relative">
-                <img id="img3Preview" class="w-32 h-40 rounded-md shadow object-cover" src="<%=product.productImage[2]%>" alt="Preview 3" />
-                <input type="file" id="img3" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer" />
-              </div>
-              <div class="relative">
-                <img id="img4Preview" class="w-32 h-40 rounded-md shadow object-cover" src="<%=product.productImage[3]%>" alt="Preview 4" />
-                <input type="file" id="img4" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer" />
-              </div>
+      <!-- Remove Button -->
+      <button
+        type="button"
+        class="absolute top-1 right-1 bg-red-500 text-white rounded-full text-xs w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
+        onclick="removeImage('<%=product.productImage[i]%>','<%=product._id%>')"
+      >
+        ×
+      </button>
+    </div>
+    <% } %>
+  </div>
+
+              <p class="text-red-500 text-sm hidden" id="imgError"></p>
             </div>
-            <p class="text-red-500 text-sm hidden" id="imgError"></p>
-          </div>
-        </form>
-      </div>
-    </main>
+          </form>
+        </div>
+      </main>
+
       <!-- Cropper Modal -->
-      <div id="cropperModal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center z-50">
+      <div
+        id="cropperModal"
+        class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center z-50"
+      >
         <div class="bg-white p-4 rounded-lg shadow-lg max-w-lg w-full">
           <div class="text-right">
-            <button id="closeCropper" class="text-gray-500 hover:text-gray-700 font-bold">×</button>
+            <button
+              id="closeCropper"
+              class="text-gray-500 hover:text-gray-700 font-bold"
+            >
+              ×
+            </button>
           </div>
-          <div>
-            <img id="cropperImage" class="max-h-96 mx-auto" />
-          </div>
+          <div><img id="cropperImage" class="max-h-96 mx-auto" /></div>
           <div class="mt-4 flex justify-center gap-4">
-            <button id="cropImageBtn" class="px-4 py-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600">Crop & Save</button>
+            <button
+              id="cropImageBtn"
+              class="px-4 py-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600"
+            >
+              Crop & Save
+            </button>
           </div>
         </div>
       </div>
 
+      <script>
+        async function removeImage(imageId, productId) {
+          console.log('remove btn pressed');
+          console.log(imageId,' ',productId);
+          
+          
+          const response = await fetch(`/admin/removeimg?imageid=${encodeURIComponent(imageId)}&productid=${productId}`, {
+            method: "delete",
+          });
+          const data = await response.json();
+          if (data.success){
+          Swal.fire({
+              icon: "success",
+              title: "Updated!",
+              text: data.message || "Image removed!",
+              showConfirmButton: false,
+              timer: 2000,
+            });
+            setTimeout(()=>window.location.reload(),1400)
+          } 
+          else{
+            Swal.fire({
+                icon: "error",
+                title: "Failed",
+                text: data.message || "Failed to remove image!",
+              });
+          }
+        }
 
-<script>
-const originalProduct = {
-  id: "<%= product._id %>",
-  productName: "<%= product.productName %>",
-  description: `<%= product.description %>`,
-  category: "<%= product.category %>",
-  brand: "<%= product.brand %>",
-  colour: "<%= product.colour %>",
-  variants: <%- JSON.stringify(product.variants) %>,
-  productImage: <%- JSON.stringify(product.productImage) %>
-};
+        const originalProduct = {
+          id: "<%= product._id %>",
+          productImage: <%- JSON.stringify(product.productImage) %>,
+        };
 
-const form = document.getElementById("productForm");
-let currentImageInput = null;
-let cropper = null;
-const modal = document.getElementById("cropperModal");
-const cropperImage = document.getElementById("cropperImage");
-const croppedImages = {}; // stores newly cropped images
+        const form = document.getElementById("productForm");
+        const fileInputs = ["img1", "img2", "img3", "img4"];
+        const croppedImages = {};
 
-// --- Add Variant ---
-document.getElementById("addVariantBtn").addEventListener("click", () => {
-  const section = document.getElementById("variantSection");
-  const newVariant = document.querySelector(".variant").cloneNode(true);
-  newVariant.querySelectorAll("select, input").forEach((el) => (el.value = ""));
-  section.appendChild(newVariant);
-});
+        form.addEventListener("submit", async (e) => {
+          e.preventDefault();
 
-// --- Image Upload & Cropper ---
-const fileInputs = ["img1", "img2", "img3", "img4"];
-fileInputs.forEach((id) => {
-  const input = document.getElementById(id);
-  input.addEventListener("change", (e) => {
-    const file = e.target.files[0];
+          // Collect values
+          const name = document.getElementById("productName").value.trim();
+          const desc = document.getElementById("description").value.trim();
+          const cat = document.getElementById("category").value.trim();
+          const brand = document.getElementById("brand").value.trim();
+          const color = document.getElementById("color").value.trim();
+
+          const variants = [...document.querySelectorAll(".variant")].map((v) => ({
+            size: v.querySelector(".variant-size").value,
+            price: v.querySelector(".variant-price").value,
+            stock: v.querySelector(".variant-stock").value,
+          }));
+
+          // Prepare form data
+          const payload = {
+            productId: originalProduct.id,
+            productName: name,
+            description: desc,
+            category: cat,
+            brand: brand,
+            colour: color,
+            variants 
+          };
+          try{
+          const res = await fetch("/admin/editproduct", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+            const data = await res.json();
+
+            if (data.success) {
+              Swal.fire({
+                icon: "success",
+                title: "Updated!",
+                text: data.message || "Product updated successfully!",
+                showConfirmButton: false,
+                timer: 2000,
+              });
+            } else {
+              Swal.fire({
+                icon: "error",
+                title: "Failed",
+                text: data.message || "Failed to update product!",
+              });
+            }
+          } catch (err) {
+            console.error("Error:", err);
+            Swal.fire({
+              icon: "error",
+              title: "Network error",
+              text: "Something went wrong while updating.",
+            });
+          }
+        });
+  let cropper;
+  const cropperModal = document.getElementById("cropperModal");
+  const cropperImage = document.getElementById("cropperImage");
+  const cropImageBtn = document.getElementById("cropImageBtn");
+  const closeCropper = document.getElementById("closeCropper");
+  let currentPreviewId = null;
+
+  function handleImageBrowse(event, previewId, index) {
+    const file = event.target.files[0];
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = () => {
-      cropperImage.src = reader.result;
-      modal.classList.remove("hidden");
-      modal.classList.add("flex");
-
-      if (cropper) cropper.destroy();
+    reader.onload = function (e) {
+      cropperImage.src = e.target.result;
+      cropperModal.classList.remove("hidden");
       cropper = new Cropper(cropperImage, {
         aspectRatio: 3 / 4,
-        viewMode: 2,
-        dragMode: "move",
-        responsive: true,
+        viewMode: 1,
       });
-
-      currentImageInput = id;
+      currentPreviewId = previewId;
     };
     reader.readAsDataURL(file);
+  }
+
+  cropImageBtn.addEventListener("click", async () => {
+    if (!cropper) return;
+
+    cropper.getCroppedCanvas().toBlob(async (blob) => {
+      const preview = document.getElementById(currentPreviewId);
+      const url = URL.createObjectURL(blob);
+      preview.src = url;
+
+      const key = currentPreviewId.replace("Preview", "");
+      croppedImages[key] = blob;
+
+      cropper.destroy();
+      cropper = null;
+      cropperModal.classList.add("hidden");
+
+    
+      try {
+        const formData = new FormData();
+        formData.append("productId", originalProduct.id);
+        formData.append("imageIndex", key.replace("img", "")); 
+        formData.append("image", blob, `${key}.jpg`);
+
+        const res = await fetch("/admin/imagechanges", {
+          method: "put",
+          body:formData
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          Swal.fire({
+            icon: "success",
+            title: "Image Updated",
+            text: data.message || "Product image updated successfully!",
+            showConfirmButton: false,
+            timer: 2000,
+          });
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Image Update Failed",
+            text: data.message || "Unable to update image!",
+          });
+        }
+      } catch (err) {
+        console.error("Error updating image:", err);
+        Swal.fire({
+          icon: "error",
+          title: "Network Error",
+          text: "Something went wrong while updating the image.",
+        });
+      }
+    }, "image/jpeg");
   });
-});
 
-// Close Modal
-document.getElementById("closeCropper").addEventListener("click", () => {
-  modal.classList.add("hidden");
-  if (cropper) cropper.destroy();
-});
-
-// Crop & Save
-document.getElementById("cropImageBtn").addEventListener("click", () => {
-  if (!cropper || !currentImageInput) return;
-  const canvas = cropper.getCroppedCanvas({ width: 400, height: 533 });
-  const preview = document.getElementById(currentImageInput + "Preview");
-  preview.src = canvas.toDataURL("image/jpeg");
-
-  canvas.toBlob((blob) => {
-    croppedImages[currentImageInput] = blob;
-  }, "image/jpeg");
-
-  modal.classList.add("hidden");
-  cropper.destroy();
-});
-
-// --- FORM SUBMIT ---
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  document.querySelectorAll("p.text-red-500").forEach((el) => el.classList.add("hidden"));
-  let valid = true;
-
-  const name = document.getElementById("productName").value.trim();
-  const desc = document.getElementById("description").value.trim();
-  const cat = document.getElementById("category").value.trim();
-  const brand = document.getElementById("brand").value.trim();
-  const color = document.getElementById("color").value.trim();
-
-  const variants = document.querySelectorAll(".variant");
-  let variantList = [];
-  variants.forEach((v) => {
-    const size = v.querySelector(".variant-size").value;
-    const price = v.querySelector(".variant-price").value;
-    const stock = v.querySelector(".variant-stock").value;
-    variantList.push({ size, price, stock });
-  });
-
-  // --- Create updatedProduct ---
-  const updatedProduct = {
-    ...originalProduct,
-    productName: name,
-    description: desc,
-    category: cat,
-    brand: brand,
-    colour: color,
-    variants: variantList,
-  };
-
-  // --- Compare with original to detect changed fields ---
-  const changedFields = {};
-  for (const key in updatedProduct) {
-    if (JSON.stringify(updatedProduct[key]) !== JSON.stringify(originalProduct[key])) {
-      changedFields[key] = updatedProduct[key];
-    }
-  }
-
-  // --- Validation only for changed fields ---
-  if ("productName" in changedFields && !name) {
-    showError("nameError", "Product name cannot be empty.");
-    valid = false;
-  }
-  if ("description" in changedFields && !desc) {
-    showError("descError", "Description cannot be empty.");
-    valid = false;
-  }
-  if ("category" in changedFields && !cat) {
-    showError("catError", "Please select a category.");
-    valid = false;
-  }
-  if ("brand" in changedFields && !brand) {
-    showError("brandError", "Please select a brand.");
-    valid = false;
-  }
-  if ("colour" in changedFields && !color) {
-    showError("colorError", "Color cannot be empty.");
-    valid = false;
-  }
-
-  // --- Variants validation ---
-  if ("variants" in changedFields) {
-    let variantValid = variantList.every(
-      (v) => v.size && v.price && v.stock
-    );
-    if (!variantValid) {
-      showError("variantError", "All variant fields must be filled.");
-      valid = false;
-    }
-  }
-
-  // --- Images ---
-  const hasNewImage = Object.keys(croppedImages).length > 0;
-
-  if (!hasNewImage && Object.keys(changedFields).length === 0) {
-    Swal.fire({
-      icon: "info",
-      title: "No changes detected",
-      text: "You haven't modified any field!",
-    });
-    return;
-  }
-
-  if (!valid) return;
-
-  // --- Prepare FormData ---
-  const formData = new FormData();
-  formData.append("productId", originalProduct.id);
-  formData.append("product", JSON.stringify(changedFields));
-
-  // If new images cropped
-  if (hasNewImage) {
-    Object.entries(croppedImages).forEach(([key, blob], index) => {
-      formData.append("images", blob, `image${index + 1}.jpg`);
-    });
-  } else {
-    // send existing images if not changed
-    originalProduct.productImage.forEach((img, i) => {
-      formData.append(`existingImages[${i}]`, img);
-    });
-  }
-
-  // --- Send to backend ---
-  try {
-    const res = await fetch("/admin/editproduct", {
-      method: "POST",
-      body: formData,
-    });
-
-    const data = await res.json();
-    if (data.success) {
-      Swal.fire({
-        icon: "success",
-        title: "Updated!",
-        text: data.message || "Product updated successfully!",
-        showConfirmButton: false,
-        timer: 2000,
-      });
-    } else {
-      Swal.fire({
-        icon: "error",
-        title: "Failed",
-        text: data.message || "Failed to update product!",
-      });
-    }
-  } catch (err) {
-    console.error("Error:", err);
-    Swal.fire({
-      icon: "error",
-      title: "Network error",
-      text: "Something went wrong while updating.",
-    });
-  }
-});
-
-function showError(id, message) {
-  const el = document.getElementById(id);
-  el.textContent = message;
-  el.classList.remove("hidden");
-}
-</script>
-
-
-  </body>
-</html>
+      </script>
+    </body>
+  </html>

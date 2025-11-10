@@ -25,7 +25,9 @@ import {
     loadAddProduct,
     addProduct,
     loadeditproduct,
-    editproduct
+    editproduct,
+    removeImage,
+    imageChanges
     } from '../controller/admin/productController.js';
 import {
     loadAddbrand,
@@ -83,6 +85,9 @@ router.get('/product', isAdminLogin, loadProductpage);
 router.get('/addproduct', isAdminLogin, loadAddProduct);
 router.post('/addproduct', isAdminLogin, uploadTo('products').array('images', 4),addProduct);
 router.get('/editproduct/:id', isAdminLogin,loadeditproduct)
-router.post('/editproduct',isAdminLogin,editproduct)
+router.put('/editproduct',isAdminLogin,editproduct)
+router.delete('/removeimg',isAdminLogin,removeImage)
+router.put('/imagechanges', isAdminLogin,uploadTo('products').single('image') , imageChanges)
+
 
 export default router;
