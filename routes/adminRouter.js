@@ -27,7 +27,9 @@ import {
     loadeditproduct,
     editproduct,
     removeImage,
-    imageChanges
+    imageChanges,
+    blockProduct,
+    unblockProduct
     } from '../controller/admin/productController.js';
 import {
     loadAddbrand,
@@ -88,6 +90,8 @@ router.get('/editproduct/:id', isAdminLogin,loadeditproduct)
 router.put('/editproduct',isAdminLogin,editproduct)
 router.delete('/removeimg',isAdminLogin,removeImage)
 router.put('/imagechanges', isAdminLogin,uploadTo('products').single('image') , imageChanges)
+router.put('/blockproduct',isAdminLogin, blockProduct)
+router.put('/unblockproduct',isAdminLogin,unblockProduct)
 
 
 export default router;

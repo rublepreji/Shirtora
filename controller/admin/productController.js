@@ -6,6 +6,38 @@ import { json } from 'stream/consumers';
 
 
 
+async function blockProduct(req,res) {
+  try {
+    const id=req.body.id
+    if(id){
+      await Product.findByIdAndUpdate(id,{isBlocked:true},{new:true})
+      return res.status(200).json({success:true,message:"Product blocked successfully"})
+    }
+    else{
+      return res.status(400).json({success:false,message:"Failed to block Product"})
+    }
+  } catch (error) {
+    console.log(error); 
+    return res.status(500).json({success:false,message:"Internal server error"})
+  }
+}
+async function unblockProduct(req,res) {
+  try {
+    const id = req.body.id
+    if(id){
+    await Product.findByIdAndUpdate(id,{isBlocked:false},{new:true})   
+    return res.status(200).json({success:true,message:"Product unblocked successfully"})
+    } 
+    else{
+      return res.status(400).json({success:false,message:"Failed to unblock product"})
+    }
+  } catch (error) {
+    console.log(error);
+    
+    return res.status(500).json({success:false,message:"Internal server error"})
+  }
+}
+
 async function imageChanges(req,res) {
   try {    
     const {productId, imageIndex}= req.body    
@@ -45,9 +77,7 @@ async function removeImage(req,res) {
 }
 
 async function editproduct(req,res) {
-  try {
-    console.log('hloo');
-    
+  try {    
     const {productId,productName,description,category,brand,colour,variants}= req.body
     console.log('editproduct',req.body);
     let vari= req.body.variants
@@ -147,11 +177,11 @@ async function loadAddProduct(req, res) {
 
 async function loadProductpage(req, res) {
   try {
-    const product = await Product.find({ isBlocked: false });
+    const product = await Product.find();
     return res.render('product', { product: product });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Internal server error' });
   }
 }
 
-export { loadProductpage, loadAddProduct, addProduct, loadeditproduct, editproduct,removeImage, imageChanges};
+export { loadProductpage, loadAddProduct, addProduct, loadeditproduct, editproduct,removeImage, imageChanges, blockProduct, unblockProduct};
