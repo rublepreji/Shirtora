@@ -1,5 +1,37 @@
 import Category from '../../model/categorySchema.js';
 
+
+
+async function dataForCategory(req,res) {
+  try {
+    const page= parseInt(req.query.page) || 1
+    const limit=4
+    const skip= (page-1)*limit
+    const search= req.query.search || ""
+
+    const query=search?{
+      name:{$regex:search,$options:"i"}
+    }:{}
+
+    const CategoryData=await Category.find(query)
+    .sort({createdAt:-1})
+    .skip(skip)
+    .limit(limit)
+
+    const totalCategory= await Category.countDocuments(query)
+    const totalPages= Math.ceil(totalCategory/limit)
+
+    res.status(200).json({
+      success:true,
+      data:CategoryData,
+      totalPages,
+      currentPage:page
+    })
+  } catch (error) {
+    res.status(500).json({success:false,message:"Internal server error"})
+  }
+}
+
 async function deleteCategory(req, res) {
   try {
     const id = req.params.id;
@@ -113,5 +145,6 @@ export {
   addCategory,
   deleteCategory,
   loadEditCategory,
-  editCategory
+  editCategory,
+  dataForCategory
 };

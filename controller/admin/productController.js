@@ -5,6 +5,39 @@ import { json } from 'stream/consumers';
 
 
 
+async function dataForProductPage(req,res) {
+  try {
+    console.log('Product controller');
+    
+    const page= parseInt(req.query.page) || 1
+    const limit=4
+    const skip= (page-1)*limit
+    const search= req.query.search ||""
+    console.log(search);
+    
+    const query=search? {
+      productName:{$regex:search, $options:"i"}
+    }:{}
+    const productData=await Product.find(query)
+    .sort({createdAt:-1})
+    .skip(skip)
+    .limit(limit)
+
+    const totalProduct= await Product.countDocuments(query)
+    const totalpages= Math.ceil(totalProduct/limit)
+
+    res.status(200).json({
+      success:true,
+      data:productData,
+      totalProduct,
+      totalpages,
+      currentPage:page,
+    })
+  } catch (error) {
+    res.status(500).json({success:false,message:"Internal server error"})
+  }
+}
+
 
 async function blockProduct(req,res) {
   try {
@@ -177,11 +210,10 @@ async function loadAddProduct(req, res) {
 
 async function loadProductpage(req, res) {
   try {
-    const product = await Product.find();
-    return res.render('product', { product: product });
+    return res.render('product');
   } catch (error) {
     res.status(500).json({ success: false, message: 'Internal server error' });
   }
 }
 
-export { loadProductpage, loadAddProduct, addProduct, loadeditproduct, editproduct,removeImage, imageChanges, blockProduct, unblockProduct};
+export { loadProductpage, loadAddProduct, addProduct, loadeditproduct, editproduct,removeImage, imageChanges, blockProduct, unblockProduct ,dataForProductPage};

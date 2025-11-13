@@ -18,7 +18,8 @@ import {
     addCategory,
     deleteCategory,
     loadEditCategory,
-    editCategory
+    editCategory,
+    dataForCategory
     } from '../controller/admin/categoryController.js';
 import { 
     loadProductpage, 
@@ -29,7 +30,8 @@ import {
     removeImage,
     imageChanges,
     blockProduct,
-    unblockProduct
+    unblockProduct,
+    dataForProductPage
     } from '../controller/admin/productController.js';
 import {
     loadAddbrand,
@@ -71,6 +73,7 @@ router.post('/addcategory', addCategory);
 router.post('/deleteCategory/:id', deleteCategory);
 router.get('/editcategory/:id', isAdminLogin, loadEditCategory);
 router.post('/postEditCategory', editCategory);
+router.get('/dataforcategory',isAdminLogin,dataForCategory)
 
 // Brand management
 router.get('/brand', isAdminLogin,loadBrandPage);
@@ -82,6 +85,7 @@ router.get('/editBrand/:id',loadEditBrand);
 router.put('/editBrand', uploadTo('brands').single('image'), editBrand);
 router.get('/brand/data', dataForBrandPage);
 
+
 // Product management
 router.get('/product', isAdminLogin, loadProductpage);
 router.get('/addproduct', isAdminLogin, loadAddProduct);
@@ -92,6 +96,7 @@ router.delete('/removeimg',isAdminLogin,removeImage)
 router.put('/imagechanges', isAdminLogin,uploadTo('products').single('image') , imageChanges)
 router.put('/blockproduct',isAdminLogin, blockProduct)
 router.put('/unblockproduct',isAdminLogin,unblockProduct)
+router.get('/dataforproductpage',isAdminLogin,dataForProductPage)
 
 
 export default router;
