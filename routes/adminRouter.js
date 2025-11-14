@@ -10,7 +10,8 @@ import {
 import { 
     userInfo,
     blockUser,
-    unBlockUser
+    unBlockUser,
+    dataForUserPage
      } from '../controller/admin/userController.js';
 import {
     categoryInfo,
@@ -63,8 +64,9 @@ router.get('/adminlogout',adminLogout);
 
 // User management
 router.get('/users', isAdminLogin,userInfo);
-router.post('/blockuser',blockUser);
-router.post('/unblockuser',unBlockUser);
+router.post('/blockuser',isAdminLogin,blockUser);
+router.post('/unblockuser',isAdminLogin,unBlockUser);
+router.get('/dataForuserpage',isAdminLogin,dataForUserPage)
 
 // Category management
 router.get('/category', isAdminLogin, categoryInfo);

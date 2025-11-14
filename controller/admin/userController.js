@@ -1,39 +1,45 @@
 import User from '../../model/userSchema.js';
 
+
+async function dataForUserPage(req,res) {
+  try {
+    const page= parseInt(req.query.page) || 1
+    
+    const limit=4
+    const skip= (page-1)*limit
+    const search= req.query.search
+    const filter= req.query.filter
+    const query= {
+      isAdmin:false,
+      ...(search?{fullName:{$regex:search,$options:"i"}}:{})
+    }
+    if(filter=='blocked') query.isBlocked=true
+    else if(filter=='active') query.isBlocked=false
+
+    const userData= await User.find(query)
+    .sort({createdAt:-1})
+    .skip(skip)
+    .limit(limit)
+
+    const totalUser= await User.countDocuments(query)
+    const totalPages= Math.ceil(totalUser/limit)
+    res.status(200).json({
+      success:true,
+      data:userData,
+      totalPages:totalPages,
+      currentPage:page
+    })
+
+  } catch (error) {
+    res.status(500).json({success:true,message:"Internal server error"})
+  }
+}
+
 async function userInfo(req, res) {
   try {
-    let filter = req.query.filter || 'all';
-    let search = req.query.search || '';
-    let page = parseInt(req.query.page) || 1;
-    const limit = 3;
-
-    const query = {
-      isAdmin: false,
-      $or: [
-        { fullName: { $regex: '.*' + search + '.*' } },
-        { email: { $regex: '.*' + search + '.*' } }
-      ]
-    };
-
-    if (filter == 'blocked') query.isBlocked = true;
-    else if (filter == 'active') query.isBlocked = false;
-
-    const userData = await User.find(query)
-      .sort({ createdAt: -1 })
-      .limit(limit * 1)
-      .skip((page - 1) * limit)
-      .exec();
-
-    const count = await User.find(query).countDocuments();
-
-    res.render('userPage', {
-      data: userData,
-      totalPages: Math.ceil(count / limit),
-      currentPage: page,
-      search,
-      filter
-    });
+    res.render('userPage');
   } catch (error) {
+    res.status(500).json({success:false,message:"Internal server error"})
     console.error('Error loading user info:', error);
   }
 }
@@ -58,4 +64,4 @@ async function unBlockUser(req, res) {
   }
 }
 
-export { userInfo, blockUser, unBlockUser };
+export { userInfo, blockUser, unBlockUser, dataForUserPage};

@@ -36,133 +36,255 @@
 </head>
 <body class="antialiased">
 
-    <div class="center-container">
+<div class="center-container">
+    
+   
+    <div class="w-full max-w-md mx-auto py-12 px-4 sm:px-6 lg:px-8">
+
+        <h1 class="text-4xl sm:text-5xl font-normal tracking-tight mb-4 text-center sm:text-left">
+            Enter the OTP
+        </h1>
+
         
-        <!-- Main Content Card (Keeping it centered for all screen sizes) -->
-        <div class="w-full max-w-md mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        <p class="text-lg font-normal text-gray-800 mb-10 text-center sm:text-left">
+            The OTP has sent to your registered email
+        </p>
 
-            <!-- Title -->
-            <h1 class="text-4xl sm:text-5xl font-normal tracking-tight mb-4 text-center sm:text-left">
-                Enter the OTP
-            </h1>
+       
+<form id="form" class="space-y-12" novalidate>
+    
+    <!-- OTP Input Group -->
+    <div class="space-y-2">
+        <div class="flex items-end space-x-4">
+            <div class="relative flex-1">
+                <input 
+                    type="text" 
+                    id="otp" 
+                    placeholder="Enter the otp" 
+                    class="w-full text-lg placeholder-gray-400 input-underline transition duration-200"
+                    aria-label="Enter the OTP"
+                    required
+                    maxlength="6"
+                    inputmode="numeric"
+                />
+            </div>
 
-            <!-- Subtitle/Instruction -->
-            <p class="text-lg font-normal text-gray-800 mb-10 text-center sm:text-left">
-                The OTP has sent to your registered email
-            </p>
-
-            <!-- Form Area -->
-            <form class="space-y-12" method="post" action="/verifyPassOtp" novalidate>
-                
-                <!-- OTP Input Group -->
-                <div class="space-y-2">
-                    <div class="flex items-end space-x-4">
-                        <div class="relative flex-1">
-                            <input 
-                                type="text" 
-                                id="otp" 
-                                placeholder="Enter the otp" 
-                                class="w-full text-lg placeholder-gray-400 input-underline transition duration-200"
-                                aria-label="Enter the OTP"
-                                required
-                                maxlength="6"
-                                inputmode="numeric"
-                            />
-                        </div>
-                        
-                        <!-- Resend OTP Button -->
-                        <button 
-                            type="button" 
-                            class="flex-shrink-0 px-4 py-2 text-sm font-medium rounded-sm bg-black text-white shadow-lg hover:bg-gray-800 transition duration-200"
-                            id="resend-button"
-                            disabled
-                        >
-                            Resend OTP
-                        </button>
-                    </div>
-
-                    <!-- Timer Text -->
-                    <p class="text-red-600 text-sm font-normal text-left" id="timer-text">
-                        0:57 seconds remaining
-                    </p>
-                </div>
-
-                <!-- Action Buttons & Link -->
-                <div class="flex flex-col sm:flex-row justify-between items-center pt-8">
-                    
-                    <!-- Back to Login Link -->
-                    <a href="#" class="text-base font-normal text-black underline mb-6 sm:mb-0 sm:no-underline hover:underline transition">
-                        Back to Login
-                    </a>
-
-                    <!-- Verify Button -->
-                    <button 
-                        type="submit" 
-                        class="w-full sm:w-auto px-10 py-3 text-base font-medium rounded-sm bg-black text-white shadow-lg hover:bg-gray-800 transition duration-200"
-                    >
-                        Verify
-                    </button>
-                </div>
-            </form>
-
+            <button 
+                type="submit" 
+                class="w-full sm:w-auto px-10 py-3 text-base font-medium rounded-sm bg-black text-white shadow-lg hover:bg-gray-800 transition duration-200"
+            >
+                Verify
+            </button>
         </div>
+
+        <!-- Timer Text -->
+        <p class="text-red-600 text-sm font-normal text-left" id="timer-text">
+            0:59 seconds remaining
+        </p>
     </div>
     
-    <script>
-        const TIMER_DURATION = 60; // 60 seconds
-        let remainingTime = TIMER_DURATION;
-        let timerInterval;
+    
+    <div class="flex flex-col sm:flex-row justify-between items-center pt-8">
+        
+        
+        <a href="#" class="text-base font-normal text-black underline mb-6 sm:mb-0 sm:no-underline hover:underline transition">
+            Back to Login
+        </a>
 
-        const timerText = document.getElementById('timer-text');
-        const resendButton = document.getElementById('resend-button');
+        <button 
+            type="button" 
+            class="flex-shrink-0 px-4 py-2 text-sm font-medium rounded-sm bg-black text-white shadow-lg hover:bg-gray-800 transition duration-200"
+            id="resend-button"
+            disabled
+        >
+            Resend OTP
+        </button>
+        
+    </div>
+</form>
 
-        // Function to update the timer display
-        function updateTimer() {
-            const minutes = Math.floor(remainingTime / 60);
-            const seconds = remainingTime % 60;
-            const timeString = `${minutes}:${seconds < 10 ? '0' : ''}${seconds} seconds remaining`;
+    </div>
+</div>
+    
+  
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-            timerText.textContent = timeString;
+<script>
 
-            if (remainingTime <= 0) {
-                clearInterval(timerInterval);
-                timerText.textContent = "Resend link is active.";
-                timerText.classList.remove('text-red-600');
-                timerText.classList.add('text-black');
-                resendButton.disabled = false;
-                resendButton.classList.remove('bg-gray-400', 'cursor-not-allowed');
-                resendButton.classList.add('bg-black', 'hover:bg-gray-800');
-            } else {
-                remainingTime--;
-            }
-        }
+const TIMER_DURATION = 60; 
+const timerText = document.getElementById("timer-text");
+const resendButton = document.getElementById("resend-button");
+const form = document.getElementById('form');
+const otpInput = document.getElementById('otp');
 
-        // Initialize the timer on load (starting from 57 seconds as per screenshot)
-        function startTimer(initialSeconds = TIMER_DURATION - 3) {
-            remainingTime = initialSeconds;
-            resendButton.disabled = true;
-            timerText.classList.remove('text-black');
-            timerText.classList.add('text-red-600');
-            resendButton.classList.add('bg-gray-400', 'cursor-not-allowed');
-            resendButton.classList.remove('bg-black', 'hover:bg-gray-800');
+let timerInterval;
 
-            if (timerInterval) {
-                clearInterval(timerInterval);
-            }
-            timerInterval = setInterval(updateTimer, 1000);
-            updateTimer(); // Initial call to show 57 immediately
-        }
 
-        // Attach event listener for Resend button (if clicked after timer expires)
-        resendButton.addEventListener('click', () => {
-            console.log('OTP Resent. Starting new timer...');
-            // In a real app, you would make an API call here.
-            startTimer(TIMER_DURATION);
-        });
+function disableResendButton() {
+  resendButton.disabled = true;
+  resendButton.classList.add("bg-gray-400", "cursor-not-allowed");
+  resendButton.classList.remove("bg-black", "hover:bg-gray-800");
+}
 
-        // Start the timer when the page loads
-        window.onload = () => startTimer(57); // Start at 0:57 as seen in the screenshot
+function enableResendButton() {
+  resendButton.disabled = false;
+  resendButton.classList.remove("bg-gray-400", "cursor-not-allowed");
+  resendButton.classList.add("bg-black", "hover:bg-gray-800");
+}
 
-    </script>
+
+function startCountdown(endTime) {
+ 
+  disableResendButton();
+  timerText.classList.add("text-red-600");
+  timerText.classList.remove("text-black");
+
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    const now = Date.now();
+    const remainingMs = endTime - now;
+    const remainingSec = Math.floor(remainingMs / 1000);
+
+    if (remainingSec <= 0) {
+      clearInterval(timerInterval);
+      timerText.textContent = "Resend link is active.";
+      timerText.classList.remove("text-red-600");
+      timerText.classList.add("text-black");
+      enableResendButton();
+      localStorage.removeItem("otp_end_time");
+      return;
+    }
+
+    const minutes = Math.floor(remainingSec / 60);
+    const seconds = remainingSec % 60;
+    timerText.textContent = `${minutes}:${seconds < 10 ? "0" : ""}${seconds} seconds remaining`;
+  }, 1000);
+}
+
+function initializeTimer() {
+  const savedEndTime = localStorage.getItem("otp_end_time");
+  let endTime;
+
+  if (savedEndTime && !isNaN(parseInt(savedEndTime))) {
+    endTime = parseInt(savedEndTime, 10);
+    
+    if (Date.now() >= endTime) {
+      localStorage.removeItem("otp_end_time");
+      timerText.textContent = "Resend link is active.";
+      timerText.classList.remove("text-red-600");
+      timerText.classList.add("text-black");
+      enableResendButton();
+      return;
+    }
+  } else {
+    
+    endTime = Date.now() + TIMER_DURATION * 1000;
+    localStorage.setItem("otp_end_time", endTime);
+  }
+
+  startCountdown(endTime);
+}
+
+
+resendButton.addEventListener("click", async () => {
+  
+  try {
+    
+    disableResendButton();
+
+    const resp = await fetch('/resendOtps', { method: 'POST' }); 
+    const result = await resp.json();
+
+    if (!result.success) {
+      Swal.fire({ icon: 'error', title: result.message || 'Failed to resend OTP' });
+      enableResendButton();
+      return;
+    }
+
+    // restart timer
+    const newEndTime = Date.now() + TIMER_DURATION * 1000;
+    localStorage.setItem("otp_end_time", newEndTime);
+    startCountdown(newEndTime);
+
+    Swal.fire({ icon: 'success', title: 'OTP Resent', text: 'Check your email.' });
+  } catch (err) {
+    console.error(err);
+    Swal.fire({ icon: 'error', title: 'Network Error', text: 'Try again later.' });
+    enableResendButton();
+  }
+});
+
+// form submit , validation , fetch
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const otp = otpInput.value.trim();
+
+  if (otp === "") {
+    return Swal.fire({ icon: "error", title: "OTP Required", text: "Please enter your OTP." });
+  }
+
+  if (!/^\d+$/.test(otp)) {
+    return Swal.fire({ icon: "error", title: "Invalid OTP", text: "OTP must contain only numbers." });
+  }
+
+  if (otp.length !== 6) {
+    return Swal.fire({ icon: "error", title: "Invalid OTP", text: "OTP must be exactly 6 digits." });
+  }
+
+  
+  const submitBtn = form.querySelector('[type="submit"]');
+  submitBtn.disabled = true;
+  submitBtn.classList.add('opacity-60', 'cursor-not-allowed');
+
+  try {
+    
+    const response = await fetch('/verifyPassOtp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ otp })
+    });
+
+    
+    const contentType = response.headers.get('content-type') || '';
+    let data;
+    if (contentType.includes('application/json')) {
+      data = await response.json();
+    } else {
+      
+      const text = await response.text();
+      console.warn('Non-JSON response from /verifyPassOtp:', text);
+      throw new Error('Unexpected server response');
+    }
+
+    if (data.success) {
+        Swal.fire({
+        icon: "success",
+        title: "Success!",
+        text: data.message||"Your action was completed successfully.",
+        }).then(()=>{
+            window.location.href = '/passreset';
+        })
+      
+      
+    } else {
+      Swal.fire({ icon: "error", title: data.message || "Incorrect OTP", text: "Please try again." });
+    }
+  } catch (err) {
+    console.error(err);
+    Swal.fire({ icon: "error", title: "Network Error", text: "Please try again." });
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+  }
+});
+
+
+window.addEventListener('DOMContentLoaded', () => {
+  initializeTimer();
+});
+</script>
+
+
 </body>
 </html>
