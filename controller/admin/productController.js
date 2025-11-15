@@ -6,19 +6,34 @@ import { json } from 'stream/consumers';
 
 
 async function dataForProductPage(req,res) {
-  try {
-    console.log('Product controller');
-    
+  try {    
     const page= parseInt(req.query.page) || 1
     const limit=4
     const skip= (page-1)*limit
     const search= req.query.search ||""
-    console.log(search);
+    let query={}
+
+    if(search){
+      const categories= await Category.find({
+        name:{$regex:search,$options:"i"}
+      }).select("_id")
+
+      const brands= await Brand.find({
+        brandName:{$regex:search,$options:"i"}
+      }).select("_id")
+
+      query={
+        $or:[
+          {productName:{$regex:search,$options:"i"}},
+          {category:{$in:categories.map(cat=>cat._id)}},
+          {brand:{$in:brands.map(brand=>brand._id)}}
+        ]
+      }
+    }
     
-    const query=search? {
-      productName:{$regex:search, $options:"i"}
-    }:{}
     const productData=await Product.find(query)
+    .populate("category","name")
+    .populate("brand","brandName")
     .sort({createdAt:-1})
     .skip(skip)
     .limit(limit)
@@ -145,6 +160,8 @@ async function loadeditproduct(req,res) {
   try {
     const id = req.params.id
     const existProduct= await Product.findOne({_id:id})
+    .populate("category","name")
+    .populate("brand","brandName")
     if(!existProduct){
       return res.status(400).json('Product not exist')
     }
@@ -168,12 +185,12 @@ async function addProduct(req, res) {
     
     const images = req.files.map((file) => file.path);
 
-    const category = await Category.findOne({ name: product.category });
+    const category = await Category.findOne({  _id: product.category });
     if (!category) {
-      return res.status(400).json({ success: false, message: 'Invalid category' });
+      return res.status(400).json({ success: false  , message: 'Invalid category' });
     }
 
-    const brand = await Brand.findOne({ brandName: product.brand });
+    const brand = await Brand.findOne({ _id: product.brand });
     if (!brand) {
       return res.status(400).json({ success: false, message: 'Invalid brand' });
     }

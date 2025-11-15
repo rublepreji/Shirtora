@@ -1,10 +1,54 @@
 import User from '../../model/userSchema.js';
+import Category from '../../model/categorySchema.js';
+import Product from '../../model/productSchema.js';
+import Brand from '../../model/brandSchema.js';
 import dotenv from 'dotenv';
 import { generateOtp, sendEmailVerification, securePassword } from '../../utils/userUtils.js';
 import { json } from 'express';
 import bcrypt from 'bcrypt';
 
 dotenv.config();
+
+
+async function viewProducts(req,res) {
+    try {
+        const user= req.session.user
+        const userData= await User.findOne({_id:user})
+        const categories= await Category.find({isDeleted:false})
+        const brand= await Brand.find({isBlocked:false})
+        const categoryIds= categories.map(category=>category._id)
+        const limit=9
+        const page= req.query.page
+        const skip= (page-1)*limit
+        const query={
+          isBlocked:false,
+          category:{$in:categoryIds},
+          "variants.stock":{$gt:0}
+        }
+        const product=await Product.find(query)
+        .sort({createdAt:-1})
+        .skip(skip)
+        .limit(limit)
+
+        const totalProduct= await Product.countDocuments(query)
+        const totalPages = Math.ceil(totalProduct/limit)
+        const categoryWithIds= categories.map(cat=>({_id:cat._id,name:cat.name}))
+
+
+        res.render('viewProduct',{
+          user:userData,
+          products:product,
+          totalProducts:totalProduct,
+          totalPages:totalPages,
+          category:categoryWithIds,
+          brands:brand,
+          currentPage:page
+        })
+    } catch (error) {
+        return res.redirect('/pageNotFound')
+    }
+}
+
 
 async function logout(req, res) {
   try {
@@ -37,7 +81,7 @@ async function signin(req, res) {
       return res.render('signinPage', { message: 'Incorrect password' });
     }
     req.session.user = findUser;
-    return res.redirect('/');
+    return res.redirect('/');  
   } catch (error) {
     console.log('login error:', error);
     return res.render('/signinPage', { message: 'login failed, Please try again later' });
@@ -160,11 +204,32 @@ const pageNotFound = async (req, res) => {
 const loadHomePage = async (req, res) => {
   try {
     let user = req.session.user;
+    let categories= await Category.find({isDeleted:false})
+
+    let productData= await Product.find({
+      isBlocked:false,
+      category:{$in:categories.map(cat=>cat._id)},
+      "variants.stock":{$gt:0}
+    }).sort({createdAt:-1}).limit(4)
+
+    let flashSales= await Product.find({
+      isBlocked:false,
+      category:{$in:categories.map(cat=>cat._id)},
+      "variants.stock":{$gt:0}
+    }).sort({"variants.price":-1}).limit(5)
+
     if (user) {
-      const userData = await User.findOne({ _id: user._id });
-      return res.render('homePage', { user: userData });
+      const userData = await User.findOne({ _id: user._id});
+      return res.render('homePage', { 
+        user: userData, 
+        newArrivals:productData,
+        flashSales 
+      });
     } else {
-      res.render('homePage');
+      res.render('homePage', {
+        newArrivals:productData,
+        flashSales
+      });
     }
   } catch (error) {
     console.log('Home page is not loading:', error);
@@ -191,5 +256,6 @@ export {
   loadVerifyOtp,
   resendOtp,
   signin,
-  logout
+  logout,
+  viewProducts
 };

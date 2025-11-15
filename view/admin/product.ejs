@@ -193,8 +193,8 @@
                 <td class="py-3 px-4">
                   <p class="font-semibold">${prod.productName}</p>
                 </td>
-                <td class="py-3 px-4">${prod.category}</td>
-                <td class="py-3 px-4">${prod.brand}</td>
+                <td class="py-3 px-4">${prod.category?.name || 'No Category'}</td>
+                <td class="py-3 px-4">${prod.brand?.brandName || 'No brand  '}</td>
                 <td class="py-3 px-4">
                   ${prod.variants.map(val=>`
                   <p>Size: ${val.size}</p>

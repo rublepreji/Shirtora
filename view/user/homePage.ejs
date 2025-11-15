@@ -40,23 +40,23 @@
       <h2 class="text-2xl sm:text-3xl font-bold tracking-wide">Flash Sales</h2>
     </div>
 
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6 md:gap-8">
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-4 sm:gap-6 md:gap-8">
       <!-- Product Card -->
-      <% for(let i=0;i<5;i++){ %>
+      <% flashSales.forEach((data,i)=>{ %>
       <div class="bg-white rounded-lg shadow p-4 flex flex-col items-center group hover:shadow-xl transition">
-        <img src="./img/0733ba760b29378474dea0fdbcb97107.png" alt="Shirt Linen Striped" class="h-36 sm:h-40 w-full object-cover rounded mb-3">
-        <div class="font-medium text-gray-900 text-center truncate">Shirt Linen Striped</div>
+        <img src="<%=data.productImage[0]%>" alt="Shirt Linen Striped" class="h-36 sm:h-40 w-full object-cover rounded mb-3">
+        <div class="font-medium text-gray-900 text-center truncate"><%=data.productName%></div>
         <div class="flex items-center gap-2 mb-1">
-          <span class="text-base sm:text-lg font-semibold text-slate-900">&#8377;176,400</span>
-          <span class="text-xs sm:text-sm text-gray-400 line-through">&#8377;196,000</span>
+          <span class="text-base sm:text-lg font-semibold text-slate-900">&#8377;<%=data.variants[0].price%></span>
+          <!-- <span class="text-xs sm:text-sm text-gray-400 line-through">&#8377;196,000</span> -->
         </div>
         <div class="text-yellow-400 text-sm sm:text-base">★★★★★</div>
       </div>
-      <% } %>
+      <% }) %>
     </div>
 
     <div class="mt-6 sm:mt-8 flex justify-center sm:justify-end">
-      <a href="#" class="bg-black text-white px-6 sm:px-7 py-2 rounded shadow hover:bg-gray-900 font-medium transition text-sm sm:text-base">View All Products</a>
+      <a href="/viewproducts" class="bg-black text-white px-6 sm:px-7 py-2 rounded shadow hover:bg-gray-900 font-medium transition text-sm sm:text-base">View All Products</a>
     </div>
   </section>
 
@@ -84,17 +84,17 @@
     <h2 class="text-3xl sm:text-4xl font-bold mb-6 sm:mb-8">New Arrival</h2>
 
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
-      <% for(let i=0;i<4;i++){ %>
+      <% newArrivals.map((val,i)=>{ %>
       <div class="bg-white rounded-lg shadow p-4 flex flex-col items-center group hover:shadow-xl transition">
-        <img src="./img/71wAR5-lggL._AC_UY1100_.jpg" alt="Lymio Casual Shirt for Men" class="h-44 sm:h-52 w-full object-cover rounded mb-4">
-        <div class="font-semibold text-center text-sm sm:text-lg mb-2">Lymio Casual Shirt for Men</div>
+        <img src="<%=val.productImage[0]%>" alt="Lymio Casual Shirt for Men" class="h-44 sm:h-52 w-full object-cover rounded mb-4">
+        <div class="font-semibold text-center text-sm sm:text-lg mb-2"><%=val.productName%></div>
         <div class="flex items-center gap-2 mb-1">
-          <span class="text-base sm:text-lg font-bold">&#8377;3,150</span>
+          <span class="text-base sm:text-lg font-bold">&#8377;<%=val.variants[0].price%></span>
           <span class="text-xs sm:text-base text-gray-300 line-through">&#8377;3,499</span>
         </div>
         <div class="text-yellow-400 text-base sm:text-xl">★★★★★</div>
       </div>
-      <% } %>
+      <% }) %>
     </div>
   </section>
 

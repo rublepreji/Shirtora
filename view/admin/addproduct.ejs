@@ -59,12 +59,13 @@
               <div>
                 <label class="block text-sm font-medium text-gray-700">Category</label>
                 <select
+                  name="category"
                   id="category"
                   class="w-full mt-1 border border-gray-300 rounded-md px-3 py-2 focus:ring focus:ring-indigo-200"
                 >
                   <option value="">-- Select Category --</option>
                   <% category.forEach((val) => { %>
-                  <option value="<%= val.name %>"><%= val.name %></option>
+                  <option value="<%= val._id %>"><%= val.name %></option>
                   <% }) %>
                 </select>
                 <p class="text-red-500 text-sm mt-1 hidden" id="catError"></p>
@@ -78,7 +79,7 @@
                 >
                   <option value="">-- Select Brand --</option>
                   <% brand.forEach((val) => { %>
-                  <option value="<%= val.brandName %>"><%= val.brandName %></option>
+                  <option value="<%= val._id %>"><%= val.brandName %></option>
                   <% }) %>
                 </select>
                 <p class="text-red-500 text-sm mt-1 hidden" id="brandError"></p>
@@ -186,7 +187,7 @@
         </div>
       </div>
 
-    <script>
+<script>
 const form = document.getElementById("productForm");
 let currentImageInput = null;
 let cropper = null;

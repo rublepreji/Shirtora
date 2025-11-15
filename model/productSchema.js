@@ -10,16 +10,24 @@ const productSchema = new mongoose.Schema({
         required: true
     },
     brand: {
-        type: String,
-        required: true
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"Brand",
+        required:true
     },
     category: {
-        type: String,
-        required: true
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"Category",
+        required:true
     },
     variants: {
-        type: [],
-        required: true
+        type: [
+            {
+                size:{type:String, required:true},
+                price:{type:Number, required:true},
+                stock:{type:Number, required:true}
+            }
+        ],
+        required:true
     },
     productOffer: {
         type: Number,
@@ -42,6 +50,10 @@ const productSchema = new mongoose.Schema({
         enum: ["Available", "out of stock", "Discountinued"],
         required: true,
         default: "Available"
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
     }
 }, { timestamps: true });
 
