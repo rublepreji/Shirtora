@@ -25,7 +25,7 @@ async function filterProduct(req,res) {
     const skip= (page-1)*limit
     const brands= await Brand.find({isBlocked:false})
     const query={
-      isBlocked:false,
+      isBlocked:{$eq:false},
       "variants.stock":{$gt:0}
     }
     if(search){
@@ -45,7 +45,7 @@ async function filterProduct(req,res) {
     .limit(limit)
     .lean()
 
-    const totalProduct= await Product.countDocuments()
+    const totalProduct= await Product.countDocuments(query )
     const totalPage= Math.ceil(totalProduct/limit)
 
     res.status(200).json({
@@ -79,6 +79,7 @@ async function viewProducts(req,res) {
         .sort({createdAt:-1})
         .skip(skip)
         .limit(limit)
+        .lean()
 
         const totalProduct= await Product.countDocuments(query)
         const totalPages = Math.ceil(totalProduct/limit)
@@ -259,13 +260,13 @@ const loadHomePage = async (req, res) => {
       isBlocked:false,
       category:{$in:categories.map(cat=>cat._id)},
       "variants.stock":{$gt:0}
-    }).sort({createdAt:-1}).limit(4)
+    }).sort({createdAt:-1}).limit(4).lean()
 
     let flashSales= await Product.find({
       isBlocked:false,
       category:{$in:categories.map(cat=>cat._id)},
       "variants.stock":{$gt:0}
-    }).sort({"variants.price":-1}).limit(5)
+    }).sort({"variants.price":-1}).limit(5).lean()
 
     if (user) {
       const userData = await User.findOne({ _id: user._id});
@@ -273,7 +274,7 @@ const loadHomePage = async (req, res) => {
         user: userData, 
         newArrivals:productData,
         flashSales 
-      });
+      }).lean()
     } else {
       res.render('homePage', {
         newArrivals:productData,

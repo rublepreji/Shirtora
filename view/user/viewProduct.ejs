@@ -257,22 +257,18 @@
 
         categoryFilter.forEach(item=>{
             item.addEventListener('change',()=>{
-                if(item.checked){
                     selectedCategories= [...categoryFilter]
                     .filter(val=>val.checked).map(x=>x.value)
                     fetchdata()
-                }
             }) 
          }) 
 
          brandFilter.forEach(item=>{
             item.addEventListener('change',()=>{
-                if(item.checked){
                     selectedbrands=[...brandFilter]
                     .filter(val=>val.checked)
                     .map(x=>x.value)
                     fetchdata()
-                }
             })
          })
 

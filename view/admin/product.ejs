@@ -207,8 +207,8 @@
                   <a href="/admin/editproduct/${prod._id}"><button class="text-blue-500 hover:text-blue-700"><i class="fa fa-edit"></i>✏️</button></a>
 
                   ${prod.isBlocked
-                  ?`<button data-action="blockproduct" data-id="${prod._id}" class="block-btn text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-md">Block</button>`:
-                    `<button data-action="unblockproduct" data-id="${prod._id}" class="unblock-btn bg-green-100 text-green-700 px-3 py-1 rounded-md text-sm font-medium">Unblock</button>`
+                  ?`<button data-action="unblockproduct" data-id="${prod._id}" class="unblock-btn bg-green-100 text-green-700 px-3 py-1 rounded-md text-sm font-medium">Unblock</button>`:
+                    `<button data-action="blockproduct" data-id="${prod._id}" class="block-btn text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-md">Block</button>`
                 }
                 </td>
               </tr>
