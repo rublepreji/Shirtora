@@ -10,6 +10,56 @@ import bcrypt from 'bcrypt';
 dotenv.config();
 
 
+
+async function filterProduct(req,res) {
+  try {
+    const category= req.query.category ?req.query.category.split(",") : []
+    const brand= req.query.brand ? req.query.brand.split(",") : []
+    const page= parseInt(req.query.page) || 1
+    const limit=9
+    const search= req.query.search || ''
+    console.log('searched item',search);
+    console.log('selected category',category);
+    
+    
+    const skip= (page-1)*limit
+    const brands= await Brand.find({isBlocked:false})
+    const query={
+      isBlocked:false,
+      "variants.stock":{$gt:0}
+    }
+    if(search){
+      query.productName={$regex:search,$options:"i"}
+    }
+    if(category.length >0){
+      query.category= {$in:category}
+    }
+    if(brand.length > 0){
+      query.brand= {$in:brand}
+    }
+    let findProducts= await Product.find(query)
+    .populate("category","name")
+    .populate("brand","brandName")
+    .sort({createdAt:-1})
+    .skip(skip)
+    .limit(limit)
+    .lean()
+
+    const totalProduct= await Product.countDocuments()
+    const totalPage= Math.ceil(totalProduct/limit)
+
+    res.status(200).json({
+      success:true,
+      product:findProducts,
+      totalPage:totalPage,
+      currentPage:page,
+    })
+
+  } catch (error) {
+    res.redirect('/pageNotFound')
+  }
+}
+
 async function viewProducts(req,res) {
     try {
         const user= req.session.user
@@ -18,7 +68,7 @@ async function viewProducts(req,res) {
         const brand= await Brand.find({isBlocked:false})
         const categoryIds= categories.map(category=>category._id)
         const limit=9
-        const page= req.query.page
+        const page= req.query.page || 1
         const skip= (page-1)*limit
         const query={
           isBlocked:false,
@@ -33,7 +83,6 @@ async function viewProducts(req,res) {
         const totalProduct= await Product.countDocuments(query)
         const totalPages = Math.ceil(totalProduct/limit)
         const categoryWithIds= categories.map(cat=>({_id:cat._id,name:cat.name}))
-
 
         res.render('viewProduct',{
           user:userData,
@@ -257,5 +306,6 @@ export {
   resendOtp,
   signin,
   logout,
-  viewProducts
+  viewProducts,
+  filterProduct
 };

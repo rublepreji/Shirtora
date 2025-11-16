@@ -45,8 +45,28 @@
 <body class="bg-white text-gray-800">
 
     <%- include("../../view/partials/user/header") %>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-center mt-4">
+    <div class="relative w-1/2 md:w-1/3">
+        <input 
+            type="text" 
+            id="searchInput" 
+            placeholder="Search products..."
+            class="w-full border px-3 py-2 rounded-md text-sm pr-10"
+        />
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Clear Button -->
+        <button 
+            id="clearSearch"
+            class="absolute right-3 top-2/3 -translate-y-1/2 text-black hover:text-gray-700 text-base hidden leading-none"
+        >
+            ✕
+        </button>
+    </div>
+</div>
+
+
+
 
         <!-- Header/Breadcrumbs -->
         <div class="py-6">
@@ -90,30 +110,20 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
                             </svg>
-                        </button>
+                        </button>   
                     </h3>
                     <div class="space-y-2">
+                        <%category.map(data=>{%>
                         <label class="flex items-center text-sm">
-                            <input type="checkbox" class="rounded text-black h-4 w-4" checked>
-                            <span class="ml-2">Casuals</span>
+                            <input name="category" value="<%=data._id%>" type="checkbox" class="categoryFilter rounded text-black h-4 w-4">
+                            <span class="ml-2"><%=data.name%></span>
                         </label>
-                        <label class="flex items-center text-sm">
-                            <input type="checkbox" class="rounded text-black h-4 w-4">
-                            <span class="ml-2">Formals</span>
-                        </label>
-                        <label class="flex items-center text-sm">
-                            <input type="checkbox" class="rounded text-black h-4 w-4">
-                            <span class="ml-2">Partywear</span>
-                        </label>
-                        <label class="flex items-center text-sm">
-                            <input type="checkbox" class="rounded text-black h-4 w-4">
-                            <span class="ml-2">T-Shirts</span>
-                        </label>
+                        <%})%>
                     </div>
                 </div>
 
                 <!-- Brand Filter -->
-                <div class="mb-8 border-b pb-4">
+                <div class="mb-8 border-b pb-4">    
                     <h3 class="text-lg font-semibold mb-3 flex justify-between items-center">
                         Brand
                         <button class="text-gray-400 hover:text-gray-600">
@@ -123,22 +133,12 @@
                         </button>
                     </h3>
                     <div class="space-y-2">
+                        <%brands.map(data=>{%>
                         <label class="flex items-center text-sm">
-                            <input type="checkbox" class="rounded text-black h-4 w-4">
-                            <span class="ml-2">US Polo</span>
+                            <input name="brand" value="<%=data._id%>" type="checkbox" class="brandFilter rounded text-black h-4 w-4">
+                            <span class="ml-2"><%=data.brandName%></span>
                         </label>
-                        <label class="flex items-center text-sm">
-                            <input type="checkbox" class="rounded text-black h-4 w-4">
-                            <span class="ml-2">Allen Solly</span>
-                        </label>
-                        <label class="flex items-center text-sm">
-                            <input type="checkbox" class="rounded text-black h-4 w-4">
-                            <span class="ml-2">Louis Philippe</span>
-                        </label>
-                        <label class="flex items-center text-sm">
-                            <input type="checkbox" class="rounded text-black h-4 w-4" checked>
-                            <span class="ml-2">Otto</span>
-                        </label>
+                        <%})%>
                     </div>
                 </div>
 
@@ -183,59 +183,28 @@
                     <button class="px-3 py-1 mr-4 rounded-full font-bold border border-black text-xs">
                         Popularity
                     </button>
-                    <button class="text-gray-500 px-3 py-1 mr-4 hover:text-black">
+                    <button class="text-gray-500 px-3 py-1 mr-4 hover:text-black" data-sort="newest">
                         Newest First
                     </button>
-                    <button class="text-gray-500 px-3 py-1 mr-4 hover:text-black">
+                    <button class="text-gray-500 px-3 py-1 mr-4 hover:text-black" data-sort="low-high">
                         Price Low - High
                     </button>
-                    <button class="text-gray-500 px-3 py-1 mr-4 hover:text-black">
+                    <button class="text-gray-500 px-3 py-1 mr-4 hover:text-black" data-sort="high-low">
                         Price High - Low
                     </button>
                 </div>
 
                 <!-- Product Grid -->
-                <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
-                    <% product.map(data => { %>
-                    <div class="product-card bg-white rounded-lg overflow-hidden shadow-md">
-                    <img src="<%= data.productImage[0] %>" class="w-full h-48 object-cover">
-                    <div class="p-4">
-                        <h3 class="font-semibold text-sm mb-1 truncate"><%= data.productName %></h3>
-                        <div class="text-xs text-yellow-500 mb-2">★★★★☆</div>
-                        <div class="text-sm font-bold">₹<%= data.variants[0].price %></div>
-
-                        <div class="mt-3 flex items-center gap-2">
-
-                            <!-- Add to Cart -->
-                            <button class="flex-1 border border-black py-2 rounded-md text-sm hover:bg-black hover:text-white transition">
-                                Add to cart
-                            </button>
-
-                            <!-- Wishlist Button (Fixed Alignment) -->
-                            <button class="w-10 h-10 border border-gray-300 rounded-md flex items-center justify-center hover:bg-gray-100">
-                                <svg 
-                                    class="w-5 h-5 text-gray-500 hover:text-red-500 transition" 
-                                    fill="none" 
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path 
-                                        stroke-linecap="round" 
-                                        stroke-linejoin="round" 
-                                        stroke-width="2"
-                                        d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 21l-7.682-7.682a4.5 4.5 0 010-6.364z"
-                                    />
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <% }) %>
+                <div id="productContainer"
+                    class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
                 </div>
 
             </main>
         </div>
     </div>
+
+    <!-- pagination -->
+    <div id="pagination" class="flex justify-center mt-8 gap-2"></div>
 
     <%- include("../../view/partials/user/footer") %>
 
@@ -254,7 +223,123 @@
             sidebar.classList.remove("mobile-active");
             sidebar.classList.add("hidden");
         });
-    </script>
 
+
+        const productContainer= document.getElementById('productContainer')
+        const paginationContainer= document.getElementById('pagination')
+        const searchInput= document.getElementById('searchInput')
+        const clearSearch= document.getElementById('clearSearch')
+        const categoryFilter= document.querySelectorAll('.categoryFilter')
+        const brandFilter= document.querySelectorAll('.brandFilter')
+        const sort= document.querySelectorAll("[data-sort]")
+
+
+        let selectedCategories=[]
+        let selectedbrands=[]
+        let selectedSort=''
+        let search=''
+        let currentPage=1       
+
+        async function fetchdata(){
+            const queryString=new URLSearchParams({
+                search,
+                category:selectedCategories.join(","),
+                brand:selectedbrands.join(",")
+            }).toString()
+           const res= await fetch(`/filterproduct?${queryString}`)
+            const data=await res.json()
+            console.log(data);
+            
+            if(data.success){
+                renderProduct(data.product)
+            }
+        }
+
+        categoryFilter.forEach(item=>{
+            item.addEventListener('change',()=>{
+                if(item.checked){
+                    selectedCategories= [...categoryFilter]
+                    .filter(val=>val.checked).map(x=>x.value)
+                    fetchdata()
+                }
+            }) 
+         }) 
+
+         brandFilter.forEach(item=>{
+            item.addEventListener('change',()=>{
+                if(item.checked){
+                    selectedbrands=[...brandFilter]
+                    .filter(val=>val.checked)
+                    .map(x=>x.value)
+                    fetchdata()
+                }
+            })
+         })
+
+
+        function renderProduct(product){
+  productContainer.innerHTML = product.map(data => `
+    <div class="product-card bg-white rounded-lg overflow-hidden shadow-md flex flex-col h-full">
+      <div class="w-full h-48 overflow-hidden">
+        <img src="${data.productImage[0]}" class="w-full h-full object-cover" alt="${data.productName}">
+      </div>
+
+      <div class="p-4 flex flex-col flex-1">
+        <h3 class="font-semibold text-sm mb-1 truncate">${data.productName}</h3>
+        <div class="text-xs text-yellow-500 mb-2">★★★★☆</div>
+
+        <div class="text-sm font-bold">₹${data.variants[0].price}</div>
+
+        <!-- Actions pushed to bottom -->
+        <div class="mt-auto flex items-center gap-2 pt-3">
+          <button class="flex-1 border border-black py-2 rounded-md text-sm hover:bg-black hover:text-white transition">
+            Add to cart
+          </button>
+
+          <button class="w-10 h-10 border border-gray-300 rounded-md flex items-center justify-center hover:bg-gray-100">
+            <svg class="w-5 h-5 text-gray-500 hover:text-red-500 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 21l-7.682-7.682a4.5 4.5 0 010-6.364z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  `).join("");
+}
+
+
+
+
+        let searchTimer;
+        searchInput.addEventListener('input',()=>{
+
+            if(searchInput.value.trim()){
+                clearSearch.classList.remove('hidden')
+            }else{
+                clearSearch.classList.add('hidden')
+            }
+
+            clearTimeout(searchTimer)
+            searchTimer=setTimeout(()=>{
+                search= searchInput.value.trim()
+                fetchdata()
+            },400)
+            
+        })
+
+        clearSearch.addEventListener('click',()=>{
+            searchInput.value=''
+            clearSearch.classList.add('hidden')
+
+            search=''
+            fetchdata()
+        })
+        fetchdata()
+
+        
+
+    </script>
+</div>
 </body>
+
 </html>
