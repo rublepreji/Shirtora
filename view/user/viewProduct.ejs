@@ -70,11 +70,7 @@
 
         <!-- Header/Breadcrumbs -->
         <div class="py-6">
-            <nav class="text-sm">
-                <a href="#" class="text-gray-500 hover:text-black">Home</a>
-                <span class="mx-2 text-gray-300">/</span>
-                <span class="font-medium text-gray-800">Shirts</span>
-            </nav>
+           
         </div>
 
         <!-- Mobile Hamburger Button -->
@@ -154,19 +150,27 @@
                     </h3>
                     <div class="space-y-2">
                         <label class="flex items-center text-sm">
-                            <input type="checkbox" class="rounded text-black h-4 w-4">
+                            <input type="checkbox" value="0-999" class="priceFilter rounded text-black h-4 w-4">
+                            <span class="ml-2">Below 1000</span>
+                        </label>
+                        <label class="flex items-center text-sm">
+                            <input type="checkbox" value="1000-1999" class="priceFilter rounded text-black h-4 w-4">
+                            <span class="ml-2">Price 1000 to 2000</span>
+                        </label>
+                        <label class="flex items-center text-sm">
+                            <input type="checkbox" value="2000-2999" class="priceFilter rounded text-black h-4 w-4">
                             <span class="ml-2">Price 2000 to 3000</span>
                         </label>
                         <label class="flex items-center text-sm">
-                            <input type="checkbox" class="rounded text-black h-4 w-4" checked>
+                            <input type="checkbox" value="3000-4999" class="priceFilter rounded text-black h-4 w-4">
                             <span class="ml-2">Price 3000 to 5000</span>
                         </label>
-                        <label class="flex items-center text-sm">
-                            <input type="checkbox" class="rounded text-black h-4 w-4">
+                        <label class="flex items-center text-sm">       
+                            <input type="checkbox" value="5000-9999" class="priceFilter rounded text-black h-4 w-4">
                             <span class="ml-2">Price 5000 to 10000</span>
                         </label>
                         <label class="flex items-center text-sm">
-                            <input type="checkbox" class="rounded text-black h-4 w-4">
+                            <input type="checkbox" value="10000-19999" class="priceFilter rounded text-black h-4 w-4">
                             <span class="ml-2">Above 10000</span>
                         </label>
                     </div>
@@ -180,12 +184,6 @@
                 <!-- Sorting Bar -->
                 <div class="flex items-center text-sm mb-6 border-b pb-3 overflow-x-auto whitespace-nowrap">
                     <span class="font-semibold text-gray-500 mr-4">Sort By</span>
-                    <button class="px-3 py-1 mr-4 rounded-full font-bold border border-black text-xs">
-                        Popularity
-                    </button>
-                    <button class="text-gray-500 px-3 py-1 mr-4 hover:text-black" data-sort="newest">
-                        Newest First
-                    </button>
                     <button class="text-gray-500 px-3 py-1 mr-4 hover:text-black" data-sort="low-high">
                         Price Low - High
                     </button>
@@ -232,33 +230,67 @@
         const categoryFilter= document.querySelectorAll('.categoryFilter')
         const brandFilter= document.querySelectorAll('.brandFilter')
         const sort= document.querySelectorAll("[data-sort]")
+        const priceFilter= document.querySelectorAll('.priceFilter')
+
 
 
         let selectedCategories=[]
         let selectedbrands=[]
+        let selectedPrice=[]
         let selectedSort=''
         let search=''
-        let currentPage=1       
+        let currentPage=1   
+        let totalPage=1    
 
         async function fetchdata(){
+            try{
             const queryString=new URLSearchParams({
                 search,
                 category:selectedCategories.join(","),
-                brand:selectedbrands.join(",")
+                brand:selectedbrands.join(","),
+                price:selectedPrice.join(","),
+                sort:selectedSort,
+                page:currentPage
             }).toString()
            const res= await fetch(`/filterproduct?${queryString}`)
             const data=await res.json()
             console.log(data);
             
             if(data.success){
+                
+                totalPage= data.totalPage
+                currentPage= data.currentPage
                 renderProduct(data.product)
+                renderPagination()
             }
+            else{
+                 productContainer.innerHTML = '<p class="text-center w-full py-8">No products found.</p>';
+                 totalPage = 1;
+                 currentPage = 1;
+                 renderPagination();
+                }
+        }catch(err){
+            paginationContainer.innerHTML=`<p class="text-center w-full py-8 text-red-500">Failed to load products.</p>`
+            totalPage=1
+            currentPage=1
         }
+    }
+
+        priceFilter.forEach(price=>{
+            price.addEventListener('change',()=>{
+                selectedPrice=[...priceFilter]
+                .filter(val=>val.checked)
+                .map(x=>x.value)
+                currentPage=1
+                fetchdata()
+            })
+        })
 
         categoryFilter.forEach(item=>{
             item.addEventListener('change',()=>{
                     selectedCategories= [...categoryFilter]
                     .filter(val=>val.checked).map(x=>x.value)
+                    currentPage=1
                     fetchdata()
             }) 
          }) 
@@ -268,7 +300,16 @@
                     selectedbrands=[...brandFilter]
                     .filter(val=>val.checked)
                     .map(x=>x.value)
+                    currentPage=1
                     fetchdata()
+            })
+         })
+
+         sort.forEach((item)=>{
+            item.addEventListener('click',()=>{
+                selectedSort= item.dataset.sort
+                currentPage=1
+                fetchdata()
             })
          })
 
@@ -277,7 +318,7 @@
   productContainer.innerHTML = product.map(data => `
     <div class="product-card bg-white rounded-lg overflow-hidden shadow-md flex flex-col h-full">
       <div class="w-full h-48 overflow-hidden">
-        <img src="${data.productImage[0]}" class="w-full h-full object-cover" alt="${data.productName}">
+       <a href="/productdetails/${data._id}"><img src="${data.productImage[0]}" class="w-full h-full object-cover" alt="${data.productName}"></a>
       </div>
 
       <div class="p-4 flex flex-col flex-1">
@@ -304,6 +345,50 @@
 }
 
 
+function renderPagination(){
+    let paginationButtons="";
+    for(let i=1;i<=totalPage;i++){
+       paginationButtons +=` <button data-page="${i}" class="px-3 py-1 border rounded-md ${i === currentPage ? 'bg-black text-white' : 'bg-white'}">
+            ${i}
+        </button>`
+    }
+
+    paginationContainer.innerHTML=`
+    <button id="prevBtn" class="px-3 py-1 border rounded-md ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}">
+        Prev
+    </button>
+
+    ${paginationButtons}
+
+
+    <button id="nextBtn" class="px-3 py-1 border rounded-md ${currentPage === totalPage ? 'opacity-50 cursor-not-allowed' : ''}">
+        Next
+    </button>
+
+    `
+
+    document.getElementById('prevBtn').addEventListener('click',()=>{
+        if(currentPage >1){
+            currentPage--
+            fetchdata()
+        }
+    })
+    document.getElementById('nextBtn').addEventListener('click',()=>{
+        if(currentPage<totalPage){
+            currentPage++
+            fetchdata() 
+        }
+    })
+    document.querySelectorAll("[data-page]").forEach(btn=>{
+        btn.addEventListener('click',()=>{
+            const page=Number(btn.getAttribute('data-page'))
+            if(page !== currentPage){
+                currentPage=page
+                fetchdata()
+            }
+        })
+    })
+}
 
 
         let searchTimer;

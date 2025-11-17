@@ -11,15 +11,24 @@ dotenv.config();
 
 
 
+async function productDetails(req,res) {
+  try {
+    res.render('productDetails')
+  } catch (error) {
+    return res.redirect('/pageNotFound')
+  }
+}
+
 async function filterProduct(req,res) {
   try {
     const category= req.query.category ?req.query.category.split(",") : []
     const brand= req.query.brand ? req.query.brand.split(",") : []
+    const price= req.query.price ?req.query.price.split(",") : []
+    const sort= req.query.sort || ''
     const page= parseInt(req.query.page) || 1
     const limit=9
     const search= req.query.search || ''
-    console.log('searched item',search);
-    console.log('selected category',category);
+    let sortOption={}
     
     
     const skip= (page-1)*limit
@@ -37,10 +46,29 @@ async function filterProduct(req,res) {
     if(brand.length > 0){
       query.brand= {$in:brand}
     }
+    if(price.length>0){
+      const priceConditions= price.map(range=>{
+       const [min ,max]=range.split('-').map(Number)
+        return {
+          "variants.price":{$gte:min,$lte:max}
+        }
+      })
+      query.$or=priceConditions
+    }
+    
+    if(sort=="low-high"){
+      sortOption["variants.price"]=1
+    }
+    else if(sort ==="high-low"){
+      sortOption["variants.price"]=-1
+    }
+    else{
+      sortOption.createdAt=-1
+    }
     let findProducts= await Product.find(query)
     .populate("category","name")
     .populate("brand","brandName")
-    .sort({createdAt:-1})
+    .sort(sortOption)
     .skip(skip)
     .limit(limit)
     .lean()
@@ -260,13 +288,13 @@ const loadHomePage = async (req, res) => {
       isBlocked:false,
       category:{$in:categories.map(cat=>cat._id)},
       "variants.stock":{$gt:0}
-    }).sort({createdAt:-1}).limit(4).lean()
+    }).sort({createdAt:-1}).limit(4)
 
     let flashSales= await Product.find({
       isBlocked:false,
       category:{$in:categories.map(cat=>cat._id)},
       "variants.stock":{$gt:0}
-    }).sort({"variants.price":-1}).limit(5).lean()
+    }).sort({"variants.price":-1}).limit(5)
 
     if (user) {
       const userData = await User.findOne({ _id: user._id});
@@ -274,7 +302,7 @@ const loadHomePage = async (req, res) => {
         user: userData, 
         newArrivals:productData,
         flashSales 
-      }).lean()
+      })
     } else {
       res.render('homePage', {
         newArrivals:productData,
@@ -308,5 +336,6 @@ export {
   signin,
   logout,
   viewProducts,
-  filterProduct
+  filterProduct,
+  productDetails
 };
