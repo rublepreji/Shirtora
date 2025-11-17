@@ -61,6 +61,11 @@
               class="text-black font-medium text-base border-b-2 border-transparent hover:border-black pb-1 transition-all"
               >About</a
             >
+            <a
+              href="/viewproducts"
+              class="text-black font-medium text-base border-b-2 border-transparent hover:border-black pb-1 transition-all"
+              >Shop</a
+            >
            <% if(locals.user){%>
               <div class="relative inline-block text-left">
                 <!-- Dropdown Button -->
@@ -95,16 +100,7 @@
 
           <!-- Search + Icons (hidden on very small screens) -->
           <div class="hidden md:flex items-center gap-3">
-            <div class="relative">
-              <input
-                type="text"
-                placeholder="What are you looking for?"
-                class="border border-gray-300 bg-gray-100 text-sm px-3 py-2 w-56 rounded outline-none"
-              />
-              <i
-                class="fa-solid fa-magnifying-glass absolute top-2.5 right-3 text-gray-600 text-base"
-              ></i>
-            </div>
+            
 
             <i
               class="fa-regular fa-heart text-xl text-gray-700 hover:text-black cursor-pointer transition"

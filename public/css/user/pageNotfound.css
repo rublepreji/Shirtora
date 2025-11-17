@@ -1,0 +1,13 @@
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #fff;
+    color: #000;
+}
+.center-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+}

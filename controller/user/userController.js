@@ -13,7 +13,26 @@ dotenv.config();
 
 async function productDetails(req,res) {
   try {
-    res.render('productDetails')
+    const user=req.session.user ?req.session.user :""    
+    const userData=await User.findById(user._id)
+    const productId= req.params.id    
+    const product=await Product.findById(productId).populate('category').populate('brand','brandName')
+    const findCategory= product.category
+    const categoryOffer= findCategory?.categoryOffer || 0
+    const productOffer= product?.productOffer || 0
+    const totalOffer= categoryOffer+productOffer
+    const relatedProduct= await Product.find({
+      category:product.category._id,
+      _id:{$ne:product._id}
+    }).limit(4)
+    res.render('productDetails',{
+      user:userData,
+      product,
+      quantity:product.variants[0].stock,
+      totalOffer:totalOffer,
+      category:categoryOffer,
+      relatedProduct
+    })
   } catch (error) {
     return res.redirect('/pageNotFound')
   }
@@ -34,8 +53,7 @@ async function filterProduct(req,res) {
     const skip= (page-1)*limit
     const brands= await Brand.find({isBlocked:false})
     const query={
-      isBlocked:{$eq:false},
-      "variants.stock":{$gt:0}
+      isBlocked:{$eq:false}
     }
     if(search){
       query.productName={$regex:search,$options:"i"}

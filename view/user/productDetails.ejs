@@ -54,13 +54,15 @@
         }
     </style>
 </head>
-<body class="p-4 sm:p-8">
+<%-include("../../view/partials/user/header")%>
+<body class="wp-4 sm:p-8">
+    
 
     <!-- Main Content Wrapper: Ensures content stays centered and readable on large screens -->
     <div class="max-w-7xl mx-auto bg-white rounded-lg shadow-lg p-6 sm:p-10">
         
         <!-- === SECTION 1: MAIN PRODUCT DETAILS & CTA === -->
-        
+
         <!-- Breadcrumbs -->
         <div class="mb-8 text-sm text-gray-500">
             <a href="#" class="hover:text-black">Account</a> /
@@ -74,15 +76,27 @@
             <!-- Left Column: Product Media -->
             <div class="flex flex-col space-y-4">
                 <!-- Main Image Container -->
-                <div class="rounded-lg overflow-hidden border border-gray-200">
-                    <img src="https://via.placeholder.com/600x700/8B4513/FFFFFF?text=Brown+Formal+Shirt" alt="Polo Brown Shirt Main Image" class="w-full main-image">
+               <div class="relative overflow-hidden border border-gray-200 w-80 mx-auto">
+                <img 
+                    id="mainImage" 
+                    src="<%=product.productImage[0]%>" 
+                    class="w-full main-image transition-transform duration-200"
+                >
+                <div id="zoomLens" class="hidden absolute pointer-events-none border border-gray-400" 
+                    style="width:120px; height:120px; background:rgba(255,255,255,0.2); backdrop-filter:blur(2px);">
+                </div>
                 </div>
 
+
                 <!-- Thumbnail Gallery -->
-                <div class="flex justify-start space-x-3">
-                    <img src="https://via.placeholder.com/100x100/8B4513/FFFFFF?text=Thumb+1" alt="Thumbnail 1" class="w-20 h-20 rounded-md thumbnail-image border-2 border-black cursor-pointer">
-                    <img src="https://via.placeholder.com/100x100/8B4513/FFFFFF?text=Thumb+2" alt="Thumbnail 2" class="w-20 h-20 rounded-md thumbnail-image border-2 border-gray-200 hover:border-black cursor-pointer">
-                    <img src="https://via.placeholder.com/100x100/8B4513/FFFFFF?text=Thumb+3" alt="Thumbnail 3" class="w-20 h-20 rounded-md thumbnail-image border-2 border-gray-200 hover:border-black cursor-pointer">
+               <div class="flex justify-center space-x-3">
+                <% product.productImage.forEach(img => { %>
+                    <img 
+                        src="<%= img %>" 
+                        class="w-20 h-20 rounded-md thumbnail-image border-2 border-gray-300 hover:border-black cursor-pointer"
+                        onclick="changeImage(this.src)"
+                    >
+                <% }) %>
                 </div>
             </div>
 
@@ -90,27 +104,59 @@
             <div class="flex flex-col space-y-6">
                 <!-- Title and Reviews -->
                 <div>
-                    <h1 class="text-3xl font-bold mb-1">Polo Brown Shirt</h1>
+                    <h1 class="text-3xl font-bold mb-1"><%=product.productName%></h1>
                     <div class="flex items-center space-x-3 text-sm">
                         <!-- Star Rating -->
                         <span class="text-yellow-500">★★★★☆</span>
                         <span class="text-gray-500">(150 Reviews)</span>
-                        <span class="text-green-600 font-semibold ml-auto lg:ml-0">| In Stock</span>
+                        
+                           <% if(product.variants[0].stock==0){ %>
+                            <span class="text-red-600 font-semibold ml-auto lg:ml-0">| OUT OF STOCK </span>
+                            <%}else if(product.variants[0].stock<5){%>
+                                <span class="text-orange-600 font-semibold ml-auto lg:ml-0">| LIMITED PRODUCT </span>
+                            <%}else{%>
+                                <span class="text-green-600 font-semibold ml-auto lg:ml-0">| In Stock </span>
+                            <%}%>
+                       
                     </div>
                 </div>
 
                 <!-- Price and Discount -->
                 <div class="flex items-baseline space-x-3 border-b pb-4">
-                    <span class="text-3xl font-bold text-gray-800">₹4,949</span>
-                    <span class="strike-through text-xl text-gray-400">₹5,499</span>
-                    <span class="text-red-600 text-lg font-semibold">10% off</span>
+                    <span class="text-3xl font-bold text-gray-800">₹<%=product.variants[0].price%>/-</span>
+                    
+                    <span class="text-red-600 text-lg font-semibold"><%if(!totalOffer){%>
+                        No Offers
+                    <%}else{%>
+                        <span class="strike-through text-xl text-gray-400"><%=product.variants[0].price%></span>
+                        <%=totalOffer%>
+                        <%}%>
+                    </span>
                 </div>
 
                 <!-- Description -->
+                 <p class="text-600 leading-relaxed">
+                   Brand: <%=product.brand.brandName%>
+                 </p>
                 <p class="text-gray-600 leading-relaxed">
-                    Stylish men's slim fit brown formal shirt with button-down collar and crisp detailing, perfect for office wear and smart casual occasions.
+                    <%=product.description%>
                 </p>
-                
+                <%if(product.variants[0].stock==0){%>
+                  
+                <%}else if(product.variants[0].stock<5){%>
+                    <p class="text-red-600 leading-relaxed">
+                    Remaining only <%=product.variants[0].stock%> products
+                    </p>
+                <%}else if(product.variants[0].stock>=5 && product.variants[0].stock<10){%>
+                    <p class="text-orange-600 leading-relaxed">
+                    Stock:<%=product.variants[0].stock%>
+                    </p>
+                <%}else{%>
+                    <p class="text-green-600 leading-relaxed">
+                    Stock:<%=product.variants[0].stock%>
+                    </p>
+                <%}%>
+
                 <!-- Size Selector -->
                 <div class="pt-2">
                     <label for="size-select" class="block text-base font-medium mb-2">Size: M</label>
@@ -189,93 +235,10 @@
             <section class="mb-12">
                 <h2 class="text-xl font-bold mb-3">Product Description</h2>
                 <p class="text-gray-600 leading-relaxed">
-                    Elevate your wardrobe with this stylish Men's Slim Fit Brown Formal Shirt. Designed with a modern cut and premium fabric, this shirt is perfect for office wear, meetings, or smart casual occasions. Its button-down collar and crisp detailing give a sharp and confident look.
+                    <%=product.description%>
                 </p>
             </section>
 
-            <!-- 2. Benefits Section -->
-            <section class="mb-12">
-                <h2 class="text-xl font-bold mb-3">Benefits</h2>
-                <ul class="space-y-3">
-                    <li class="flex items-start text-gray-700">
-                        <span class="text-green-600 mr-3 mt-0.5 check-icon">
-                            <!-- Checkmark SVG -->
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                        </span>
-                        <p>
-                            <span class="font-semibold">Premium Fabric</span> – Made with high-quality cotton blend for comfort and durability.
-                        </p>
-                    </li>
-                    <li class="flex items-start text-gray-700">
-                        <span class="text-green-600 mr-3 mt-0.5 check-icon">
-                            <!-- Checkmark SVG -->
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                        </span>
-                        <p>
-                            <span class="font-semibold">Slim Fit Design</span> – Tailored fit enhances body shape while maintaining comfort.
-                        </p>
-                    </li>
-                    <!-- Additional benefits... -->
-                    <li class="flex items-start text-gray-700">
-                        <span class="text-green-600 mr-3 mt-0.5 check-icon">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                        </span>
-                        <p>
-                            <span class="font-semibold">Versatile Styling</span> – Perfect for both formal events and semi-casual outings.
-                        </p>
-                    </li>
-                    <li class="flex items-start text-gray-700">
-                        <span class="text-green-600 mr-3 mt-0.5 check-icon">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                        </span>
-                        <p>
-                            <span class="font-semibold">Easy to Pair</span> – Complements trousers, chinos, and blazers effortlessly.
-                        </p>
-                    </li>
-                    <li class="flex items-start text-gray-700">
-                        <span class="text-green-600 mr-3 mt-0.5 check-icon">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                        </span>
-                        <p>
-                            <span class="font-semibold">Smart Detailing</span> – Button-down collar and white buttons add a touch of sophistication.
-                        </p>
-                    </li>
-                </ul>
-            </section>
-
-            <!-- 3. Product Dimensions & Care Section -->
-            <section class="mb-12">
-                <h2 class="text-xl font-bold mb-3">Product Dimensions & Care:</h2>
-                <ul class="space-y-3">
-                    <li class="flex items-start text-gray-700">
-                        <span class="text-green-600 mr-3 mt-0.5 check-icon">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                        </span>
-                        <p>
-                            <span class="font-semibold">Available Sizes:</span> S, M, L, XL, XXL
-                        </p>
-                    </li>
-                    <li class="flex items-start text-gray-700">
-                        <span class="text-green-600 mr-3 mt-0.5 check-icon">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                        </span>
-                        <p>
-                            <span class="font-semibold">Fit Type:</span> Slim Fit
-                        </p>
-                    </li>
-                </ul>
-            </section>
-
-            <!-- 4. Manufacturing Details Section -->
-            <section class="mb-16">
-                <h2 class="text-xl font-bold mb-3">Manufacturing Details</h2>
-                <ul class="space-y-2 text-gray-700 pl-4 list-disc marker:text-gray-400">
-                    <li><span class="font-semibold">Brand:</span> Otto</li>
-                    <li><span class="font-semibold">Marketed by:</span> Otto</li>
-                    <li><span class="font-semibold">Country of Origin:</span> India</li>
-                    <li><span class="font-semibold">Quantity:</span> 1 N</li>
-                </ul>
-            </section>
         </div>
 
         <!-- Content Container for Reviews (Initially hidden) -->
@@ -340,54 +303,21 @@
 
         <!-- 5. Related Items Section (Responsive Grid) -->
         <section class="mb-12">
-            <h2 class="text-xl font-bold mb-4">Related Item</h2>
+            <h2 class="text-xl font-bold mb-4">Related Items</h2>
 
             <!-- Related Products Grid (Responsive: 2 on Mobile, 4 on Desktop) -->
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 
-                <!-- Related Product Card 1 -->
+                <%relatedProduct.forEach(val=>{%>
                 <div class="product-card bg-gray-50 rounded-lg p-2 md:p-3 text-center border border-gray-100 hover:shadow-md">
-                    <img src="https://via.placeholder.com/200x250/3498db/FFFFFF?text=Trending+Polo" alt="Trending Polo Shirt" class="w-full h-auto object-cover rounded-md mb-2">
-                    <h3 class="font-semibold text-sm mb-0.5 truncate">Trending Polo Shirt</h3>
+                    <img src="<%=val.productImage[0]%>" alt="Trending Polo Shirt" class="w-full h-40 object-cover rounded-md mb-2">
+                    <h3 class="font-semibold text-sm mb-0.5 truncate"><%=val.productName%></h3>
                     <div class="text-xs text-yellow-500 mb-1">★★★★☆</div>
                     <div class="text-sm font-bold text-black">
-                        <span class="font-normal text-gray-500 text-xs strike-through">₹7,84,400</span> ₹178,400 
+                        <span class="font-normal text-gray-500 text-xs strike-through">₹7,84,400</span> ₹<%=val.variants[0].price%>
                     </div>
                 </div>
-
-                <!-- Related Product Card 2 -->
-                <div class="product-card bg-gray-50 rounded-lg p-2 md:p-3 text-center border border-gray-100 hover:shadow-md">
-                    <img src="https://via.placeholder.com/200x250/ADD8E6/000000?text=ADIDAS+Tee" alt="ADIDAS Essentials Tee" class="w-full h-auto object-cover rounded-md mb-2">
-                    <h3 class="font-semibold text-sm mb-0.5 truncate">ADIDAS Essentials Single Jersey</h3>
-                    <div class="text-xs text-yellow-500 mb-1">★★★★★</div>
-                    <div class="text-sm font-bold text-black">
-                        ₹4,499 
-                        <span class="font-normal text-gray-500 text-xs strike-through">₹5,499</span>
-                    </div>
-                </div>
-                
-                <!-- Related Product Card 3 -->
-                <div class="product-card bg-gray-50 rounded-lg p-2 md:p-3 text-center border border-gray-100 hover:shadow-md">
-                    <img src="https://via.placeholder.com/200x250/808080/FFFFFF?text=Henley+Tee" alt="Henley Short Sleeve" class="w-full h-auto object-cover rounded-md mb-2">
-                    <h3 class="font-semibold text-sm mb-0.5 truncate">Henley Short Sleeve</h3>
-                    <div class="text-xs text-yellow-500 mb-1">★★★★☆</div>
-                    <div class="text-sm font-bold text-black">
-                        ₹3,599 
-                        <span class="font-normal text-gray-500 text-xs strike-through">₹3,999</span>
-                    </div>
-                </div>
-
-                <!-- Related Product Card 4 -->
-                <div class="product-card bg-gray-50 rounded-lg p-2 md:p-3 text-center border border-gray-100 hover:shadow-md hidden lg:block">
-                    <img src="https://via.placeholder.com/200x250/B0E0E6/000000?text=Redbird+T-Shirt" alt="Redbird Classics T-Shirt" class="w-full h-auto object-cover rounded-md mb-2">
-                    <h3 class="font-semibold text-sm mb-0.5 truncate">Redbird Classics Men's</h3>
-                    <div class="text-xs text-yellow-500 mb-1">★★★★☆</div>
-                    <div class="text-sm font-bold text-black">
-                        ₹4,499 
-                        <span class="font-normal text-gray-500 text-xs strike-through">₹5,499</span>
-                    </div>
-                </div>
-
+                <%})%>
             </div>
         </section>
 
@@ -435,8 +365,39 @@
                 qtyInput.value = '1';
              }
         });
-        
+
+    function changeImage(src) {
+    document.getElementById("mainImage").src = src;
+
+    }
+
+//Zoom        
+const mainImage = document.getElementById("mainImage");
+const zoomLens = document.getElementById("zoomLens");
+
+mainImage.parentElement.addEventListener("mousemove", function (e) {
+    const bounds = this.getBoundingClientRect();
+    
+    const x = e.clientX - bounds.left;
+    const y = e.clientY - bounds.top;
+
+    zoomLens.style.left = `${x - zoomLens.offsetWidth / 2}px`;
+    zoomLens.style.top = `${y - zoomLens.offsetHeight / 2}px`;
+    zoomLens.classList.remove("hidden");
+
+    
+    const zoomLevel = 2; 
+    mainImage.style.transformOrigin = `${x}px ${y}px`;
+    mainImage.style.transform = `scale(${zoomLevel})`;
+});
+
+mainImage.parentElement.addEventListener("mouseleave", function () {
+    zoomLens.classList.add("hidden");
+    mainImage.style.transform = "scale(1)";
+});
+
     </script>
 
 </body>
+<%-include("../../view/partials/user/footer")%>
 </html>
