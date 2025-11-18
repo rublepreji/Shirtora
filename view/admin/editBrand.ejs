@@ -72,7 +72,7 @@
                 ></div>
               </label>
             </div> -->
-            <input type="text" name="id" value="<%=data._id%>" hidden>
+            <input id="brandId" type="text" name="id" value="<%=data._id%>" hidden>
             <!-- Product Image Upload -->
            <div>
   <label class="text-gray-700 font-medium block mb-2" for="imageUpload">
@@ -107,8 +107,6 @@
   
   <input type="file" id="imageUpload" name="image" accept="image/jpeg, image/png" class="hidden" />
 </div>
-
-
             <!-- Add Button -->
             <div class="flex justify-end">
               <button
@@ -122,76 +120,6 @@
         </div>
       </main>
     </div>
-
-       <script>
-
-        const nameInput = document.getElementById('name')
-        const descriptionInput = document.getElementById('description')
-        const imageUpload= document.getElementById('imageUpload')
-        const formSubmit= document.getElementById('submitForm')
-        const preview = document.getElementById('preview')
-
-        imageUpload.addEventListener('change',()=>{
-          const file= imageUpload.files[0]
-          if(file){
-            const preview=document.getElementById('preview')
-            preview.src=URL.createObjectURL(file)
-          }
-        })
-        formSubmit.addEventListener('submit',async (e)=>{
-          e.preventDefault()
-          
-            let isValid=true
-            if(nameInput.value.trim()=="" || descriptionInput.value.trim()==""){
-            isValid=false
-            }
-            if(!imageUpload.files.length && !preview.src){
-              isValid=false
-            }
-            if (!isValid) {
-            Swal.fire({ 
-              icon: "warning",
-              title: "Please fill all the fields",
-            });
-            return;
-          }
-            const formData= new FormData()
-            formData.append('id',"<%=data._id%>")
-            formData.append('name',nameInput.value.trim())
-            formData.append('description',descriptionInput.value.trim())
-            if(imageUpload.files.length>0){
-              formData.append('image',imageUpload.files[0])
-            }
-            try {
-              const response=await fetch('/admin/editBrand',{
-                method:"put",
-                body:formData
-              })
-              const result=await response.json()
-              if(response.ok){
-                Swal.fire({
-                icon: "success",
-                title: "Success!",
-                text: result.message || "Brand updated successfully!",
-                showConfirmButton: false,
-                timer: 2000,
-              });
-              }
-              else{
-                Swal.fire({
-                icon: "error",
-                title: "Oops...",
-                text: result.error || "Brand Cannot updated!",
-                });
-              }
-            } catch (error) {
-              Swal.fire({
-                icon: "error",
-                title: "Oops...",
-                text: result.error || "Something went wrong!",
-                });
-            }
-        })
-    </script>
+  <script src="/js/admin/editBrand.js"></script>
   </body>
 </html>

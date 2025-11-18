@@ -1,0 +1,40 @@
+body {
+            font-family: 'Inter', sans-serif;
+            background-color: #ffffff;
+            min-height: 100vh;
+        }
+        .input-line {
+            border: none;
+            border-bottom: 1px solid #e5e5e5; 
+            padding-bottom: 0.5rem;
+            padding-top: 1.5rem; 
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .input-line:focus {
+            border-bottom-color: #000000;
+        }
+        .input-line::placeholder {
+            color: transparent; 
+        }
+        .input-container {
+            position: relative;
+        }
+        .input-container label {
+            position: absolute;
+            top: 1.25rem; 
+            left: 0;
+            font-size: 0.875rem; 
+            color: #4b5563;
+            pointer-events: none;
+            transition: all 0.2s;   
+        }
+        .input-line:not(:placeholder-shown) + label,
+        .input-line:focus + label {
+            top: 0.25rem; 
+            font-size: 0.75rem;
+            color: #1f2937; 
+        }
+        .errorDisplay{
+            color: rgb(214, 0, 0);
+        }

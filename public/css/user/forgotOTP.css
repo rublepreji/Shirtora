@@ -1,0 +1,24 @@
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #fff;
+    color: #000;
+}
+/* Custom style for the thin, black line under the input */
+.input-underline {
+    border: none;
+    border-bottom: 1px solid #000; /* Thin black line */
+    padding-bottom: 8px; /* Space above the line */
+    background-color: transparent; /* Ensure no background color interferes */
+}
+.input-underline:focus {
+    outline: none;
+    border-bottom: 2px solid #000; /* Slightly thicker line on focus */
+}
+/* The main container to center everything */
+.center-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}

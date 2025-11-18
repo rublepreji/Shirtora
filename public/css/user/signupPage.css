@@ -1,0 +1,21 @@
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #ffffff;
+    min-height: 100vh;
+}
+.input-line {
+    border: none;
+    border-bottom: 1px solid #e5e5e5;
+    padding-bottom: 0.5rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+.input-line:focus {
+    border-bottom-color: #000000;
+}
+.errorDisplay{
+    background-color: rgb(232, 80, 80);
+    border-radius: 5px;
+    color: rgb(214, 0, 0);
+    padding: 10px;
+}

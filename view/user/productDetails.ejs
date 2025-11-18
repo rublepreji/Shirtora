@@ -6,62 +6,14 @@
     <title>Polo Brown Shirt - Product Detail</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8f8f8;
-        }
-        /* Custom ratios for images */
-        .main-image {
-            aspect-ratio: 1 / 1.15;
-            object-fit: cover;
-        }
-        .thumbnail-image {
-            aspect-ratio: 1 / 1;
-            object-fit: cover;
-            transition: border-color 0.2s;
-        }
-        .strike-through {
-            text-decoration: line-through;
-        }
-        /* Custom spinner button styles for quantity */
-        .quantity-button {
-            border: 1px solid #ccc;
-            background-color: #fff;
-            color: #333;
-            transition: background-color 0.1s;
-        }
-        .quantity-button:hover {
-            background-color: #f0f0f0;
-        }
-        /* Active Tab Styling */
-        .tab-active {
-            font-weight: 600;
-            color: #000;
-            border-bottom: 2px solid #000;
-        }
-        /* Checkmark Icon Color */
-        .check-icon {
-            color: #38a169; /* Tailwind green-600 */
-        }
-        /* Related Product Card Hover Effect */
-        .product-card {
-            transition: transform 0.2s;
-        }
-        .product-card:hover {
-            transform: translateY(-2px);
-        }
-    </style>
+    <link rel="stylesheet" href="/css/user/productDetails.css">
 </head>
 <%-include("../../view/partials/user/header")%>
 <body class="wp-4 sm:p-8">
     
 
-    <!-- Main Content Wrapper: Ensures content stays centered and readable on large screens -->
     <div class="max-w-7xl mx-auto bg-white rounded-lg shadow-lg p-6 sm:p-10">
         
-        <!-- === SECTION 1: MAIN PRODUCT DETAILS & CTA === -->
 
         <!-- Breadcrumbs -->
         <div class="mb-8 text-sm text-gray-500">
@@ -70,12 +22,9 @@
             <span class="font-medium text-gray-700">Polo Brown Shirt</span>
         </div>
 
-        <!-- Product Layout: Two Columns (Stacked on Mobile, Side-by-Side on Desktop) -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 mb-16">
 
-            <!-- Left Column: Product Media -->
             <div class="flex flex-col space-y-4">
-                <!-- Main Image Container -->
                <div class="relative overflow-hidden border border-gray-200 w-80 mx-auto">
                 <img 
                     id="mainImage" 
@@ -88,7 +37,6 @@
                 </div>
 
 
-                <!-- Thumbnail Gallery -->
                <div class="flex justify-center space-x-3">
                 <% product.productImage.forEach(img => { %>
                     <img 
@@ -100,13 +48,10 @@
                 </div>
             </div>
 
-            <!-- Right Column: Product Details and Actions -->
             <div class="flex flex-col space-y-6">
-                <!-- Title and Reviews -->
                 <div>
                     <h1 class="text-3xl font-bold mb-1"><%=product.productName%></h1>
                     <div class="flex items-center space-x-3 text-sm">
-                        <!-- Star Rating -->
                         <span class="text-yellow-500">★★★★☆</span>
                         <span class="text-gray-500">(150 Reviews)</span>
                         
@@ -121,7 +66,6 @@
                     </div>
                 </div>
 
-                <!-- Price and Discount -->
                 <div class="flex items-baseline space-x-3 border-b pb-4">
                     <span class="text-3xl font-bold text-gray-800">₹<%=product.variants[0].price%>/-</span>
                     
@@ -134,7 +78,6 @@
                     </span>
                 </div>
 
-                <!-- Description -->
                  <p class="text-600 leading-relaxed">
                    Brand: <%=product.brand.brandName%>
                  </p>
@@ -157,7 +100,6 @@
                     </p>
                 <%}%>
 
-                <!-- Size Selector -->
                 <div class="pt-2">
                     <label for="size-select" class="block text-base font-medium mb-2">Size: M</label>
                     <select id="size-select" class="border border-gray-300 rounded-md p-2 w-32 focus:ring-black focus:border-black">
@@ -168,35 +110,27 @@
                     </select>
                 </div>
 
-                <!-- Quantity, Add to Cart, and Wishlist -->
                 <div class="flex items-center space-x-3 pt-2 pb-4 border-b">
-                    <!-- Quantity Input Group -->
                     <div class="flex items-center border border-gray-300 rounded-md overflow-hidden">
                         <button id="qty-minus" class="quantity-button p-2 w-8 h-full text-lg font-semibold">-</button>
                         <input type="text" id="qty-input" value="1" class="w-10 text-center border-0 focus:ring-0" readonly>
                         <button id="qty-plus" class="quantity-button p-2 w-8 h-full text-lg font-semibold">+</button>
                     </div>
                     
-                    <!-- Add to Cart Button -->
                     <button class="flex-grow bg-black text-white py-3 rounded-md font-semibold hover:bg-gray-800 transition duration-300">
                         Add to cart
                     </button>
                     
-                    <!-- Wishlist/Heart Button -->
                     <button class="p-3 border border-gray-300 rounded-md hover:border-black transition duration-300 text-gray-500 hover:text-red-500">
-                        <!-- Heart Icon -->
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-.318-.318A4.5 4.5 0 004.318 6.318z"></path></svg>
                     </button>
                 </div>
                 
-                <!-- Buy Now Button -->
                 <button class="w-full bg-black text-white py-3 rounded-md font-semibold hover:bg-gray-800 transition duration-300">
                     Buy Now
                 </button>
                 
-                <!-- Delivery Details -->
                 <div class="space-y-4 pt-4">
-                    <!-- Free Delivery -->
                     <div class="flex items-start space-x-3 p-4 border border-gray-200 rounded-lg">
                         <svg class="w-6 h-6 text-green-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         <div>
@@ -205,7 +139,6 @@
                         </div>
                     </div>
 
-                    <!-- Return Delivery -->
                     <div class="flex items-start space-x-3 p-4 border border-gray-200 rounded-lg">
                         <svg class="w-6 h-6 text-gray-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.836 2l-1.554-1.554A6 6 0 0014.28 9.5a6 6 0 00-3.328 10.976l1.554 1.554m.566-1.554A6 6 0 0012 14.5a6 6 0 003.328-10.976l-1.554-1.554"></path></svg>
                         <div>
@@ -217,9 +150,7 @@
             </div>
         </div>
         
-        <!-- === SECTION 2: PRODUCT DESCRIPTION & REVIEWS TABS === -->
         
-        <!-- Tab Navigation -->
         <div class="flex space-x-6 border-b border-gray-200 mb-10 text-gray-500 mt-16">
             <button id="desc-tab" class="py-3 px-1 tab-active" onclick="showTab('description')">
                 Description
@@ -229,9 +160,7 @@
             </button>
         </div>
 
-        <!-- Content Container for Description and Related Info (Initially visible) -->
         <div id="description-content">
-            <!-- 1. Product Description Section -->
             <section class="mb-12">
                 <h2 class="text-xl font-bold mb-3">Product Description</h2>
                 <p class="text-gray-600 leading-relaxed">
@@ -241,9 +170,7 @@
 
         </div>
 
-        <!-- Content Container for Reviews (Initially hidden) -->
         <div id="reviews-content" class="hidden mb-16">
-            <!-- Review Summary/Form -->
             <div class="p-6 bg-gray-50 rounded-lg mb-8 shadow-inner">
                 <h2 class="text-2xl font-bold mb-2">Customer Reviews</h2>
                 <div class="flex items-center mb-4">
@@ -259,11 +186,10 @@
                 </button>
             </div>
 
-            <!-- Review List Placeholder -->
             <div class="space-y-8">
                 <h3 class="text-xl font-bold border-b pb-2 text-gray-800">Recent Reviews</h3>
                 
-                <!-- Individual Review 1 -->
+                <!-- Individual Review -->
                 <div class="border-b border-gray-100 pb-4">
                     <div class="flex items-center mb-1">
                         <span class="text-yellow-500 text-lg">★★★★★</span>
@@ -275,7 +201,6 @@
                     </p>
                 </div>
                 
-                <!-- Individual Review 2 -->
                 <div class="border-b border-gray-100 pb-4">
                     <div class="flex items-center mb-1">
                         <span class="text-yellow-500 text-lg">★★★☆☆</span>
@@ -287,7 +212,6 @@
                     </p>
                 </div>
                 
-                <!-- Individual Review 3 -->
                 <div class="pb-4">
                     <div class="flex items-center mb-1">
                         <span class="text-yellow-500 text-lg">★★★★☆</span>
@@ -301,11 +225,10 @@
             </div>
         </div>
 
-        <!-- 5. Related Items Section (Responsive Grid) -->
+         <!--  Related Items Section -->
         <section class="mb-12">
             <h2 class="text-xl font-bold mb-4">Related Items</h2>
 
-            <!-- Related Products Grid (Responsive: 2 on Mobile, 4 on Desktop) -->
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 
                 <%relatedProduct.forEach(val=>{%>
@@ -322,82 +245,7 @@
         </section>
 
     </div>
-
-    <!-- JavaScript for Tab Switching -->
-    <script>
-        // Function to handle tab switching logic
-        function showTab(tabName) {
-            // Get tab buttons
-            const descTab = document.getElementById('desc-tab');
-            const reviewsTab = document.getElementById('reviews-tab');
-
-            // Get content sections
-            const descContent = document.getElementById('description-content');
-            const reviewsContent = document.getElementById('reviews-content');
-
-            if (tabName === 'description') {
-                // Activate Description Tab
-                descTab.classList.add('tab-active');
-                descTab.classList.remove('hover:text-black');
-                reviewsTab.classList.remove('tab-active');
-                reviewsTab.classList.add('hover:text-black');
-
-                // Show Description Content, Hide Reviews Content
-                descContent.classList.remove('hidden');
-                reviewsContent.classList.add('hidden');
-            } else if (tabName === 'reviews') {
-                // Activate Reviews Tab
-                reviewsTab.classList.add('tab-active');
-                reviewsTab.classList.remove('hover:text-black');
-                descTab.classList.remove('tab-active');
-                descTab.classList.add('hover:text-black');
-
-                // Show Reviews Content, Hide Description Content
-                reviewsContent.classList.remove('hidden');
-                descContent.classList.add('hidden');
-            }
-        }
-        
-        // Minor modification to quantity input to initialize value to 1 instead of 2
-        document.addEventListener('DOMContentLoaded', () => {
-             const qtyInput = document.getElementById('qty-input');
-             if (qtyInput.value === '2') {
-                qtyInput.value = '1';
-             }
-        });
-
-    function changeImage(src) {
-    document.getElementById("mainImage").src = src;
-
-    }
-
-//Zoom        
-const mainImage = document.getElementById("mainImage");
-const zoomLens = document.getElementById("zoomLens");
-
-mainImage.parentElement.addEventListener("mousemove", function (e) {
-    const bounds = this.getBoundingClientRect();
-    
-    const x = e.clientX - bounds.left;
-    const y = e.clientY - bounds.top;
-
-    zoomLens.style.left = `${x - zoomLens.offsetWidth / 2}px`;
-    zoomLens.style.top = `${y - zoomLens.offsetHeight / 2}px`;
-    zoomLens.classList.remove("hidden");
-
-    
-    const zoomLevel = 2; 
-    mainImage.style.transformOrigin = `${x}px ${y}px`;
-    mainImage.style.transform = `scale(${zoomLevel})`;
-});
-
-mainImage.parentElement.addEventListener("mouseleave", function () {
-    zoomLens.classList.add("hidden");
-    mainImage.style.transform = "scale(1)";
-});
-
-    </script>
-
+<script src="/js/user/productDetails.js"></script>
 </body>
 <%-include("../../view/partials/user/footer")%>
 </html>

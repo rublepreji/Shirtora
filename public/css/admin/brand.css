@@ -1,0 +1,24 @@
+.toggle-switch {
+    @apply relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in;
+}
+.toggle-switch input {
+    @apply hidden;
+}
+.toggle-label {
+    @apply block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer;
+}
+.toggle-label:before {
+    content: "";
+    @apply absolute block w-4 h-4 mt-1 ml-1 rounded-full bg-white transition duration-200 ease-in;
+}
+input:checked + .toggle-label {
+    @apply bg-blue-500;
+}
+input:checked + .toggle-label:before {
+    transform: translateX(1.25rem); /* 20px - 50% width + 4px for padding/margin */
+}
+
+/* Specific styles for the red switch */
+.toggle-red input:checked + .toggle-label {
+    @apply bg-red-500;
+}

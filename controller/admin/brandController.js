@@ -9,7 +9,7 @@ async function editBrand(req, res) {
 
     const brand = await Brand.findById(id);
     if (!brand) {
-      return res.status(400).json({ message: 'Brand not found' });
+      return res.status(400).json({success:false, message: 'Brand not found' });
     }
 
     let imageUrl = brand.brandImage;
@@ -24,13 +24,13 @@ async function editBrand(req, res) {
     );
 
     if (updateBrand) {
-      return res.status(200).json({ message: 'Brand updated successfully' });
+      return res.status(200).json({success:true, message: 'Brand updated successfully' });
     } else {
-      return res.status(400).json({ error: 'Brand cannot be updated' });
+      return res.status(400).json({success:false, message: 'Brand cannot be updated' });
     }
   } catch (err) {
     console.log('Error editBrand:', err);
-    return res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({success:false, message: 'Internal server error' });
   }
 }
 
@@ -131,7 +131,7 @@ async function addBrand(req, res) {
 
     console.log(req.file);
 
-    const brand = await Brand.findOne({ brandName: name });
+    const brand = await Brand.findOne({ brandName:{ $regex: new RegExp(`^${name}$`, "i") }});
     if (brand) {
       return res.status(400).json({ message: 'Brand already exist' });
     }

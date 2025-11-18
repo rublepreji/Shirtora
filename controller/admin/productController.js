@@ -177,7 +177,7 @@ async function addProduct(req, res) {
   try {
     const product = req.body;
     const parsedVariants = JSON.parse(product.variants);
-    const existProduct = await Product.findOne({ productName: product.name });
+    const existProduct = await Product.findOne({ productName: { $regex: new RegExp(`^${product.name}$`, "i") } });
     if (existProduct) {
       return res.status(400).json({ success: false, message: 'Product already exist' });
     }

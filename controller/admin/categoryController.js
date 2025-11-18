@@ -9,9 +9,10 @@ async function dataForCategory(req,res) {
     const skip= (page-1)*limit
     const search= req.query.search || ""
 
-    const query=search?{
+    const query={
+      isDeleted:false,
       name:{$regex:search,$options:"i"}
-    }:{}
+    }
 
     const CategoryData=await Category.find(query)
     .sort({createdAt:-1})
@@ -112,10 +113,12 @@ async function categoryInfo(req, res) {
 async function addCategory(req, res) {
   try {
     const { name, description } = req.body;
-
-    const categoryExist = await Category.findOne({ name });
+    console.log(name,' ',description);
+    
+    const categoryExist = await Category.findOne({ name: { $regex: new RegExp(`^${name}$`, "i") }});
+    
     if (categoryExist) {
-      return res.status(400).json({ message: 'Category already exist' });
+      return res.status(400).json({success:false, message: 'Category already exist' });
     }
 
     const newCategory = new Category({
@@ -125,9 +128,9 @@ async function addCategory(req, res) {
 
     await newCategory.save();
     console.log(name + ' ' + description);
-    return res.json({ message: 'Category added successfully' });
+    return res.status(200).json({success:true, message: 'Category added successfully' });
   } catch (error) {
-    return res.status(500).json({ message: 'Internal server error' });
+    return res.status(500).json({success:false, message: 'Internal server error' });
   }
 }
 
