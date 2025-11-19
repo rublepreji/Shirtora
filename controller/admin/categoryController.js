@@ -1,18 +1,18 @@
 import { json } from 'express';
 import Category from '../../model/categorySchema.js';
-
+import {STATUS} from '../../utils/statusCode.js'
 
 async function blockCategory(req,res) {
   try {
     const id= req.body.id
     if(id){
       await Category.findByIdAndUpdate(id,{isBlocked:true})
-      return res.status(200).json({success:true,message:"Category blocked"})
+      return res.status(STATUS.OK).json({success:true,message:"Category blocked"})
     }else{
-      return res.status(400),json({success:false,message:"Category Id cannot find"})
+      return res.status(STATUS.BAD_REQUEST),json({success:false,message:"Category Id cannot find"})
     }
   } catch (error) {
-    return res.status(500).json({success:true,message:"Internal server error"})
+    return res.status(STATUS.INTERNAL_SERVER_ERROR).json({success:true,message:"Internal server error"})
   }
 }
 
@@ -21,13 +21,13 @@ async function unblockCategory(req,res) {
     const id= req.body.id
     if(id){
       await Category.findByIdAndUpdate(id,{isBlocked:false},{new:true})
-      return res.status(200).json({success:true,message:"Category Unblocked"})
+      return res.status(STATUS.OK).json({success:true,message:"Category Unblocked"})
     }
     else{
-      return res.status(400).json({success:false,message:"Category id cannot find"})
+      return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Category id cannot find"})
     }
   } catch (error) {
-    return res.status(500).json({success:false,message:"Internal server error"})
+    return res.status(STATUS.INTERNAL_SERVER_ERROR).json({success:false,message:"Internal server error"})
   }
 }
 
@@ -50,7 +50,7 @@ async function dataForCategory(req,res) {
     const totalCategory= await Category.countDocuments(query)
     const totalPages= Math.ceil(totalCategory/limit)
 
-    res.status(200).json({
+    res.status(STATUS.OK).json({
       success:true,
       data:CategoryData,
       totalPages,
@@ -70,9 +70,9 @@ async function deleteCategory(req, res) {
     }
 
     await Category.findByIdAndUpdate(id, { isDeleted: true });
-    return res.status(200).json({ message: 'Category deleted successfully' });
+    return res.status(STATUS.OK).json({ message: 'Category deleted successfully' });
   } catch (error) {
-    return res.status(500).json({ message: 'Internal server error' });
+    return res.status(STATUS.INTERNAL_SERVER_ERROR).json({ message: 'Internal server error' });
   }
 }
 
@@ -82,7 +82,7 @@ async function editCategory(req, res) {
 
     const existCategory = await Category.findById(id);
     if (!existCategory) {
-      return res.status(200).json({ message: 'Category not found' });
+      return res.status(STATUS.NOT_FOUND).json({ message: 'Category not found' });
     }
 
     const updateCategory = await Category.findByIdAndUpdate(
@@ -92,12 +92,12 @@ async function editCategory(req, res) {
     );
 
     if (updateCategory) {
-      return res.status(200).json({ message: 'Category updated successfully' });
+      return res.status(STATUS.OK).json({ message: 'Category updated successfully' });
     } else {
-      return res.status(404).json({ error: 'Category cannot be updated' });
+      return res.status(STATUS.BAD_REQUEST).json({ error: 'Category cannot be updated' });
     }
   } catch (error) {
-    return res.status(500).json({ error: 'Internal server error' });
+    return res.status(STATUS.INTERNAL_SERVER_ERROR).json({ error: 'Internal server error' });
   }
 }
 

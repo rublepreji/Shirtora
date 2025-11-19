@@ -9,6 +9,7 @@ import userRoute from './routes/userRouter.js';
 import adminRouter from './routes/adminRouter.js';
 import { fileURLToPath } from 'url';
 import nocache from 'nocache';
+import morgan from 'morgan';
 
 // For __dirname equivalent
 const __filename = fileURLToPath(import.meta.url);
@@ -18,6 +19,7 @@ dotenv.config();
 
 const app = express();
 
+app.use(morgan("dev"))
 app.use(nocache())
 app.use(cors());
 app.use(express.json());

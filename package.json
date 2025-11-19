@@ -4,8 +4,9 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon app.js"
+    "start": "nodemon app.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "author": "",
   "license": "ISC",
@@ -20,6 +21,7 @@
     "express-session": "^1.18.2",
     "mongodb": "^6.20.0",
     "mongoose": "^8.19.1",
+    "morgan": "^1.10.1",
     "multer": "^2.0.2",
     "multer-storage-cloudinary": "^4.0.0",
     "nocache": "^4.0.0",
@@ -29,5 +31,8 @@
     "sharp": "^0.34.4",
     "sweetalert2": "^11.26.3",
     "tailwindcss": "^4.1.16"
+  },
+  "devDependencies": {
+    "eslint": "^9.39.1"
   }
 }

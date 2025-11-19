@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import { generateOtp, sendEmailVerification, securePassword } from '../../utils/userUtils.js';
 import { json } from 'express';
 import bcrypt from 'bcrypt';
+import {STATUS} from '../../utils/statusCode.js'
 
 dotenv.config();
 
@@ -100,7 +101,7 @@ async function filterProduct(req,res) {
     const totalProduct= await Product.countDocuments(query )
     const totalPage= Math.ceil(totalProduct/limit)
 
-    res.status(200).json({
+    res.status(STATUS.OK).json({
       success:true,
       product:findProducts,
       totalPage:totalPage,
@@ -194,20 +195,20 @@ async function resendOtp(req, res) {
   try {
     const { email } = req.session.userData;
     if (!email) {
-      return res.status(400).json({ success: false, message: 'Email not found in session' });
+      return res.status(STATUS.NOT_FOUND).json({ success: false, message: 'Email not found in session' });
     }
     const otp = generateOtp();
     req.session.userOtp = otp;
     const resendOtp = sendEmailVerification(email, otp);
     if (resendOtp) {
       console.log('Resend OTP ', otp);
-      return res.status(200).json({ success: true, message: 'OTP resend successfully' });
+      return res.status(STATUS.OK).json({ success: true, message: 'OTP resend successfully' });
     } else {
-      return res.status(400).json({ success: false, message: 'Failed to resend otp. Please try again' });
+      return res.status(STATUS.FORBIDDEN).json({ success: false, message: 'Failed to resend otp. Please try again' });
     }
   } catch (error) {
     console.log('Error resending OTP');
-    return res.status(500).json({ success: false, message: 'Internal Server Error. Please try again' });
+    return res.status(STATUS.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Internal Server Error. Please try again' });
   }
 }
 
@@ -230,11 +231,11 @@ async function verifyOtp(req, res) {
       req.session.user = newUser._id;
       return res.json({ success: true, redirectUrl: '/signin' });
     } else {
-      res.status(400).json({ success: false, message: 'Invalid OTP' });
+      res.status(STATUS.BAD_REQUEST).json({ success: false, message: 'Invalid OTP' });
     }
   } catch (error) {
     console.error('Error verifying OTP', error);
-    return res.status(500).json({ success: false, message: 'An error occured' });
+    return res.status(STATUS.INTERNAL_SERVER_ERROR).json({ success: false, message: 'An error occured' });
   }
 }
 
@@ -276,7 +277,7 @@ const loadSignin = async (req, res) => {
     return res.render('signinPage');
   } catch (err) {
     console.log('signin page not loading ', err);
-    return res.status(500).json('Server Error');
+    return res.status(STATUS.INTERNAL_SERVER_ERROR).json('Server Error');
   }
 };
 
@@ -285,7 +286,7 @@ const loadVerifyOtp = async (req, res) => {
     return res.render('verifyOtp');
   } catch (error) {
     console.log('Signup page not loading', error);
-    return res.status(500).json('Server Error');
+    return res.status(STATUS.INTERNAL_SERVER_ERROR).json('Server Error');
   }
 };
 
@@ -294,7 +295,7 @@ const loadSignup = async (req, res) => {
     return res.render('signupPage');
   } catch (err) {
     console.log('Signup page not loading', err);
-    return res.status(500).json('Server Error');
+    return res.status(STATUS.INTERNAL_SERVER_ERROR).json('Server Error');
   }
 };
 
@@ -303,7 +304,7 @@ const pageNotFound = async (req, res) => {
     return res.render('pageNotFound');
   } catch (err) {
     console.log(err);
-    return res.status(500).json('Page not found: ', err);
+    return res.status(STATUS.INTERNAL_SERVER_ERROR).json('Page not found: ', err);
   }
 };
 
@@ -339,7 +340,7 @@ const loadHomePage = async (req, res) => {
     }
   } catch (error) {
     console.log('Home page is not loading:', error);
-    return res.status(500).send('Server Error');
+    return res.status(STATUS.INTERNAL_SERVER_ERROR).send('Server Error');
   }
 };
 
@@ -347,7 +348,7 @@ const loadLandingPage = async (req, res) => {
   try {
     return res.render('landingPage');
   } catch (err) {
-    return res.status(500).json('some error: ', err);
+    return res.status(STATUS.INTERNAL_SERVER_ERROR).json('some error: ', err);
   }
 };
 

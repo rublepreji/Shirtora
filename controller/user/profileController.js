@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import session from 'express-session';
 import * as utils from '../../utils/userUtils.js';
 import {generateOtp,sendEmailForgotPassword} from '../../utils/userUtils.js'
+import {STATUS} from '../../utils/statusCode.js'
 
 dotenv.config();
 
@@ -18,22 +19,22 @@ async function resetPassword(req,res) {
     
     
     if(password!=confirmPassword){
-      return res.status(400).json({success:false,message:"Passwords does not match"})
+      return res.status(STATUS.UNAUTHORIZED).json({success:false,message:"Passwords does not match"})
     }
     const email= req.session.email
     const findUser= await User.findOne({email})
     if(!findUser){
-      return res.status(400).json({success:false,message:"Cannot find user"})
+      return res.status(STATUS.NOT_FOUND).json({success:false,message:"Cannot find user"})
     }
 
     const passwordHash= await utils.securePassword(password)
     const user=await User.updateMany({email:email},{$set:{password:passwordHash}})
     if(user){
-      res.status(200).json({success:true,message:"Your password has been reset successfully"})
+      res.status(STATUS.OK).json({success:true,message:"Your password has been reset successfully"})
     }
 
   } catch (error) {
-    return res.status(500).json({success:false,message:"Internal server error"})
+    return res.status(STATUS.INTERNAL_SERVER_ERROR).json({success:false,message:"Internal server error"})
   }
 }
 
@@ -42,14 +43,14 @@ async function resendOtps(req,res) {
     const email= req.session.email
     
     if(!email){
-      return res.status(400).json({success:false,message:"Email is not in session"})
+      return res.status(STATUS.UNAUTHORIZED).json({success:false,message:"Email is not in session"})
     }
     const otp = generateOtp()
     req.session.Otp= otp
     const emailSend= await sendEmailForgotPassword(email ,otp)
     if(emailSend){
       console.log('Resend OTP',otp);
-      return res.status(200).json({success:true,message:"Resend OTP Successfully"})
+      return res.status(STATUS.OK).json({success:true,message:"Resend OTP Successfully"})
     }
 
   } 

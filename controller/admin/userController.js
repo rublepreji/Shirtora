@@ -1,5 +1,5 @@
 import User from '../../model/userSchema.js';
-
+import {STATUS} from '../../utils/statusCode.js'
 
 async function dataForUserPage(req,res) {
   try {
@@ -23,7 +23,7 @@ async function dataForUserPage(req,res) {
 
     const totalUser= await User.countDocuments(query)
     const totalPages= Math.ceil(totalUser/limit)
-    res.status(200).json({
+    res.status(STATUS.OK).json({
       success:true,
       data:userData,
       totalPages:totalPages,
@@ -31,7 +31,7 @@ async function dataForUserPage(req,res) {
     })
 
   } catch (error) {
-    res.status(500).json({success:true,message:"Internal server error"})
+    res.status(STATUS.INTERNAL_SERVER_ERROR).json({success:true,message:"Internal server error"})
   }
 }
 
@@ -39,7 +39,7 @@ async function userInfo(req, res) {
   try {
     res.render('userPage');
   } catch (error) {
-    res.status(500).json({success:false,message:"Internal server error"})
+    res.status(STATUS.INTERNAL_SERVER_ERROR).json({success:false,message:"Internal server error"})
     console.error('Error loading user info:', error);
   }
 }
