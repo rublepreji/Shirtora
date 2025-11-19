@@ -48,57 +48,56 @@ import {
 import uploadTo from '../middlewares/multerCloudinary.js';
 import multer from 'multer';
 import {storage} from '../helpers/multer.js';
-import { 
-    isAdminLogin,
-     isAdminLogout 
-    } from '../middlewares/auth.js';
+import {adminAuth ,adminLogged} from '../middlewares/auth.js'
+
 
 const router = express.Router();
 const uploads = multer({ storage: storage });
 
 router.get('/pageError',pageError);
-router.get('/login', isAdminLogout, loadLogin);
+router.get('/login',adminLogged, loadLogin);
 router.post('/login',login);
-router.get('/', isAdminLogin,loadDashboard);
+
+router.get('/',adminAuth ,loadDashboard);
 router.get('/adminlogout',adminLogout);
 
 // User management
-router.get('/users', isAdminLogin,userInfo);
-router.post('/blockuser',isAdminLogin,blockUser);
-router.post('/unblockuser',isAdminLogin,unBlockUser);
-router.get('/dataForuserpage',isAdminLogin,dataForUserPage)
+router.get('/users',adminAuth ,userInfo);
+router.post('/blockuser',adminAuth,blockUser);
+router.post('/unblockuser',adminAuth,unBlockUser);
+router.get('/dataForuserpage',dataForUserPage)
 
 // Category management
-router.get('/category', isAdminLogin, categoryInfo);
-router.get('/addcategory', isAdminLogin, loadAddCategory);
-router.post('/addcategory', addCategory);
-router.post('/deleteCategory/:id', deleteCategory);
-router.get('/editcategory/:id', isAdminLogin, loadEditCategory);
-router.post('/postEditCategory', editCategory);
-router.get('/dataforcategory',isAdminLogin,dataForCategory)
+router.get('/category', adminAuth,categoryInfo);
+router.get('/addcategory',adminAuth, loadAddCategory);
+router.post('/addcategory',adminAuth ,addCategory);
+router.post('/deleteCategory/:id',adminAuth, deleteCategory);
+router.get('/editcategory/:id', adminAuth,loadEditCategory);
+router.post('/postEditCategory',adminAuth, editCategory);
+router.get('/dataforcategory',adminAuth,dataForCategory)
 
 // Brand management
-router.get('/brand', isAdminLogin,loadBrandPage);
-router.get('/addbrand', isAdminLogin,loadAddbrand);
-router.post('/postaddbrand', uploadTo('brands').single('image'),addBrand);
-router.post('/blockbrand',blockBrand);
-router.post('/unblockbrand', unBlockBrand);
-router.get('/editBrand/:id',loadEditBrand);
-router.put('/editBrand', uploadTo('brands').single('image'), editBrand);
-router.get('/brand/data', dataForBrandPage);
+router.get('/brand',adminAuth,loadBrandPage);
+router.get('/addbrand',adminAuth,loadAddbrand);
+router.post('/postaddbrand',adminAuth, uploadTo('brands').single('image'),addBrand);
+router.post('/blockbrand',adminAuth,blockBrand);
+router.post('/unblockbrand',adminAuth,unBlockBrand);
+router.get('/editBrand/:id',adminAuth,loadEditBrand);
+router.put('/editBrand',adminAuth, uploadTo('brands').single('image'), editBrand);
+router.get('/brand/data', adminAuth,dataForBrandPage);
 
 
 // Product management
-router.get('/product', isAdminLogin, loadProductpage);
-router.get('/addproduct', isAdminLogin, loadAddProduct);
-router.post('/addproduct', isAdminLogin, uploadTo('products').array('images', 4),addProduct);
-router.get('/editproduct/:id', isAdminLogin,loadeditproduct)
-router.put('/editproduct',isAdminLogin,editproduct)
-router.delete('/removeimg',isAdminLogin,removeImage)
-router.put('/imagechanges', isAdminLogin,uploadTo('products').single('image') , imageChanges)
-router.put('/blockproduct',isAdminLogin, blockProduct)
-router.put('/unblockproduct',isAdminLogin,unblockProduct)
-router.get('/dataforproductpage',isAdminLogin,dataForProductPage)
+router.get('/product',adminAuth, loadProductpage);
+router.get('/addproduct',adminAuth, loadAddProduct);
+router.post('/addproduct',adminAuth, uploadTo('products').array('images', 4),addProduct);
+router.get('/editproduct/:id',adminAuth,loadeditproduct)
+router.put('/editproduct',adminAuth,editproduct)
+router.delete('/removeimg',adminAuth,removeImage)
+router.put('/imagechanges',adminAuth,uploadTo('products').single('image') , imageChanges)
+router.put('/blockproduct',adminAuth ,blockProduct)
+router.put('/unblockproduct',adminAuth,unblockProduct)
+router.get('/dataforproductpage',adminAuth,dataForProductPage)
 
 
 export default router;

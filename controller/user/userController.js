@@ -262,6 +262,10 @@ const signup = async (req, res) => {
 };
 
 const loadSignin = async (req, res) => {
+  const user = req.user || req.session.user
+  if(user){
+    res.redirect('/')
+  }
   try {
     return res.render('signinPage');
   } catch (err) {

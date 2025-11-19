@@ -8,6 +8,7 @@ import db from './config/db.js';
 import userRoute from './routes/userRouter.js';
 import adminRouter from './routes/adminRouter.js';
 import { fileURLToPath } from 'url';
+import nocache from 'nocache';
 
 // For __dirname equivalent
 const __filename = fileURLToPath(import.meta.url);
@@ -17,6 +18,7 @@ dotenv.config();
 
 const app = express();
 
+app.use(nocache())
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

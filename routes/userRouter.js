@@ -2,15 +2,15 @@ import express from 'express';
 import {loadHomePage,loadLandingPage,pageNotFound,loadSignin,signin,signup,verifyOtp,loadVerifyOtp,logout,loadSignup, resendOtp, viewProducts, filterProduct, productDetails} from '../controller/user/userController.js';
 import { loadForgotPassword, verifyEmail, verifyPassOtp, loadOTPpage, loadPasswordReset, resendOtps, resetPassword} from '../controller/user/profileController.js';
 import passport from '../config/passport.js';
-import { userAuth } from '../middlewares/userAuth.js';
+import { userAuth,userIsLogged } from '../middlewares/auth.js';
 
 const router = express.Router();
 
-router.get('/', userAuth,loadHomePage);
-router.get('/landingPage',loadLandingPage);
+router.get('/',loadHomePage);
+// router.get('/landingPage',loadLandingPage);
 router.get('/pageNotFound',pageNotFound);
-router.get('/signup',loadSignup);
-router.get('/signin',loadSignin);
+router.get('/signup',userIsLogged,loadSignup);
+router.get('/signin',userIsLogged,loadSignin);
 router.post('/signup',signup);
 router.get('/verifyOtp',loadVerifyOtp);
 router.post('/verifyOtp',verifyOtp);

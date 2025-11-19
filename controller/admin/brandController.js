@@ -1,6 +1,8 @@
 import Brand from '../../model/brandSchema.js';
+import {STATUS} from '../../utils/statusCode.js'
 import Product from '../../model/productSchema.js';
 import cloudinary from '../../config/cloudinary.js';
+
 
 async function editBrand(req, res) {
   try {
@@ -9,7 +11,7 @@ async function editBrand(req, res) {
 
     const brand = await Brand.findById(id);
     if (!brand) {
-      return res.status(400).json({success:false, message: 'Brand not found' });
+      return res.status(STATUS.NOT_FOUND).json({success:false, message: 'Brand not found' });
     }
 
     let imageUrl = brand.brandImage;
@@ -24,13 +26,13 @@ async function editBrand(req, res) {
     );
 
     if (updateBrand) {
-      return res.status(200).json({success:true, message: 'Brand updated successfully' });
+      return res.status(STATUS.OK).json({success:true, message: 'Brand updated successfully' });
     } else {
-      return res.status(400).json({success:false, message: 'Brand cannot be updated' });
+      return res.status(STATUS.BAD_REQUEST).json({success:false, message: 'Brand cannot be updated' });
     }
   } catch (err) {
     console.log('Error editBrand:', err);
-    return res.status(500).json({success:false, message: 'Internal server error' });
+    return res.status(STATUS.INTERNAL_SERVER_ERROR).json({success:false, message: 'Internal server error' });
   }
 }
 
@@ -40,7 +42,7 @@ async function loadEditBrand(req, res) {
     const brand = await Brand.findOne({ _id: id });
     return res.render('editBrand', { data: brand });
   } catch (error) {
-    return res.status(500).json({ message: 'Internal server error' });
+    return res.status(STATUS.INTERNAL_SERVER_ERROR).json({ message: 'Internal server error' });
   }
 }
 
@@ -49,12 +51,12 @@ async function blockBrand(req, res) {
     console.log('blocking');
     const { id } = req.body;
     if (!id) {
-      return res.status(400).json({ success: false, message: 'Brand not found' });
+      return res.status(STATUS.NOT_FOUND).json({ success: false, message: 'Brand not found' });
     }
     await Brand.updateOne({ _id: id }, { $set: { isBlocked: true } });
-    return res.status(200).json({ success: true, message: 'Brand has been blocked!' });
+    return res.status(STATUS.OK).json({ success: true, message: 'Brand has been blocked!' });
   } catch (error) {
-    return res.status(500).json({ success: false, message: 'Internal server error' });
+    return res.status(STATUS.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Internal server error' });
   }
 }
 
@@ -63,12 +65,12 @@ async function unBlockBrand(req, res) {
     console.log('unblocking');
     const { id } = req.body;
     if (!id) {
-      return res.status(400).json({ success: false, message: 'Brand not found' });
+      return res.status(STATUS.NOT_FOUND).json({ success: false, message: 'Brand not found' });
     }
     await Brand.updateOne({ _id: id }, { $set: { isBlocked: false } });
-    return res.status(200).json({ success: true, message: 'Brand has been unBlocked' });
+    return res.status(STATUS.OK).json({ success: true, message: 'Brand has been unBlocked' });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Internal server error' });
+    res.status(STATUS.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Internal server error' });
   }
 }
 
@@ -76,7 +78,7 @@ async function loadBrandPage(req, res) {
   try {
     res.render('brand');
   } catch (error) {
-    res.status(500).json({ message: 'Brand page not found' });
+    res.status(STATUS.INTERNAL_SERVER_ERROR).json({ message: 'Brand page not found' });
   }
 }
 
@@ -123,17 +125,17 @@ async function addBrand(req, res) {
   try {
     const { name, description } = req.body;
     if (!name || !description) {
-      return res.status(400).json({ message: 'Please fill all the fields' });
+      return res.status(STATUS.BAD_REQUEST).json({ message: 'Please fill all the fields' });
     }
     if (!req.file) {
-      return res.status(400).json({ message: 'No image is uploaded' });
+      return res.status(STATUS.BAD_REQUEST).json({ message: 'No image is uploaded' });
     }
 
     console.log(req.file);
 
     const brand = await Brand.findOne({ brandName:{ $regex: new RegExp(`^${name}$`, "i") }});
     if (brand) {
-      return res.status(400).json({ message: 'Brand already exist' });
+      return res.status(STATUS.BAD_REQUEST).json({ message: 'Brand already exist' });
     }
 
     const imageUrl = req.file.path;
@@ -144,10 +146,10 @@ async function addBrand(req, res) {
     });
 
     await newBrand.save();
-    return res.status(200).json({ message: 'Brand added successfully' });
+    return res.status(STATUS.OK).json({ message: 'Brand added successfully' });
   } catch (error) {
     console.log('Error on uploading brand');
-    return res.status(500).json({ message: 'Internal server error', error });
+    return res.status(STATUS.INTERNAL_SERVER_ERROR).json({ message: 'Internal server error', error });
   }
 }
 

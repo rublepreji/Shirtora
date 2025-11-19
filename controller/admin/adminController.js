@@ -1,5 +1,6 @@
 import User from '../../model/userSchema.js';
 import bcrypt from 'bcrypt';
+import {STATUS} from '../../utils/statusCode.js'
 
 async function adminLogout(req, res) {
   try {
@@ -23,7 +24,7 @@ async function pageError(req, res) {
     return res.render('pageError');
   } catch (error) {
     console.log('Error in rendering errorPage');
-    res.status(500).send('Internal server error');
+    res.status(STATUS.INTERNAL_SERVER_ERROR).send('Internal server error');
   }
 }
 
