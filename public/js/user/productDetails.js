@@ -81,3 +81,104 @@ mainImage.parentElement.addEventListener("mouseleave", () => {
 
 })
 
+// Size selection handler
+document.addEventListener('DOMContentLoaded', function() {
+    const sizeSelect = document.getElementById('size-select');
+    const priceElement = document.getElementById('product-price');
+    const stockMessage = document.getElementById('stock-message');
+    const stockCount = document.getElementById('stock-count');
+    const selectedSizeLabel = document.getElementById('selected-size-label');
+    const qtyInput = document.getElementById('qty-input');
+    const qtyMinus = document.getElementById('qty-minus');
+    const qtyPlus = document.getElementById('qty-plus');
+    const addToCartBtn = document.getElementById('add-to-cart-btn');
+    const buyNowBtn = document.getElementById('buy-now-btn');
+    
+    let currentStock = parseInt(sizeSelect.options[sizeSelect.selectedIndex].dataset.stock);
+    
+    // Update display based on selected size
+    sizeSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const price = selectedOption.dataset.price;
+        const stock = parseInt(selectedOption.dataset.stock);
+        const size = selectedOption.dataset.size;
+        
+        currentStock = stock;
+        
+        // Update price
+        priceElement.textContent = `₹${price}/-`;
+        
+        // Update selected size label
+        selectedSizeLabel.textContent = size;
+        
+        // Update stock message
+        updateStockDisplay(stock);
+        
+        // Reset quantity to 1
+        qtyInput.value = 1;
+        
+        // Update button states
+        updateButtonStates(stock);
+    });
+    
+    function updateStockDisplay(stock) {
+        if (stock === 0) {
+            stockMessage.className = 'text-red-600 leading-relaxed font-semibold';
+            stockMessage.innerHTML = 'OUT OF STOCK';
+        } else if (stock < 5) {
+            stockMessage.className = 'text-red-600 leading-relaxed';
+            stockMessage.innerHTML = `Remaining only <span id="stock-count">${stock}</span> products`;
+        } else if (stock >= 5 && stock < 10) {
+            stockMessage.className = 'text-orange-600 leading-relaxed';
+            stockMessage.innerHTML = `Stock: <span id="stock-count">${stock}</span>`;
+        } else {
+            stockMessage.className = 'text-green-600 leading-relaxed';
+            stockMessage.innerHTML = `Stock: <span id="stock-count">${stock}</span>`;
+        }
+    }
+    
+    function updateButtonStates(stock) {
+        if (stock === 0) {
+            addToCartBtn.disabled = true;
+            buyNowBtn.disabled = true;
+            qtyMinus.disabled = true;
+            qtyPlus.disabled = true;
+        } else {
+            addToCartBtn.disabled = false;
+            buyNowBtn.disabled = false;
+            qtyMinus.disabled = false;
+            qtyPlus.disabled = false;
+        }
+    }
+    
+    // Quantity controls
+    qtyMinus.addEventListener('click', function() {
+        let qty = parseInt(qtyInput.value);
+        if (qty > 1) {
+            qtyInput.value = qty - 1;
+        }
+    });
+    
+    qtyPlus.addEventListener('click', function() {
+        let qty = parseInt(qtyInput.value);
+        if (qty < currentStock) {
+            qtyInput.value = qty + 1;
+        }
+    });
+    
+    // Initial button state check
+    updateButtonStates(currentStock);
+});
+
+// Add this inside the change event listener
+const headerStock = document.getElementById('header-stock');
+if (stock === 0) {
+    headerStock.className = 'text-red-600 font-semibold ml-auto lg:ml-0';
+    headerStock.textContent = '| OUT OF STOCK';
+} else if (stock < 5) {
+    headerStock.className = 'text-orange-600 font-semibold ml-auto lg:ml-0';
+    headerStock.textContent = '| LIMITED PRODUCT';
+} else {
+    headerStock.className = 'text-green-600 font-semibold ml-auto lg:ml-0';
+    headerStock.textContent = '| In Stock';
+}

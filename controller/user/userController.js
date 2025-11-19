@@ -26,10 +26,13 @@ async function productDetails(req,res) {
       category:product.category._id,
       _id:{$ne:product._id}
     }).limit(4)
+    const defaultVariant = product.variants[0]
     res.render('productDetails',{
       user:userData,
       product,
-      quantity:product.variants[0].stock,
+      variants:product.variants,
+      selectedVariant:defaultVariant,
+      quantity:defaultVariant.stock,
       totalOffer:totalOffer,
       category:categoryOffer,
       relatedProduct

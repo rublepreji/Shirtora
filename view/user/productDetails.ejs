@@ -58,80 +58,87 @@
                         <span class="text-yellow-500">★★★★☆</span>
                         <span class="text-gray-500">(150 Reviews)</span>
                         
-                           <% if(product.variants[0].stock==0){ %>
-                            <span class="text-red-600 font-semibold ml-auto lg:ml-0">| OUT OF STOCK </span>
-                            <%}else if(product.variants[0].stock<5){%>
-                                <span class="text-orange-600 font-semibold ml-auto lg:ml-0">| LIMITED PRODUCT </span>
-                            <%}else{%>
-                                <span class="text-green-600 font-semibold ml-auto lg:ml-0">| In Stock </span>
-                            <%}%>
-                       
+                        <% if(selectedVariant.stock == 0) { %>
+                            <span id="header-stock" class="text-red-600 font-semibold ml-auto lg:ml-0">| OUT OF STOCK</span>
+                        <% } else if(selectedVariant.stock < 5) { %>
+                            <span id="header-stock" class="text-orange-600 font-semibold ml-auto lg:ml-0">| LIMITED PRODUCT</span>
+                        <% } else { %>
+                            <span id="header-stock" class="text-green-600 font-semibold ml-auto lg:ml-0">| In Stock</span>
+                        <% } %>
                     </div>
                 </div>
+<!-- Update the price section -->
+<div class="flex items-baseline space-x-3 border-b pb-4">
+    <span id="product-price" class="text-3xl font-bold text-gray-800">₹<%= selectedVariant.price %>/-</span>
+    <span class="text-red-600 text-lg font-semibold">
+        <% if(!totalOffer) { %>
+            No Offers
+        <% } else { %>
+            <span class="strike-through text-xl text-gray-400"><%= selectedVariant.price %></span>
+            <%= totalOffer %>
+        <% } %>
+    </span>
+</div>
 
-                <div class="flex items-baseline space-x-3 border-b pb-4">
-                    <span class="text-3xl font-bold text-gray-800">₹<%=product.variants[0].price%>/-</span>
-                    
-                    <span class="text-red-600 text-lg font-semibold"><%if(!totalOffer){%>
-                        No Offers
-                    <%}else{%>
-                        <span class="strike-through text-xl text-gray-400"><%=product.variants[0].price%></span>
-                        <%=totalOffer%>
-                        <%}%>
-                    </span>
-                </div>
+<!-- Update the stock display section -->
+<% if(selectedVariant.stock == 0) { %>
+    <p id="stock-message" class="text-red-600 leading-relaxed font-semibold">OUT OF STOCK</p>
+<% } else if(selectedVariant.stock < 5) { %>
+    <p id="stock-message" class="text-red-600 leading-relaxed">
+        Remaining only <span id="stock-count"><%= selectedVariant.stock %></span> products
+    </p>
+<% } else if(selectedVariant.stock >= 5 && selectedVariant.stock < 10) { %>
+    <p id="stock-message" class="text-orange-600 leading-relaxed">
+        Stock: <span id="stock-count"><%= selectedVariant.stock %></span>
+    </p>
+<% } else { %>
+    <p id="stock-message" class="text-green-600 leading-relaxed">
+        Stock: <span id="stock-count"><%= selectedVariant.stock %></span>
+    </p>
+<% } %>
 
-                 <p class="text-600 leading-relaxed">
-                   Brand: <%=product.brand.brandName%>
-                 </p>
-                <p class="text-gray-600 leading-relaxed">
-                    <%=product.description%>
-                </p>
-                <%if(product.variants[0].stock==0){%>
-                  
-                <%}else if(product.variants[0].stock<5){%>
-                    <p class="text-red-600 leading-relaxed">
-                    Remaining only <%=product.variants[0].stock%> products
-                    </p>
-                <%}else if(product.variants[0].stock>=5 && product.variants[0].stock<10){%>
-                    <p class="text-orange-600 leading-relaxed">
-                    Stock:<%=product.variants[0].stock%>
-                    </p>
-                <%}else{%>
-                    <p class="text-green-600 leading-relaxed">
-                    Stock:<%=product.variants[0].stock%>
-                    </p>
-                <%}%>
+<!-- Update the size dropdown -->
+<div class="pt-2">
+    <label for="size-select" class="block text-base font-medium mb-2">
+        Size: <span id="selected-size-label"><%= selectedVariant.size %></span>
+    </label>
+    <select id="size-select" class="border border-gray-300 rounded-md p-2 w-32 focus:ring-black focus:border-black">
+        <% variants.forEach((variant, index) => { %>
+            <option 
+                value="<%= index %>" 
+                data-price="<%= variant.price %>" 
+                data-stock="<%= variant.stock %>"
+                data-size="<%= variant.size %>"
+                <%= index === 0 ? 'selected' : '' %>
+            >
+                <%= variant.size %>
+            </option>
+        <% }) %>
+    </select>
+</div>
 
-                <div class="pt-2">
-                    <label for="size-select" class="block text-base font-medium mb-2">Size: M</label>
-                    <select id="size-select" class="border border-gray-300 rounded-md p-2 w-32 focus:ring-black focus:border-black">
-                        <option>S</option>
-                        <option selected>M</option>
-                        <option>L</option>
-                        <option>XL</option>
-                    </select>
-                </div>
+<!-- Update buttons to be disabled when out of stock -->
+<div class="flex items-center space-x-3 pt-2 pb-4 border-b">
+    <div class="flex items-center border border-gray-300 rounded-md overflow-hidden">
+        <button id="qty-minus" class="quantity-button p-2 w-8 h-full text-lg font-semibold">-</button>
+        <input type="text" id="qty-input" value="1" class="w-10 text-center border-0 focus:ring-0" readonly>
+        <button id="qty-plus" class="quantity-button p-2 w-8 h-full text-lg font-semibold">+</button>
+    </div>
+    
+    <button id="add-to-cart-btn" class="flex-grow bg-black text-white py-3 rounded-md font-semibold hover:bg-gray-800 transition duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed">
+        Add to cart
+    </button>
+    
+    <button class="p-3 border border-gray-300 rounded-md hover:border-black transition duration-300 text-gray-500 hover:text-red-500">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-.318-.318A4.5 4.5 0 004.318 6.318z"></path>
+        </svg>
+    </button>
+</div>
 
-                <div class="flex items-center space-x-3 pt-2 pb-4 border-b">
-                    <div class="flex items-center border border-gray-300 rounded-md overflow-hidden">
-                        <button id="qty-minus" class="quantity-button p-2 w-8 h-full text-lg font-semibold">-</button>
-                        <input type="text" id="qty-input" value="1" class="w-10 text-center border-0 focus:ring-0" readonly>
-                        <button id="qty-plus" class="quantity-button p-2 w-8 h-full text-lg font-semibold">+</button>
-                    </div>
-                    
-                    <button class="flex-grow bg-black text-white py-3 rounded-md font-semibold hover:bg-gray-800 transition duration-300">
-                        Add to cart
-                    </button>
-                    
-                    <button class="p-3 border border-gray-300 rounded-md hover:border-black transition duration-300 text-gray-500 hover:text-red-500">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-.318-.318A4.5 4.5 0 004.318 6.318z"></path></svg>
-                    </button>
-                </div>
-                
-                <button class="w-full bg-black text-white py-3 rounded-md font-semibold hover:bg-gray-800 transition duration-300">
-                    Buy Now
-                </button>
+<button id="buy-now-btn" class="w-full bg-black text-white py-3 rounded-md font-semibold hover:bg-gray-800 transition duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed">
+    Buy Now
+</button>
                 
                 <div class="space-y-4 pt-4">
                     <div class="flex items-start space-x-3 p-4 border border-gray-200 rounded-lg">
