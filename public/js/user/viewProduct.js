@@ -47,7 +47,6 @@
             console.log(data);
             
             if(data.success){
-                
                 totalPage= data.totalPage
                 currentPage= data.currentPage
                 renderProduct(data.product)

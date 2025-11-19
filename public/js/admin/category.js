@@ -1,16 +1,16 @@
-import { json } from "express";
 
+document.addEventListener('DOMContentLoaded',()=>{
 const searchInput = document.getElementById("searchCategory");
   const clearBtn = document.getElementById("clearSearch");
   const categoryTable = document.querySelector("tbody");
   const pagination = document.getElementById("pagination");
-
+console.log("CATEGORY.JS LOADED");
   let totalPage = 1;
   let currentPage = 1;
   let searchTerm = "";
   let searchTimer;
-
-  document.querySelectorAll(".block-btn,unblock-btn").forEach(btn=>{
+function blockUnblockListener(){
+  document.querySelectorAll(".block-btn,.unblock-btn").forEach(btn=>{
     btn.addEventListener('click',async(e)=>{
         const target= e.currentTarget
         const action= target.dataset.action
@@ -33,7 +33,7 @@ const searchInput = document.getElementById("searchCategory");
         if(result.isConfirmed){
             try {
                 const response= await fetch(`/admin/${action}`,{
-                    method:'post',
+                    method:'put',
                     headers:{"Content-Type":"application/json"},
                     body:JSON.stringify({id:categoryId})
                 })
@@ -66,19 +66,21 @@ const searchInput = document.getElementById("searchCategory");
         }
     })
   })
+}
 
 
   // Fetch and Render Data
   async function fetchData(search = "", page = 1) {
     try {
-      const response = await fetch(`/admin/dataForCategory?search=${search}&page=${page}`);
+      const response = await fetch(`/admin/dataforcategory?search=${search}&page=${page}`);
       const data = await response.json();
 
       if (data.success) {
         renderTable(data.data);
         totalPage = data.totalPages;
         currentPage = data.currentPage;
-        renderPagination(); // render pagination every time
+        renderPagination(); 
+        blockUnblockListener()
       }
     } catch (err) {
       console.error("Error fetching data:", err);
@@ -96,19 +98,21 @@ const searchInput = document.getElementById("searchCategory");
         <td class="px-4 py-3">${cat.description}</td>
         <td class="py-3 px-4 text-center">
           <div class="flex justify-center items-center gap-2">
-          ${cat.isBlocked? `
-            <button 
-              class="delete-btn text-xs bg-orange-100 text-orange-600 px-3 py-1 rounded-md hover:bg-green-200 transition unblock-btn"
-              data-id="${cat._id}" data-action="unblockcategory">
-              Unblock
-            </button>`
-          :    `<button 
-              class="delete-btn text-xs bg-orange-100 text-orange-600 px-3 py-1 rounded-md hover:bg-orange-200 transition block-btn"
-              data-id="${cat._id}">
-              data-action="blockcategory"
-              Block
-            </button>`}
-            
+          ${cat.isBlocked ? `
+              <button 
+                class="text-xs bg-green-100 text-green-600 px-3 py-1 rounded-md hover:bg-green-200 transition unblock-btn"
+                data-id="${cat._id}" 
+                data-action="unblockcategory">
+                Unblock
+              </button>
+            ` : `
+              <button 
+                class="text-xs bg-red-100 text-red-600 px-3 py-1 rounded-md hover:bg-red-200 transition block-btn"
+                data-id="${cat._id}" 
+                data-action="blockcategory">
+                Block
+              </button>
+            `}
             <a href="/admin/editCategory/${cat._id}">
               <button 
                 class="text-xs bg-blue-100 text-blue-600 px-3 py-1 rounded-md hover:bg-blue-200 transition">
@@ -120,7 +124,7 @@ const searchInput = document.getElementById("searchCategory");
       </tr>`
       )
       .join("");
-    attachDeleteEvents(); 
+    
   }
 
   // Render Pagination
@@ -197,3 +201,4 @@ const searchInput = document.getElementById("searchCategory");
 
   //Initial load
   fetchData();
+  })

@@ -80,6 +80,12 @@ async function filterProduct(req,res) {
     else if(sort ==="high-low"){
       sortOption["variants.price"]=-1
     }
+    else if(sort=="A-Z"){
+      sortOption.productName=1
+    }
+    else if(sort=="Z-A"){
+      sortOption.productName=-1
+    }
     else{
       sortOption.createdAt=-1
     }
@@ -110,7 +116,7 @@ async function viewProducts(req,res) {
     try {
         const user= req.session.user
         const userData= await User.findOne({_id:user})
-        const categories= await Category.find({isDeleted:false})
+        const categories= await Category.find({isBlocked:false})
         const brand= await Brand.find({isBlocked:false})
         const categoryIds= categories.map(category=>category._id)
         const limit=9
@@ -304,7 +310,7 @@ const pageNotFound = async (req, res) => {
 const loadHomePage = async (req, res) => {
   try {
     let user = req.session.user;
-    let categories= await Category.find({isDeleted:false})
+    let categories= await Category.find({isBlocked:false})
 
     let productData= await Product.find({
       isBlocked:false,

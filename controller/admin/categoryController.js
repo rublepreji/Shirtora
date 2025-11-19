@@ -1,6 +1,35 @@
+import { json } from 'express';
 import Category from '../../model/categorySchema.js';
 
 
+async function blockCategory(req,res) {
+  try {
+    const id= req.body.id
+    if(id){
+      await Category.findByIdAndUpdate(id,{isBlocked:true})
+      return res.status(200).json({success:true,message:"Category blocked"})
+    }else{
+      return res.status(400),json({success:false,message:"Category Id cannot find"})
+    }
+  } catch (error) {
+    return res.status(500).json({success:true,message:"Internal server error"})
+  }
+}
+
+async function unblockCategory(req,res) {
+  try {
+    const id= req.body.id
+    if(id){
+      await Category.findByIdAndUpdate(id,{isBlocked:false},{new:true})
+      return res.status(200).json({success:true,message:"Category Unblocked"})
+    }
+    else{
+      return res.status(400).json({success:false,message:"Category id cannot find"})
+    }
+  } catch (error) {
+    return res.status(500).json({success:false,message:"Internal server error"})
+  }
+}
 
 async function dataForCategory(req,res) {
   try {
@@ -10,7 +39,6 @@ async function dataForCategory(req,res) {
     const search= req.query.search || ""
 
     const query={
-      isDeleted:false,
       name:{$regex:search,$options:"i"}
     }
 
@@ -149,5 +177,7 @@ export {
   deleteCategory,
   loadEditCategory,
   editCategory,
-  dataForCategory
+  dataForCategory,
+  unblockCategory,
+  blockCategory
 };

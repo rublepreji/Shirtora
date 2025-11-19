@@ -8,7 +8,7 @@ import { json } from 'stream/consumers';
 async function dataForProductPage(req,res) {
   try {    
     const page= parseInt(req.query.page) || 1
-    const limit=4
+    const limit=3
     const skip= (page-1)*limit
     const search= req.query.search ||""
     let query={}
@@ -165,7 +165,7 @@ async function loadeditproduct(req,res) {
     if(!existProduct){
       return res.status(400).json('Product not exist')
     }
-    const category = await Category.find({ isDeleted: false });
+    const category = await Category.find({ isBlocked: false });
     const brand = await Brand.find({ isBlocked: false });
     res.render('editproduct',{brand:brand,category:category,product:existProduct})
   } catch (error) {
@@ -214,7 +214,7 @@ async function addProduct(req, res) {
 
 async function loadAddProduct(req, res) {
   try {
-    const category = await Category.find({ isDeleted: false });
+    const category = await Category.find({ isBlocked: false });
     const brand = await Brand.find({ isBlocked: false });
     res.render('addproduct', {
       category: category,

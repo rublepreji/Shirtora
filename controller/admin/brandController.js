@@ -89,7 +89,7 @@ async function dataForBrandPage(req, res) {
     const skip = (page - 1) * limit;
     const search = req.query.search || '';
     const query = {
-      brandName: { $regex: '.*' + search + '.*' }
+      brandName: { $regex:search,$options:"i"}
     };
 
     const brandData = await Brand.find(query)

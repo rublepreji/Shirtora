@@ -1,4 +1,5 @@
-function showTab(tabName) {
+document.addEventListener("DOMContentLoaded",()=>{
+    function showTab(tabName) {
     const descTab = document.getElementById('desc-tab');
     const reviewsTab = document.getElementById('reviews-tab');
 
@@ -23,40 +24,60 @@ function showTab(tabName) {
         descContent.classList.add('hidden');
     }
 }
-    
-document.addEventListener('DOMContentLoaded', () => {
         const qtyInput = document.getElementById('qty-input');
         if (qtyInput.value === '2') {
         qtyInput.value = '1';
         }
-});
-
-function changeImage(src) {
+window.changeImage=function(src) {
 document.getElementById("mainImage").src = src;
 
 }
 
 //Zoom        
+
+//Zoom        
 const mainImage = document.getElementById("mainImage");
 const zoomLens = document.getElementById("zoomLens");
+const zoomResult = document.getElementById("zoomResult");
+
+mainImage.parentElement.addEventListener("mouseenter", () => {
+    zoomResult.innerHTML = `<img id="zoomedImg" src="${mainImage.src}">`;
+});
 
 mainImage.parentElement.addEventListener("mousemove", function (e) {
-    const bounds = this.getBoundingClientRect();
-    
-    const x = e.clientX - bounds.left;
-    const y = e.clientY - bounds.top;
 
-    zoomLens.style.left = `${x - zoomLens.offsetWidth / 2}px`;
-    zoomLens.style.top = `${y - zoomLens.offsetHeight / 2}px`;
+    const zoomedImg = document.getElementById("zoomedImg");
     zoomLens.classList.remove("hidden");
+    zoomResult.classList.remove("hidden");
 
-    
-    const zoomLevel = 2; 
-    mainImage.style.transformOrigin = `${x}px ${y}px`;
-    mainImage.style.transform = `scale(${zoomLevel})`;
+    const bounds = this.getBoundingClientRect();
+
+    const X = e.clientX - bounds.left;
+    const Y = e.clientY - bounds.top;
+
+    let lensX = X - zoomLens.offsetWidth / 2;
+    let lensY = Y - zoomLens.offsetHeight / 2;
+
+    if (lensX < 0) lensX = 0;
+    if (lensY < 0) lensY = 0;
+    if (lensX > bounds.width - zoomLens.offsetWidth) lensX = bounds.width - zoomLens.offsetWidth;
+    if (lensY > bounds.height - zoomLens.offsetHeight) lensY = bounds.height - zoomLens.offsetHeight;
+
+    zoomLens.style.left = `${lensX}px`;
+    zoomLens.style.top = `${lensY}px`;
+
+    // ---- REAL ZOOM RATIO FIX ----
+    const ratioX = zoomedImg.offsetWidth / mainImage.offsetWidth;
+    const ratioY = zoomedImg.offsetHeight / mainImage.offsetHeight;
+
+    zoomedImg.style.left = `${-lensX * ratioX}px`;
+    zoomedImg.style.top = `${-lensY * ratioY}px`;
 });
 
-mainImage.parentElement.addEventListener("mouseleave", function () {
+mainImage.parentElement.addEventListener("mouseleave", () => {
     zoomLens.classList.add("hidden");
-    mainImage.style.transform = "scale(1)";
+    zoomResult.classList.add("hidden");
 });
+
+})
+

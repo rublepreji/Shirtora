@@ -15,6 +15,11 @@
 
   <body class="bg-gray-50 min-h-screen flex font-inter overflow-hidden">
 
+    <aside
+      class="w-64 bg-white shadow-md hidden md:flex flex-col fixed h-full"
+    >
+      <%- include("../../view/partials/admin/sideBar") %>
+    </aside>
 
     <!-- Main Content -->
     <main class="flex-1 md:ml-64 p-6 md:p-10 transition-all duration-300">
@@ -73,7 +78,7 @@
           </div>
 
           <!-- List / Unlist Toggle -->
-          <div
+          <!-- <div
             class="flex flex-col md:flex-row items-center justify-between gap-4 mt-4"
           >
             <div></div>
@@ -91,7 +96,7 @@
                 ></div>
               </label>
             </div>
-          </div>
+          </div> -->
 
           <!-- Submit Button -->
           <div class="text-center mt-8">

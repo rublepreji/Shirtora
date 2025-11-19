@@ -1,5 +1,5 @@
 import express from 'express';
-import {loadHomePage,loadLandingPage,pageNotFound,loadSignin,signin,signup,verifyOtp,loadVerifyOtp,logout,loadSignup, resendOtp, viewProducts, filterProduct, productDetails} from '../controller/user/userController.js';
+import {loadHomePage,pageNotFound,loadSignin,signin,signup,verifyOtp,loadVerifyOtp,logout,loadSignup, resendOtp, viewProducts, filterProduct, productDetails} from '../controller/user/userController.js';
 import { loadForgotPassword, verifyEmail, verifyPassOtp, loadOTPpage, loadPasswordReset, resendOtps, resetPassword} from '../controller/user/profileController.js';
 import passport from '../config/passport.js';
 import { userAuth,userIsLogged } from '../middlewares/auth.js';

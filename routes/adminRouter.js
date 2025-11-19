@@ -20,7 +20,9 @@ import {
     deleteCategory,
     loadEditCategory,
     editCategory,
-    dataForCategory
+    dataForCategory,
+    blockCategory,
+    unblockCategory
     } from '../controller/admin/categoryController.js';
 import { 
     loadProductpage, 
@@ -71,10 +73,12 @@ router.get('/dataForuserpage',dataForUserPage)
 router.get('/category', adminAuth,categoryInfo);
 router.get('/addcategory',adminAuth, loadAddCategory);
 router.post('/addcategory',adminAuth ,addCategory);
-router.post('/deleteCategory/:id',adminAuth, deleteCategory);
+// router.post('/deleteCategory/:id',adminAuth, deleteCategory);
 router.get('/editcategory/:id', adminAuth,loadEditCategory);
 router.post('/postEditCategory',adminAuth, editCategory);
-router.get('/dataforcategory',adminAuth,dataForCategory)
+router.get('/dataforcategory',dataForCategory)
+router.put('/unblockcategory',adminAuth,unblockCategory)
+router.put('/blockcategory',adminAuth,blockCategory)
 
 // Brand management
 router.get('/brand',adminAuth,loadBrandPage);

@@ -17,20 +17,23 @@
 
         <!-- Breadcrumbs -->
         <div class="mb-8 text-sm text-gray-500">
-            <a href="#" class="hover:text-black">Account</a> /
-            <a href="#" class="hover:text-black">Order</a> /
-            <span class="font-medium text-gray-700">Polo Brown Shirt</span>
+            <a href="/" class="hover:text-black">Home</a> /
+            <a href="/viewproducts" class="hover:text-black">Products</a> /
+            <span class="font-medium text-gray-700">Proudct details</span>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 mb-16">
 
             <div class="flex flex-col space-y-4">
-               <div class="relative overflow-hidden border border-gray-200 w-80 mx-auto">
+               <div class="relative border border-gray-200 w-80 mx-auto">
                 <img 
                     id="mainImage" 
                     src="<%=product.productImage[0]%>" 
                     class="w-full main-image transition-transform duration-200"
                 >
+                <div id="zoomResult" class="hidden border border-gray-300 w-80 h-80 absolute right-[-22rem] top-0 bg-white overflow-hidden">
+</div>
+
                 <div id="zoomLens" class="hidden absolute pointer-events-none border border-gray-400" 
                     style="width:120px; height:120px; background:rgba(255,255,255,0.2); backdrop-filter:blur(2px);">
                 </div>

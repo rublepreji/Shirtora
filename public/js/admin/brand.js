@@ -63,7 +63,8 @@ try {
     else{
         Swal.fire("Error!", "Action failed. Try again.", "error");
     }
-} catch (error) {
+}
+ catch (error) {
     Swal.fire("Error!", "Something went wrong!", "error");
     console.error("Error on brand UI:", error);
     }

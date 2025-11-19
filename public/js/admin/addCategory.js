@@ -14,6 +14,10 @@
       errorName.style.display = "block";
       errorName.innerHTML = "Category name should contain only letters";
       return false;
+    }else if (name.length>15){
+      errorName.style.display = "block";
+      errorName.innerHTML = "Text content is limited to ten letters";
+      return false;
     }
     return true;
   }
