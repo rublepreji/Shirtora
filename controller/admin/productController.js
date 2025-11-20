@@ -182,7 +182,6 @@ async function addProduct(req, res) {
     if (existProduct) {
       return res.status(STATUS.BAD_REQUEST).json({ success: false, message: 'Product already exist' });
     }
-    console.log(req.files);
     
     const images = req.files.map((file) => file.path);
 

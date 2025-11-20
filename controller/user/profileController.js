@@ -10,6 +10,22 @@ import {STATUS} from '../../utils/statusCode.js'
 dotenv.config();
 
 
+async function loadContact(req,res) {
+  try {
+    res.render('contact')
+  } catch (error) {
+    res.redirect('/pageNotFound')
+  }
+}
+
+async function loadAbout(req,res) {
+  try {
+    res.render('about')
+  } catch (error) {
+    res.redirect('/pageNotFound')
+  }
+}
+
 async function resetPassword(req,res) {
   try {
     console.log('resetpassword');
@@ -132,4 +148,4 @@ async function loadForgotPassword(req, res) {
   }
 }
 
-export { loadForgotPassword, verifyEmail, verifyPassOtp, loadOTPpage, loadPasswordReset, resendOtps, resetPassword};
+export { loadForgotPassword, verifyEmail, verifyPassOtp, loadOTPpage, loadPasswordReset, resendOtps, resetPassword, loadAbout, loadContact};

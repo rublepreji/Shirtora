@@ -15,7 +15,7 @@ document.getElementById("addVariantBtn").addEventListener("click", () => {
   section.appendChild(newVariant);
 });
 
-// --- Image Upload & Cropper ---
+//  Image Upload 
 const fileInputs = ["img1", "img2", "img3", "img4"];
 fileInputs.forEach((id) => {
   const input = document.getElementById(id);
@@ -65,7 +65,7 @@ document.getElementById("cropImageBtn").addEventListener("click", () => {
   cropper.destroy();
 });
 
-// --- Form Validation + Submit ---
+// Form Validation 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   document.querySelectorAll("p.text-red-500").forEach((el) => el.classList.add("hidden"));

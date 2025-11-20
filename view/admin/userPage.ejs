@@ -1,87 +1,114 @@
-  <!DOCTYPE html>
-  <html lang="en">
-    <head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>Users | Admin Panel</title>
-      <script src="https://cdn.tailwindcss.com"></script>
-      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Users | Admin Panel</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
 
-    </head>
+<body class="bg-gray-50 min-h-screen flex">
 
-    <body class="bg-gray-50 min-h-screen flex">
-
-      <!-- Sidebar -->
-      <%- include("../../view/partials/admin/sideBar") %>
-
-      <!-- Main Section -->
-      <main class="lg:ml-64 ml-0 flex-1 px-6 py-10">
-        
-        <!-- Header -->
-        <div class="flex flex-row items-start justify-start mb-8">
-
-          <h1 class="text-2xl font-bold text-gray-800 mb-6 text-center">User Management</h1>
-        </div>
-
-        <!-- Filter Section -->
-        <div class="flex justify-around mr-3 mb-6">
-          <div></div>
-            <!-- Centered Search Bar -->
-         <div class="relative w-64">
-          <input
-            type="text"
-            placeholder="Search"
-            id="search"
-            class="w-full border border-gray-300 rounded-full px-4 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <button
-            id="clearSearch"
-            class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 hidden"
-          >
-            ✕
-          </button>
-          </div>
-          <div class="flex items-center border rounded-xl px-4 py-2 bg-white shadow-sm">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2l-7 9v5l-4-2v-3L3 6V4z" />
-            </svg>
-            <label for="filter" class="mr-2 text-gray-700 text-sm font-medium">Filter By</label>
-
-            <select id="filter" class="border-none text-gray-700 focus:outline-none">
-              <option value="blocked" >Blocked</option>
-              <option value="active">Active</option>
-              <option value="all">All</option>
-            </select>
-
-          </div>
-        </div>
-
-        <!-- User Table -->
-        <div class="overflow-x-auto bg-white rounded-2xl shadow-sm">
-          <table class="w-full text-left text-gray-700">
-            <thead>
-              <tr class="bg-indigo-500 text-white text-sm">
-                <th class="py-3 px-4 rounded-tl-2xl">S.No</th>
-                <th class="py-3 px-4">Name</th>
-                <th class="py-3 px-4">Email</th>
-                <th class="py-3 px-4">Mobile</th>
-                <th class="py-3 px-4 rounded-tr-2xl">Update</th>
-              </tr>
-            </thead>
-
-            <tbody class="text-sm">
-             
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Pagination Section -->
-  <div class="flex justify-center mt-6">
-    <nav id="pagination" class="inline-flex items-center space-x-2">
-
-     
-    </nav>
+  <!-- MOBILE TOPBAR -->
+  <div class="md:hidden fixed top-0 left-0 w-full bg-white p-4 shadow z-30 flex justify-between items-center">
+    <button id="openSidebar" class="text-2xl text-gray-700">☰</button>
+    <h1 class="text-xl font-bold">Users</h1>
   </div>
+
+  <!-- SIDEBAR -->
+  <aside
+    id="sidebar"
+    class="w-64 bg-white h-screen shadow-md fixed top-0 left-0 flex flex-col justify-between
+           transform -translate-x-full md:translate-x-0 transition-all duration-300 z-40">
+
+    <%- include("../../view/partials/admin/sideBar") %>
+
+  </aside>
+
+  <!-- OVERLAY (mobile only) -->
+  <div id="overlay"
+       class="fixed inset-0 bg-black bg-opacity-40 z-30 hidden md:hidden">
+  </div>
+
+  <!-- MAIN SECTION -->
+  <main class="flex-1 pt-16 md:pt-0 md:ml-64 p-4 md:p-10 transition-all duration-300">
+
+    <!-- HEADER -->
+    <h1 class="hidden md:block text-2xl font-bold text-gray-800 mb-6">User Management</h1>
+
+    <!-- SEARCH + FILTER -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+
+      <!-- Search Bar -->
+      <div class="relative w-full md:w-64">
+        <input type="text" placeholder="Search" id="search"
+          class="w-full border border-gray-300 rounded-full px-4 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+
+        <button id="clearSearch"
+          class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 hidden">✕</button>
+      </div>
+
+      <!-- Filter -->
+      <div class="flex items-center border rounded-xl px-4 py-2 bg-white shadow-sm w-fit">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-600 mr-2" fill="none"
+          viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2l-7 9v5l-4-2v-3L3 6V4z" />
+        </svg>
+
+        <label class="mr-2 text-gray-700 text-sm font-medium">Filter By</label>
+
+        <select id="filter" class="border-none text-gray-700 focus:outline-none">
+          <option value="blocked">Blocked</option>
+          <option value="active">Active</option>
+          <option value="all" selected>All</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="overflow-x-auto bg-white rounded-2xl shadow-sm">
+      <table class="w-full min-w-[600px] text-left text-gray-700">
+        <thead>
+          <tr class="bg-indigo-500 text-white text-sm">
+            <th class="py-3 px-4 rounded-tl-2xl">S.No</th>
+            <th class="py-3 px-4">Name</th>
+            <th class="py-3 px-4">Email</th>
+            <th class="py-3 px-4">Mobile</th>
+            <th class="py-3 px-4 rounded-tr-2xl">Update</th>
+          </tr>
+        </thead>
+        <tbody class="text-sm"></tbody>
+      </table>
+    </div>
+
+    <!-- PAGINATION -->
+    <div class="flex justify-center mt-6">
+      <nav id="pagination" class="inline-flex items-center space-x-2"></nav>
+    </div>
+
   </main>
 
-   <script src="/js/admin/userPage.js"></script>
+  <!-- USERS JS -->
+  <script src="/js/admin/userPage.js"></script>
+
+  <!-- SIDEBAR JS -->
+  <script>
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("overlay");
+    const openSidebar = document.getElementById("openSidebar");
+
+    openSidebar.addEventListener("click", () => {
+      sidebar.classList.remove("-translate-x-full");
+      overlay.classList.remove("hidden");
+    });
+
+    overlay.addEventListener("click", () => {
+      sidebar.classList.add("-translate-x-full");
+      overlay.classList.add("hidden");
+    });
+  </script>
+
+</body>
+</html>

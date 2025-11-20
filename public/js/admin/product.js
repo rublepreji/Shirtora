@@ -202,3 +202,16 @@ document.querySelector("tbody").addEventListener("click", async (e) => {
           clearBtn.classList.add("hidden");
           getData(1, ""); 
         });
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("overlay");
+    const openSidebar = document.getElementById("openSidebar");
+
+    openSidebar.addEventListener("click", () => {
+      sidebar.classList.remove("-translate-x-full");
+      overlay.classList.remove("hidden");
+    });
+
+    overlay.addEventListener("click", () => {
+      sidebar.classList.add("-translate-x-full");
+      overlay.classList.add("hidden");
+    });
