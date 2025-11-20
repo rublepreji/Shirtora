@@ -231,10 +231,10 @@ async function verifyOtp(req, res) {
         password: passwordHash
       });
       await newUser.save();
-      req.session.user = newUser._id;
+      // req.session.user = newUser._id;
       return res.json({ success: true, redirectUrl: '/signin' });
     } else {
-      res.status(STATUS.BAD_REQUEST).json({ success: false, message: 'Invalid OTP' });
+     return res.status(STATUS.BAD_REQUEST).json({ success: false, message: 'Invalid OTP' });
     }
   } catch (error) {
     console.error('Error verifying OTP', error);
@@ -263,8 +263,7 @@ const signup = async (req, res) => {
     }
     req.session.userOtp = otp;
     req.session.userData = { firstName, lastName, phone, email, password };
-    res.redirect('/verifyOtp');
-    console.log('OTP Send');
+    return res.redirect('/verifyOtp');
   } catch (error) {
     console.log('SignUp error', error);
     return res.redirect('/pageNotFound');
@@ -274,7 +273,7 @@ const signup = async (req, res) => {
 const loadSignin = async (req, res) => {
   const user = req.user || req.session.user
   if(user){
-    res.redirect('/')
+    return res.redirect('/')
   }
   try {
     return res.render('signinPage');
