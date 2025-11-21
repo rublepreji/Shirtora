@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Add New Address</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom Tailwind Configuration for the purple accent color visible in the design */
+        :root {
+            --color-purple-accent: #6b21a8; /* A deep purple */
+        }
+        .text-accent {
+            color: var(--color-purple-accent);
+        }
+        .border-accent {
+            border-color: var(--color-purple-accent);
+        }
+        .bg-accent {
+            background-color: var(--color-purple-accent);
+        }
+        .hover\:text-accent:hover {
+            color: var(--color-purple-accent);
+        }
+        .hover\:bg-accent:hover {
+            background-color: var(--color-purple-accent);
+        }
+
+        /* Apply custom styles */
+        .sidebar-link.active {
+            background-color: #f3f4f6; /* gray-100 */
+            font-weight: 700; /* bold */
+            color: black;
+            border-left: 4px solid var(--color-purple-accent);
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body class="bg-gray-50 flex font-sans min-h-screen">
+
+    <%-include("../../view/partials/user/sideBar")%>
+    <!-- End Sidebar -->
+
+    <!-- PAGE CONTAINER -->
+    <main class="flex-grow p-4 md:p-8 md:pl-0">
+        
+        <div class="max-w-6xl mx-auto">
+            <!-- Top Breadcrumb + Welcome -->
+            <div class="flex flex-col md:flex-row justify-between text-sm text-gray-600 mb-6 border-b pb-4">
+                <p>
+                    <a href="#" class="text-accent hover:underline">Home</a> / 
+                    <a href="#" class="text-accent hover:underline">Account</a> / 
+                    <a href="#" class="text-accent hover:underline">Manage Addresses</a> / 
+                    <span class="font-bold text-gray-900">Add New Address</span>
+                </p>
+                <p class="mt-2 md:mt-0 text-accent font-medium">Welcome! Customer Name</p>
+            </div>
+    
+            <!-- MAIN FORM CARD -->
+            <div class="bg-white shadow-lg rounded-xl p-6 sm:p-10 border border-gray-100">
+    
+                <!-- Form Structure -->
+                <form action="/addnewaddress" method="POST" class="space-y-8" novalidate>
+
+                    <!-- Personal Information Header Section -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12">
+                        <h3 class="text-xl font-bold text-gray-800 border-b pb-2">Add New Address</h3>
+                        <h3 class="text-xl font-bold text-gray-800 border-b pb-2 hidden md:block">Personal Information</h3>
+                    </div>
+
+                    <!-- Personal Information Fields -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+                        
+                        <!-- First Name -->
+                        <div>
+                            <label for="first-name" class="block text-sm font-medium text-gray-700">First Name</label>
+                            <input type="text" id="first-name" name="first-name" placeholder="FirstName"
+                                class="mt-1 block w-full px-4 py-3 bg-gray-100 border-none rounded-lg focus:ring-2 focus:ring-accent focus:bg-white transition" required />
+                        </div>
+                        
+                        <!-- Last Name -->
+                        <div>
+                            <label for="last-name" class="block text-sm font-medium text-gray-700">Last Name</label>
+                            <input type="text" id="last-name" name="last-name" placeholder="LastName"
+                                class="mt-1 block w-full px-4 py-3 bg-gray-100 border-none rounded-lg focus:ring-2 focus:ring-accent focus:bg-white transition" required />
+                        </div>
+
+                        <!-- Email -->
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                            <input type="email" id="email" name="email" placeholder="example@gmail.com"
+                                class="mt-1 block w-full px-4 py-3 bg-gray-100 border-none rounded-lg focus:ring-2 focus:ring-accent focus:bg-white transition" required />
+                        </div>
+                        
+                        <!-- Phone -->
+                        <div>
+                            <label for="phone" class="block text-sm font-medium text-gray-700">Phone</label>
+                            <input type="tel" id="phone" name="phone" placeholder="+91 12345 67890"
+                                class="mt-1 block w-full px-4 py-3 bg-gray-100 border-none rounded-lg focus:ring-2 focus:ring-accent focus:bg-white transition" required />
+                        </div>
+                    </div>
+
+                    <!-- Address Header (Mobile Only) -->
+                    <h3 class="text-xl font-bold text-gray-800 border-b pb-2 md:hidden">Address</h3>
+
+
+                    <!-- Address Line -->
+                    <div class="space-y-2">
+                        <label for="address-line" class="block text-sm font-medium text-gray-700">Address</label>
+                        <input type="text" id="address-line" name="address-line" placeholder="House Name , House Number, Locality"
+                            class="mt-1 block w-full px-4 py-3 bg-gray-100 border-none rounded-lg focus:ring-2 focus:ring-accent focus:bg-white transition" required />
+                    </div>
+
+                    <!-- City, State, Landmark, Pin Code -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+                        
+                        <!-- District / Town -->
+                        <div>
+                            <label for="district" class="block text-sm font-medium text-gray-700">District / Town</label>
+                            <input type="text" id="district" name="district" placeholder="eg : Ernakulam"
+                                class="mt-1 block w-full px-4 py-3 bg-gray-100 border-none rounded-lg focus:ring-2 focus:ring-accent focus:bg-white transition" required />
+                        </div>
+
+                        <!-- State -->
+                        <div>
+                            <label for="state" class="block text-sm font-medium text-gray-700">State</label>
+                            <input type="text" id="state" name="state" placeholder="eg : Kerala"
+                                class="mt-1 block w-full px-4 py-3 bg-gray-100 border-none rounded-lg focus:ring-2 focus:ring-accent focus:bg-white transition" required />
+                        </div>
+
+                        <!-- Landmark -->
+                        <div>
+                            <label for="landmark" class="block text-sm font-medium text-gray-700">Landmark ( optional )</label>
+                            <input type="text" id="landmark" name="landmark" placeholder="eg : Hospital"
+                                class="mt-1 block w-full px-4 py-3 bg-gray-100 border-none rounded-lg focus:ring-2 focus:ring-accent focus:bg-white transition" />
+                        </div>
+
+                        <!-- Pin Code -->
+                        <div>
+                            <label for="pin-code" class="block text-sm font-medium text-gray-700">Pin Code</label>
+                            <input type="text" id="pin-code" name="pin-code" placeholder="eg : 689230"
+                                class="mt-1 block w-full px-4 py-3 bg-gray-100 border-none rounded-lg focus:ring-2 focus:ring-accent focus:bg-white transition" required />
+                        </div>
+                    </div>
+
+                    <!-- Address Type & Submit Button -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 pt-4 items-end">
+                        
+                        <!-- Address Type Radio Buttons -->
+                        <div class="flex items-center space-x-6">
+                            <label class="block text-sm font-medium text-gray-700">Address Type</label>
+                            <div class="flex space-x-4">
+                                <label class="inline-flex items-center">
+                                    <input type="radio" name="address-type" value="home" class="form-radio text-accent h-4 w-4 border-gray-300" checked>
+                                    <span class="ml-2 text-gray-700">Home</span>
+                                </label>
+                                <label class="inline-flex items-center">
+                                    <input type="radio" name="address-type" value="work" class="form-radio text-accent h-4 w-4 border-gray-300">
+                                    <span class="ml-2 text-gray-700">Work</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="md:text-right">
+                            <button type="submit" class="w-full md:w-auto px-10 py-3 bg-gray-800 text-white font-semibold rounded-lg shadow-md hover:bg-black transition duration-200">
+                                Add Address
+                            </button>
+                        </div>
+
+                    </div>
+                </form>
+
+            </div>
+        </div>
+        
+    </main>
+    <script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const form = document.querySelector("form");
+    
+    function showError(input, message) {
+        let error = input.parentElement.querySelector(".error-text");
+        if (!error) {
+            error = document.createElement("p");
+            error.className = "error-text text-red-600 text-sm mt-1";
+            input.parentElement.appendChild(error);
+        }
+        error.textContent = message;
+        input.classList.add("ring-2", "ring-red-500");
+    }
+
+    function clearError(input) {
+        let error = input.parentElement.querySelector(".error-text");
+        if (error) {
+            error.textContent = "";
+        }
+        input.classList.remove("ring-2", "ring-red-500");
+    }
+
+    function validateEmail(email) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+
+    function validatePhone(phone) {
+        return /^[0-9]{10}$/.test(phone);
+    }
+
+    function validatePincode(pin) {
+        return /^[0-9]{6}$/.test(pin);
+    }
+
+    form.addEventListener("submit", function (event) {
+        let isValid = true;
+
+        // Collect input fields
+        const firstName = document.getElementById("first-name");
+        const lastName = document.getElementById("last-name");
+        const email = document.getElementById("email");
+        const phone = document.getElementById("phone");
+        const address = document.getElementById("address-line");
+        const district = document.getElementById("district");
+        const state = document.getElementById("state");
+        const pincode = document.getElementById("pin-code");
+
+        // VALIDATION RULES
+        if (firstName.value.trim() === "") {
+            showError(firstName, "First Name is required");
+            isValid = false;
+        } else clearError(firstName);
+
+        if (lastName.value.trim() === "") {
+            showError(lastName, "Last Name is required");
+            isValid = false;
+        } else clearError(lastName);
+
+        if (email.value.trim() === "" || !validateEmail(email.value)) {
+            showError(email, "Enter a valid email address");
+            isValid = false;
+        } else clearError(email);
+
+        if (!validatePhone(phone.value)) {
+            showError(phone, "Enter a valid 10-digit phone number");
+            isValid = false;
+        } else clearError(phone);
+
+        if (address.value.trim() === "") {
+            showError(address, "Address field cannot be empty");
+            isValid = false;
+        } else clearError(address);
+
+        if (district.value.trim() === "") {
+            showError(district, "District/Town is required");
+            isValid = false;
+        } else clearError(district);
+
+        if (state.value.trim() === "") {
+            showError(state, "State is required");
+            isValid = false;
+        } else clearError(state);
+
+        if (!validatePincode(pincode.value)) {
+            showError(pincode, "Pin Code must be a 6-digit number");
+            isValid = false;
+        } else clearError(pincode);
+
+        // Stop form from submitting if invalid
+        if (!isValid) {
+            event.preventDefault();
+        }
+    });
+});
+</script>
+
+</body>
+</html>

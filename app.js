@@ -10,6 +10,7 @@ import adminRouter from './routes/adminRouter.js';
 import { fileURLToPath } from 'url';
 import nocache from 'nocache';
 import morgan from 'morgan';
+import User from './model/userSchema.js';
 
 // For __dirname equivalent
 const __filename = fileURLToPath(import.meta.url);
@@ -37,6 +38,22 @@ app.use(
     },
   })
 );
+
+app.use((req, res, next) => {
+  res.locals.session = req.session;
+  next();
+});
+
+
+app.use(async (req, res, next) => {
+  if (req.session.user) {
+    const userData = await User.findById(req.session.user._id).lean();
+    res.locals.user = userData;
+  } else {
+    res.locals.user = null;
+  }
+  next();
+});
 
 app.use(passport.initialize());
 app.use(passport.session());

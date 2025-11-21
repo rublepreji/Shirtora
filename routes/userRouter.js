@@ -1,8 +1,9 @@
 import express from 'express';
 import {loadHomePage,pageNotFound,loadSignin,signin,signup,verifyOtp,loadVerifyOtp,logout,loadSignup, resendOtp, viewProducts, filterProduct, productDetails} from '../controller/user/userController.js';
-import { loadForgotPassword, verifyEmail, verifyPassOtp, loadOTPpage, loadPasswordReset, resendOtps, resetPassword, loadAbout, loadContact} from '../controller/user/profileController.js';
+import { loadForgotPassword, verifyEmail, verifyPassOtp, loadOTPpage, loadPasswordReset, resendOtps, resetPassword, loadAbout, loadContact, loadUserDetails, loadAddressBook, loadNewAddress, addNewAddress, loadEditAddress, editAddress} from '../controller/user/profileController.js';
 import passport from '../config/passport.js';
 import { userAuth,userIsLogged } from '../middlewares/auth.js';
+
 
 const router = express.Router();
 
@@ -48,5 +49,13 @@ router.get('/productdetails/:id',productDetails)
 
 router.get('/about',loadAbout)
 router.get('/contact',loadContact)
+
+//userProfile
+router.get('/userProfile',userAuth,loadUserDetails)
+router.get('/addressbook',userAuth,loadAddressBook)
+router.get('/addnewaddress',userAuth,loadNewAddress)
+router.post('/addnewaddress',userAuth,addNewAddress)
+router.get('/editaddress/:addressId',userAuth,loadEditAddress)
+router.post('/editaddress/:addressId',userAuth,editAddress)
 
 export default router;

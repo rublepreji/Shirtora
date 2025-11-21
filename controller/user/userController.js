@@ -231,7 +231,6 @@ async function verifyOtp(req, res) {
         password: passwordHash
       });
       await newUser.save();
-      // req.session.user = newUser._id;
       return res.json({ success: true, redirectUrl: '/signin' });
     } else {
      return res.status(STATUS.BAD_REQUEST).json({ success: false, message: 'Invalid OTP' });
