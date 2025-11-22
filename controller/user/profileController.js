@@ -11,6 +11,22 @@ dotenv.config();
 
 
 
+async function deleteAddress(req,res) {
+  try {
+    const user= req.session.user
+    const addressId= req.params.id
+    await Address.updateOne(
+      {userId:user._id},
+      {$pull:{address:{_id:addressId}}}
+    )
+    return res.status(STATUS.OK).json({success:true})
+  } catch (error) {
+    console.log('Error on delete address',error);
+    
+    return res.status(STATUS.INTERNAL_SERVER_ERROR).json({success:false})
+  }
+}
+
 async function editAddress(req,res) {
   try {
     const addressData= req.body
@@ -49,9 +65,9 @@ async function editAddress(req,res) {
     req.session.message = "Address updated successfully!";
     return res.redirect('/addressbook')    
   } catch (error) {
-    req.session.message = "something went wrong!";
+    req.session.error = "something went wrong!";
     console.log('editAddress error',error);
-    req.session.message="Failed to update address"
+    req.session.error="Failed to update address"
     return res.redirect('/pageNotFound')
   }
 }
@@ -129,7 +145,7 @@ async function addNewAddress(req,res) {
     
   } catch (error) {
     console.log('error on add New Address',error);
-    req.session.message="Failed to add address"
+    req.session.error="Failed to add address"
     res.redirect('/pageNotFound')
   }
 }
@@ -159,14 +175,14 @@ async function loadAddressBook(req,res) {
 
 async function loadUserDetails(req,res) {
   try {
-    if(req.session.user){
-      const id= req.session.user._id
-      const findUser=await User.findById(id)
-      console.log(findUser);
-      
+    if(!req.session.user){
+      return res.redirect('/signin')
     }
-    
-    res.render('userProfile')
+    const id= req.session.user._id
+    const findUser=await User.findById(id)
+    res.render('userProfile',{
+      user:findUser
+    })
   } catch (error) {
     
   }
@@ -310,4 +326,4 @@ async function loadForgotPassword(req, res) {
   }
 }
 
-export { loadForgotPassword, verifyEmail, verifyPassOtp, loadOTPpage, loadPasswordReset, resendOtps, resetPassword, loadAbout, loadContact, loadUserDetails, loadAddressBook, loadNewAddress, addNewAddress, loadEditAddress, editAddress};
+export { loadForgotPassword, verifyEmail, verifyPassOtp, loadOTPpage, loadPasswordReset, resendOtps, resetPassword, loadAbout, loadContact, loadUserDetails, loadAddressBook, loadNewAddress, addNewAddress, loadEditAddress, editAddress, deleteAddress};

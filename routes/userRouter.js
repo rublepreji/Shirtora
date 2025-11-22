@@ -1,6 +1,6 @@
 import express from 'express';
 import {loadHomePage,pageNotFound,loadSignin,signin,signup,verifyOtp,loadVerifyOtp,logout,loadSignup, resendOtp, viewProducts, filterProduct, productDetails} from '../controller/user/userController.js';
-import { loadForgotPassword, verifyEmail, verifyPassOtp, loadOTPpage, loadPasswordReset, resendOtps, resetPassword, loadAbout, loadContact, loadUserDetails, loadAddressBook, loadNewAddress, addNewAddress, loadEditAddress, editAddress} from '../controller/user/profileController.js';
+import { loadForgotPassword, verifyEmail, verifyPassOtp, loadOTPpage, loadPasswordReset, resendOtps, resetPassword, loadAbout, loadContact, loadUserDetails, loadAddressBook, loadNewAddress, addNewAddress, loadEditAddress, editAddress, deleteAddress} from '../controller/user/profileController.js';
 import passport from '../config/passport.js';
 import { userAuth,userIsLogged } from '../middlewares/auth.js';
 
@@ -57,5 +57,7 @@ router.get('/addnewaddress',userAuth,loadNewAddress)
 router.post('/addnewaddress',userAuth,addNewAddress)
 router.get('/editaddress/:addressId',userAuth,loadEditAddress)
 router.post('/editaddress/:addressId',userAuth,editAddress)
+router.delete('/deleteaddress/:id',userAuth,deleteAddress)
+
 
 export default router;

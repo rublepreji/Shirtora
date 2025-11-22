@@ -84,7 +84,7 @@
                                 Edit
                             </button>
                             </a>
-                            <button class="px-4 py-1.5 bg-red-100 text-red-600 rounded-lg text-sm font-medium hover:bg-red-200 transition">
+                            <button onclick="deleteAddress('<%=val._id%>')" class="px-4 py-1.5 bg-red-100 text-red-600 rounded-lg text-sm font-medium hover:bg-red-200 transition">
                                 Delete
                             </button>
                         </div>
@@ -109,6 +109,57 @@ window.onload = function () {
 </script>
 <% session.message = null; %>
 <% } %>
+   <% if (session.error) { %>
+<script>
+window.onload = function () {
+  Swal.fire({
+    icon: 'error',
+    title: "<%= session.error %>",
+    showConfirmButton: false,
+    timer: 1800
+  });
+}
+</script>
+<% session.error = null; %>
+<% } %>
+
+<script>
+function deleteAddress(id) {
+    Swal.fire({
+        title: "Are you sure?",
+        text: "This address will be permanently deleted.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Yes, delete it!"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`/deleteaddress/${id}`, {
+                method: "DELETE"
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: "success",
+                        title: "Address Deleted",
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    Swal.fire("Error", data.message || "Something went wrong", "error");
+                }
+            });
+        }
+    });
+}
+</script>
+
 </body>
 </html>
 
