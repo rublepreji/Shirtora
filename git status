@@ -1,0 +1,155 @@
+[33mcommit 6ce756185afe0f92b9591c72c30f23020990edb1[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/feature[m[33m, [m[1;32mfeature[m[33m)[m
+Author: Ruble P Reji <rublepreji95@gmail.com>
+Date:   Sat Nov 22 12:18:19 2025 +0530
+
+    refactor: improve success/error messages for add & edit address
+
+[33mcommit 3ec6341e899b1fe34791293de44fda32f508fab6[m
+Author: Ruble P Reji <rublepreji95@gmail.com>
+Date:   Sat Nov 22 01:16:56 2025 +0530
+
+    eat(user): implement address add and edit functionality
+
+[33mcommit 3b7bcfa334a0da813d7a654ed50308671f2b8cd6[m
+Author: Ruble P Reji <rublepreji95@gmail.com>
+Date:   Thu Nov 20 17:42:49 2025 +0530
+
+    fix: resolve user authentication issue
+
+[33mcommit 580f007b1b8c32b4165471add1eb4707abdb0c74[m
+Author: Ruble P Reji <rublepreji95@gmail.com>
+Date:   Thu Nov 20 12:45:11 2025 +0530
+
+    feat: add About, Session, and Contact sections to user side; fix multiple responsive layout issues
+
+[33mcommit 5f8e791876926c299e16d47804a07e95351ba59b[m
+Author: Ruble P Reji <rublepreji95@gmail.com>
+Date:   Thu Nov 20 00:27:57 2025 +0530
+
+    feat: Add dynamic variant selection to product details page
+
+[33mcommit cad9e69c5ea46b46dcaa97a58ce081547a2b632b[m
+Author: Ruble P Reji <rublepreji95@gmail.com>
+Date:   Wed Nov 19 21:58:40 2025 +0530
+
+    refactor: introduce STATUS constants for standardized HTTP response codes
+
+[33mcommit 6e4f13643eda0a42819d516118803a24e18e6ef4[m
+Author: Ruble P Reji <rublepreji95@gmail.com>
+Date:   Wed Nov 19 20:36:43 2025 +0530
+
+    fix: corrected validation bugs, improved image handling, and cleaned up form submission logic
+
+[33mcommit 90f197b29245f34b59a57eaa216f910d5da67a58[m
+Author: Ruble P Reji <rublepreji95@gmail.com>
+Date:   Wed Nov 19 09:15:25 2025 +0530
+
+    feat(auth): add session-based authentication with userAuth and adminAuth middleware to protect routes
+
+[33mcommit d8c79703e5d580caeb448db669584be00fe818e1[m
+Author: Ruble P Reji <rublepreji95@gmail.com>
+Date:   Tue Nov 18 19:22:52 2025 +0530
+
+    Refactor: Separate EJS styles and scripts into public folder
+
+[33mcommit 2e733eff792d7aec2c989866fe8c365a97238a1e[m
+Author: Ruble P Reji <rublepreji95@gmail.com>
+Date:   Tue Nov 18 00:42:11 2025 +0530
+
+    feat: complete product details page UI and functionality on user side
+
+[33mcommit 24dde43aa8ceaacf596a86197ee6e18e61e62be1[m
+Author: Ruble P Reji <rublepreji95@gmail.com>
+Date:   Mon Nov 17 12:28:49 2025 +0530
+
+    feat(user-product-listing): implemented sorting and pagination functionality
+
+[33mcommit 5ce567aa77f4440427e2fd0bf5d2d077afc1b56e[m
+Author: Ruble P Reji <rublepreji95@gmail.com>
+Date:   Mon Nov 17 01:35:11 2025 +0530
+
+    fix: resolve issue with product block/unblock functionality
+
+[33mcommit a0d28c4c117e62100388340d51135fc871f84491[m
+Author: Ruble P Reji <rublepreji95@gmail.com>
+Date:   Sun Nov 16 23:04:58 2025 +0530
+
+    feat(user/products): added search filter functionality to product listing page
+
+[33mcommit a1a9685d1339f095f2b04a7ae1f363a1d3212f78[m
+Author: Ruble P Reji <rublepreji95@gmail.com>
+Date:   Sun Nov 16 01:28:28 2025 +0530
+
+    feat(user): implement product listing page
+
+[33mcommit 175f6dbf01adbc00341db4e6a5e7200c58e03eb5[m
+Author: Ruble P Reji <rublepreji95@gmail.com>
+Date:   Sat Nov 15 00:42:24 2025 +0530
+
+    feat: added complete forgot password flow (email verification, OTP, and password reset)
+
+[33mcommit cf09b2e0dbdb409e134ac88e3c765f7759e01140[m
+Author: Ruble P Reji <rublepreji95@gmail.com>
+Date:   Thu Nov 13 09:07:14 2025 +0530
+
+    feat(admin-category): implement full category management (add, edit, delete, search, pagination)
+
+[33mcommit 71a7e5d52795d5507795e7c0c1e111a3fa02831c[m
+Author: Ruble P Reji <rublepreji95@gmail.com>
+Date:   Tue Nov 11 09:45:51 2025 +0530
+
+    feat(admin): implement block and unblock functionality for products
+
+[33mcommit cc626789b6c1e7a0f6d798fead9358c8bc1148b0[m
+Author: Ruble P Reji <rublepreji95@gmail.com>
+Date:   Mon Nov 10 19:37:58 2025 +0530
+
+    fix(admin-edit-product): resolved all edit product issues including 4-image handling, image removal, and product detail updates
+
+[33mcommit 953c0278e8143f54fcc8eba92b6a4696a2c7294e[m
+Author: Ruble P Reji <rublepreji95@gmail.com>
+Date:   Fri Nov 7 23:00:23 2025 +0530
+
+    fix(admin): resolved UI issues in edit product page
+
+[33mcommit a1037fbf2415ef1a383e6d1aae0dfc34df01582d[m
+Author: Ruble P Reji <rublepreji95@gmail.com>
+Date:   Thu Nov 6 18:18:57 2025 +0530
+
+    chore: convert all files from CommonJS to ES6 module syntax
+
+[33mcommit b9cab0dd70aa85e35343f600d09c0e15eda10d6b[m
+Author: Ruble P Reji <rublepreji95@gmail.com>
+Date:   Thu Nov 6 12:16:44 2025 +0530
+
+    for review
+
+[33mcommit e8dbf8ccfe109adec17bc6e46d0ae32030326529[m
+Author: Ruble P Reji <rublepreji95@gmail.com>
+Date:   Thu Oct 30 01:04:41 2025 +0530
+
+    category add edit delete(soft deleted) implemented
+
+[33mcommit 69ff3e77ccec1ff3a52c465afcefd8c47253a100[m
+Author: Ruble P Reji <rublepreji95@gmail.com>
+Date:   Sun Oct 26 14:43:59 2025 +0530
+
+    User signin signup & Admin signin completed
+
+[33mcommit 434d460d90ce369c02a061cf28c48fb00ac4123a[m
+Author: Ruble P Reji <rublepreji95@gmail.com>
+Date:   Wed Oct 22 09:55:46 2025 +0530
+
+    Signup otp verification and resent otp is implemented
+
+[33mcommit fc60db876143fac3e284be9e6669b54893833336[m[33m ([m[1;31morigin/master[m[33m)[m
+Author: Ruble P Reji <rublepreji95@gmail.com>
+Date:   Fri Oct 17 22:58:46 2025 +0530
+
+    Almost models created
+
+[33mcommit 55b313e3da7a8af327bf28fe4c21970162e86535[m
+Author: Ruble P Reji <rublepreji95@gmail.com>
+Date:   Thu Oct 16 19:30:08 2025 +0530
+
+    Project just started

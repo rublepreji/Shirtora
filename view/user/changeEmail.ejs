@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Change Email</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+      /* Custom styles to ensure smooth typography and background */
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #f4f4f4; /* Very light gray background */
+      }
+      /* Ensure the focus ring uses the theme color (black) */
+      .input-field:focus {
+        border-color: #000;
+        box-shadow: 0 0 0 1px #000;
+      }
+      /* A subtle animation for the card appearance */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .animate-fadeIn {
+        animation: fadeIn 0.5s ease-out;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen bg-[#f4f4f4] flex">
+    <%-include("../../view/partials/user/sideBar")%>
+
+    <div class="flex-grow flex flex-col">
+      <header
+        class="md:hidden p-4 bg-white border-b border-gray-200 sticky top-0 z-10 flex items-center"
+      >
+        <button
+          id="menuButton"
+          class="text-black p-2 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-black"
+        >
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16"
+            ></path>
+          </svg>
+        </button>
+        <span class="ml-4 text-xl font-semibold text-gray-800"
+          >Account Settings</span
+        >
+      </header>
+
+      <div class="flex-grow flex items-center justify-center p-4">
+        <div
+          class="w-full max-w-md bg-white p-6 sm:p-8 rounded-xl shadow-2xl border border-gray-100 animate-fadeIn"
+        >
+          <header class="mb-8">
+            <h1 class="text-3xl font-bold text-black mb-2">
+              Change Email Address
+            </h1>
+            <p class="text-gray-600">
+              Enter your new email to update your account information securely.
+            </p>
+          </header>
+          <form
+            id="changeEmailForm"
+            action="/changeemail"
+            method="post"
+            class="space-y-6"
+            novalidate
+          >
+            <div>
+              <label
+                for="newEmail"
+                class="block text-sm font-medium text-gray-700 mb-2"
+              >
+                New Email Address
+              </label>
+              <input
+                type="email"
+                id="newEmail"
+                name="email"
+                placeholder="e.g., new.address@example.com"
+                class="input-field mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-black transition duration-150 ease-in-out"
+              />
+            </div>
+
+            <div id="statusMessage" class="text-sm font-medium h-6"></div>
+                 <!-- SUCCESS MESSAGE -->
+          <% if (messages.success) { %>
+            <p class="text-green-600 text-center mb-4"><%= messages.success %></p>
+          <% } %>
+
+          <!-- ERROR MESSAGE -->
+          <% if (messages.error) { %>
+            <p class="text-red-600 text-center mb-4"><%= messages.error %></p>
+          <% } %>
+
+
+            <button
+              type="submit"
+              class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-lg font-medium text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition duration-150 ease-in-out"
+            >
+              Update Email
+            </button>
+          </form>
+
+     
+        </div>
+      </div>
+    </div>
+    <script>
+     document
+      .getElementById("changeEmailForm")
+      .addEventListener("submit", function (event) {
+
+        const emailInput = document.getElementById("newEmail");
+        const newEmail = emailInput.value.trim();
+        const statusMessage = document.getElementById("statusMessage");
+
+        const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+        if (!newEmail || !emailPattern.test(newEmail)) {
+          event.preventDefault();
+          statusMessage.textContent = "Please enter a valid email address.";
+          statusMessage.className = "text-red-600";
+        }
+    });
+      // --- Sidebar Toggle Logic (FINAL FIX) ---
+      const sideBar = document.getElementById("sideBar");
+      const menuButton = document.getElementById("menuButton");
+      const closeSidebarButton = document.getElementById("closeSidebarButton");
+
+      function toggleSidebar() {
+        // Toggles the sidebar in/out on mobile by removing/adding -translate-x-full
+        sideBar.classList.toggle("-translate-x-full");
+      }
+
+      // 1. Hamburger button opens the sidebar
+      menuButton.addEventListener("click", toggleSidebar);
+
+      // 2. Close button inside the sidebar closes it
+      closeSidebarButton.addEventListener("click", toggleSidebar);
+
+      // 3. Optional: Close the sidebar when clicking a link on mobile
+      const sidebarLinks = sideBar.querySelectorAll("a");
+      sidebarLinks.forEach((link) => {
+        link.addEventListener("click", () => {
+          // Only auto-close on small screens (using a check based on the MD breakpoint)
+          if (window.innerWidth < 768) {
+            sideBar.classList.add("-translate-x-full");
+          }
+        });
+        
+      });
+    </script>
+  </body>
+</html>

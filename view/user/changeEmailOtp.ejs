@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify OTP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f4f4; 
+        }
+        .otp-input:focus {
+            border-color: #000;
+            box-shadow: 0 0 0 1px #000;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn {
+            animation: fadeIn 0.5s ease-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 bg-gray-100">
+    <div class="w-full max-w-sm bg-white p-6 sm:p-8 rounded-xl shadow-2xl border border-gray-100 animate-fadeIn text-center">
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-black mb-2">Verify OTP</h1>
+            <p class="text-gray-600">Please enter the 6-digit code sent to your email.</p>
+        </header>
+
+        <form id="otpForm" class="space-y-6" action="/changeemailotp" method="post">
+            <div>
+                <label for="otp" class="sr-only">One-Time Password</label>
+                <input 
+                    type="text" 
+                    id="otp" 
+                    name="otp" 
+                    required 
+                    maxlength="6" 
+                    pattern="\d{6}"
+                    placeholder="Enter OTP"
+                    class="otp-input block w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-xl font-mono tracking-widest placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-black transition duration-150 ease-in-out"
+                >
+            </div>
+
+            <div id="statusMessage" class="text-sm font-medium h-6"></div>
+
+            <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-lg font-medium text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition duration-150 ease-in-out">
+                Verify OTP
+            </button>
+        </form>
+
+        <p class="mt-6 text-sm text-gray-500">
+            Didn't receive the code? 
+            <a href="#" class="font-medium text-black hover:underline">Resend OTP</a>
+        </p>
+    </div>
+    <script>
+        document.getElementById('otpForm').addEventListener('submit', function(event) {
+            
+
+            const otpInput = document.getElementById('otp');
+            const statusMessage = document.getElementById('statusMessage');
+            const otp = otpInput.value.trim();
+
+            statusMessage.textContent = '';
+            if (!otp) {
+                event.preventDefault();
+                statusMessage.textContent = 'Please enter the OTP.';
+                statusMessage.className = 'text-sm font-medium h-6 text-red-600';
+                return;
+            }
+
+            if (!/^\d{6}$/.test(otp)) {
+                event.preventDefault();
+                statusMessage.textContent = 'OTP must be a 6-digit number.';
+                statusMessage.className = 'text-sm font-medium h-6 text-red-600';
+                return;
+            }   
+        });
+
+    // OTP TIMER (Persistent)
+
+    const TIMER_DURATION = 60;
+    const timerDisplay = document.createElement("p");
+    timerDisplay.className = "mt-4 text-sm font-medium text-red-600";
+    document.querySelector(".text-center").appendChild(timerDisplay);
+
+    const resendLink = document.querySelector("a[href='#']");
+
+    function startTimer() {
+        let expiryTime = localStorage.getItem("otpExpiry");
+
+        if (!expiryTime) {
+            expiryTime = Date.now() + TIMER_DURATION * 1000;
+            localStorage.setItem("otpExpiry", expiryTime);
+        }
+
+        const countdown = setInterval(() => {
+            const now = Date.now();
+            const diff = Math.floor((expiryTime - now) / 1000);
+
+            if (diff > 0) {
+                timerDisplay.textContent = `Time remaining: ${diff}s`;
+                resendLink.classList.add("pointer-events-none", "opacity-50");
+            } else {
+                clearInterval(countdown);
+                timerDisplay.textContent = "OTP expired.";
+                resendLink.classList.remove("pointer-events-none", "opacity-50");
+                resendLink.textContent = "Resend OTP";
+                localStorage.removeItem("otpExpiry"); // Timer finished
+            }
+        }, 1000);
+    }
+
+    startTimer();
+
+    // ----------------------------
+    // RESEND OTP CLICK HANDLER
+    // ----------------------------
+    resendLink.addEventListener("click", (e) => {
+        e.preventDefault();
+
+        // TODO: call your backend to resend OTP
+        // fetch("/resend-otp")
+
+        // Reset timer
+        const newExpiry = Date.now() + TIMER_DURATION * 1000;
+        localStorage.setItem("otpExpiry", newExpiry);
+        startTimer();
+
+        resendLink.classList.add("pointer-events-none", "opacity-50");
+        resendLink.textContent = "Resending...";
+        setTimeout(() => {
+            resendLink.textContent = "Resend OTP";
+        }, 2000);
+    });
+
+    </script>
+</body>
+</html>

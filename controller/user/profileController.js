@@ -11,6 +11,148 @@ dotenv.config();
 
 
 
+async function resetPass(req,res) {
+  try {
+    const {currentPassword, newPassword, confirmPassword}= req.body
+    const user= req.session.user._id
+    if(!user){
+      req.flash('error','Session expired')
+    }    
+    
+  } catch (error) {
+    
+  }
+}
+
+async function loadResetPass(req,res) {
+  try {
+    res.render('resetPassword')
+  } catch (error) {
+    
+  }
+}
+
+async function setNewEmail(req,res) {
+  try {
+    const {newEmail,confirmEmail}= req.body
+    console.log(newEmail,' ',confirmEmail);
+    
+    if(newEmail !== confirmEmail){
+      req.flash('error','Emails do not match!')
+      return res.redirect('/loadnewemail')
+    }
+    const userId= req.session.user._id
+    if(!userId){
+      req.flash('error','Session expired')
+      return res.redirect('/loadnewemail')
+    }
+    await User.findByIdAndUpdate(userId,{email:newEmail})
+    req.flash('success','Email changed successfully')
+    return res.redirect('/userProfile')
+  } catch (error) {
+    req.flash('error','Internal server error')
+    res.redirect('/pageNotFound')
+  }
+}
+
+async function newEmail(req,res) {
+  try {
+    res.render('newEmail')
+  } catch (error) {
+    res.redirect('/pageNotFound')
+  }
+}
+
+
+async function verifyChangeEmailOtp(req, res) {
+  const { otp } = req.body;
+
+  if (otp == req.session.changeEmailOtp) {
+    req.session.isEmailVerifiedForChange = true;
+    return res.redirect('/loadnewemail');
+  }
+console.log('otp error');
+
+   req.flash('error', 'Invalid OTP');
+   return res.redirect('/userProfile');
+}
+
+
+async function loadChangeEmailOtp(req, res) {
+  try {
+    const user = req.session.user;
+
+    if (!user) {
+      return res.redirect('/pageNotFound');
+    }
+
+    const otp = utils.generateOtp();  
+    const email = user.email;
+
+    console.log("Sending verification OTP to:", email);
+
+    const emailSent = await utils.sendEmailVerification(email, otp);
+
+    if (emailSent) {
+      req.session.changeEmailOtp = otp;    
+      req.session.currentEmail = email;     
+
+      console.log("OTP sent:", otp);
+      console.log("Stored OTP in session.");
+      
+      return res.render('changeEmailOtp');  
+    } 
+    else {
+      req.flash('error', 'Failed to send OTP. Please try again.');
+      return res.redirect('/userProfile');
+    }
+
+  } catch (error) {
+    console.error("Error sending email:", error);
+    return res.redirect('/pageNotFound');
+  }
+}
+
+
+// async function changeEmail(req,res) {
+//   try {    
+//     console.log('inner changeEmail',req.body.email);
+    
+//     const {email}=req.body
+//     const user= await User.findOne({email})
+//     if(!user){
+//       const otp=utils.generateOtp()  
+//       const emailSent=await utils.sendEmailVerification(email,otp)
+//       if(emailSent){
+//         req.session.userOtp=otp
+//         req.session.userData=req.body
+//         req.session.email=email
+//         console.log('Email sent',email);
+//         console.log('OTP',otp);
+//         res.redirect('/changeemailotp')
+//       }
+//       else{
+//         req.flash("error", "Not able to send OTP");
+//         return res.redirect('/changeemail')
+//       }
+//     }else{
+//       req.flash("error", "User with this email already exists");
+//       return res.redirect('/changeemail')
+//     }
+//   } catch (error) {
+//     req.flash('error','Something went wrong!')
+//     return res.redirect('/pageNotFound')
+//   }
+// }
+ 
+// async function loadChangeEmail(req,res) {
+//   try {
+//     return res.render('changeEmail')
+//   } catch (error) {
+//     return res.redirect('/pageNotFound')
+//   }
+// }
+
 async function deleteAddress(req,res) {
   try {
     const user= req.session.user
@@ -167,7 +309,7 @@ async function loadAddressBook(req,res) {
       return res.redirect('/signin')
     }
     const addressDoc= await Address.findOne({userId:user._id})  
-    return res.render('addressFile',{addressDoc,user})
+    return res.render('addressFile',{addressDoc:addressDoc ||{address:[]},user})
   } catch (error) {
     res.redirect('/pageNotFound')
   }
@@ -206,27 +348,24 @@ async function loadAbout(req,res) {
 
 async function resetPassword(req,res) {
   try {
-    console.log('resetpassword');
-    
     const {password,confirmPassword}=req.body
-    console.log(req.body);
-    
-    
     if(password!=confirmPassword){
-      return res.status(STATUS.UNAUTHORIZED).json({success:false,message:"Passwords does not match"})
+      return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Passwords does not match"})
     }
     const email= req.session.email
+    if (!email) {
+      return res.status(400).json({ success: false, message: "Session expired. Try again." });
+    }
     const findUser= await User.findOne({email})
     if(!findUser){
       return res.status(STATUS.NOT_FOUND).json({success:false,message:"Cannot find user"})
     }
 
     const passwordHash= await utils.securePassword(password)
-    const user=await User.updateMany({email:email},{$set:{password:passwordHash}})
+    const user=await User.updateOne({email:email},{$set:{password:passwordHash}})
     if(user){
       res.status(STATUS.OK).json({success:true,message:"Your password has been reset successfully"})
     }
-
   } catch (error) {
     return res.status(STATUS.INTERNAL_SERVER_ERROR).json({success:false,message:"Internal server error"})
   }
@@ -326,4 +465,4 @@ async function loadForgotPassword(req, res) {
   }
 }
 
-export { loadForgotPassword, verifyEmail, verifyPassOtp, loadOTPpage, loadPasswordReset, resendOtps, resetPassword, loadAbout, loadContact, loadUserDetails, loadAddressBook, loadNewAddress, addNewAddress, loadEditAddress, editAddress, deleteAddress};
+export { loadForgotPassword, verifyEmail, verifyPassOtp, loadOTPpage, loadPasswordReset, resendOtps, resetPassword, loadAbout, loadContact, loadUserDetails, loadAddressBook, loadNewAddress, addNewAddress, loadEditAddress, editAddress, deleteAddress, loadChangeEmailOtp, verifyChangeEmailOtp, newEmail, setNewEmail, loadResetPass, resetPass};

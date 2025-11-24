@@ -9,6 +9,7 @@ import userRoute from './routes/userRouter.js';
 import adminRouter from './routes/adminRouter.js';
 import { fileURLToPath } from 'url';
 import nocache from 'nocache';
+import flash from "connect-flash";
 import morgan from 'morgan';
 import User from './model/userSchema.js';
 
@@ -20,15 +21,16 @@ dotenv.config();
 
 const app = express();
 
-app.use(morgan("dev"))
+app.use(flash());
 app.use(nocache())
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+
 app.use(
   session({
-    secret: process.env.SESSIIONSECRET,
+    secret: process.env.SESSIONSECRET,
     resave: false,
     saveUninitialized: true,
     cookie: {
@@ -41,6 +43,11 @@ app.use(
 
 app.use((req, res, next) => {
   res.locals.session = req.session;
+  next();
+});
+
+app.use((req, res, next) => {
+  res.locals.messages = req.flash();
   next();
 });
 

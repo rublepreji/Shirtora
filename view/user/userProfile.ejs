@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>My Account</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <%-include("../../view/partials/user/header")%>
 <body class="bg-gray-50">
@@ -50,7 +51,7 @@
           <div class="md:col-span-2">
             <label class="block text-sm font-medium mb-1">Email</label>
             <input type="email" value="<%=user.email%>" placeholder="example@gmail.com"
-              class="w-full p-3 border rounded bg-gray-100 focus:outline-none" />
+              class="w-full p-3 border rounded bg-gray-100 focus:outline-none" readonly />
           </div>
 
           <div>
@@ -67,21 +68,44 @@
         </form>
 
         <!-- Buttons -->
+         <a href="/resetpass">
         <div class="flex gap-4 mt-10">
           <button class="px-6 py-2 bg-black text-white rounded hover:opacity-90">
             Reset password
           </button>
+          </a>
+          
+          <a href="/changeemailotp">
+          <button class="px-6 py-2 bg-black text-white rounded hover:opacity-90">
+            Change Email
+          </button>
+          </a>
 
           <button class="px-6 py-2 bg-black text-white rounded hover:opacity-90">
             Update
           </button>
         </div>
-
       </div>
     </main>
-
   </div>
-
+<script>
+     const flashError= "<%=messages.error || ''%>"
+            if(flashError){
+                Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: flashError,
+            });
+            }
+             const flashSuccess= "<%=messages.success || ''%>"
+            if(flashSuccess){
+                Swal.fire({
+                icon: "success",
+                title: "Success",
+                text: flashSuccess,
+            });
+            }
+</script>
 </body>
 <%-include("../../view/partials/user/footer")%>
 </html>

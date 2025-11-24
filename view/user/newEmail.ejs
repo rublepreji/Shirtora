@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Change Email</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Using Inter for a clean, premium look */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col items-center justify-center p-4">
+
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 p-8 sm:p-10">
+        
+        <div class="mb-8 text-center">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-black">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                </svg>
+            </div>
+            <h1 class="text-2xl font-semibold tracking-tight text-black">Change Email</h1>
+            <p class="text-sm text-gray-500 mt-2">Enter your new email address below.</p>
+        </div>
+
+        <form action="/setnewemail" method="POST" class="space-y-5" onsubmit="return validateSmoothForm()">
+            
+            <div class="group">
+                <label for="new-email" class="block text-sm font-medium text-gray-700 mb-1.5 ml-1">New Email</label>
+                <input 
+                    type="email" 
+                    name="newEmail"
+                    id="new-email" 
+                    placeholder="name@example.com"
+                    class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all duration-300"
+                >
+            </div>
+
+            <div class="group">
+                <label for="confirm-email" class="block text-sm font-medium text-gray-700 mb-1.5 ml-1">Confirm Email</label>
+                <input 
+                    type="email" 
+                    id="confirm-email" 
+                    name="confirmEmail"
+                    placeholder="name@example.com"
+                    class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all duration-300"
+                >
+                <p id="error-text" class="text-red-500 text-xs mt-2 ml-1 hidden opacity-0 transition-opacity duration-300">Emails do not match.</p>
+            </div>
+
+            <button 
+                type="submit" 
+                class="w-full bg-black text-white font-medium py-3.5 rounded-xl hover:bg-gray-800 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:bg-gray-900 transition-all duration-300 ease-out"
+            >
+                Update Email
+            </button>
+
+        </form>
+
+        <div class="mt-8 text-center">
+            <a href="/userProfile" class="text-sm text-gray-400 hover:text-black transition-colors duration-300">Cancel</a>
+        </div>
+    </div>
+
+    <script>
+        function validateSmoothForm() {
+            const email = document.getElementById('new-email');
+            const confirm = document.getElementById('confirm-email');
+            const errorText = document.getElementById('error-text');
+
+            if (email.value !== confirm.value) {
+                // Show error
+                errorText.classList.remove('hidden');
+                // Small delay to allow the display property to apply before changing opacity for fade effect
+                setTimeout(() => errorText.classList.remove('opacity-0'), 10);
+                
+                // Add red border to confirm input
+                confirm.classList.add('border-red-500', 'text-red-900', 'focus:border-red-500', 'focus:ring-red-100');
+                confirm.classList.remove('border-gray-200', 'focus:border-black');
+                
+                return false;
+            } else {
+                // Reset styles if correct
+                errorText.classList.add('opacity-0');
+                errorText.classList.add('hidden');
+                return true;
+            }
+        }
+        const flashError="<%=messages.error || ''%>"
+        if(flashError){
+            Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: flashError,
+        });
+        }
+
+    </script>
+</body>
+</html>

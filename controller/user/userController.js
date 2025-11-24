@@ -216,11 +216,10 @@ async function resendOtp(req, res) {
 }
 
 async function verifyOtp(req, res) {
-  try {
+  try {    
     const { otp } = req.body;
     if (otp == req.session.userOtp) {
       const user = req.session.userData;
-
       const passwordHash = await securePassword(user.password);
       const newUser = new User({
         firstName: user.firstName,
@@ -230,7 +229,7 @@ async function verifyOtp(req, res) {
         email: user.email,
         password: passwordHash
       });
-      await newUser.save();
+      await newUser.save();      
       return res.json({ success: true, redirectUrl: '/signin' });
     } else {
      return res.status(STATUS.BAD_REQUEST).json({ success: false, message: 'Invalid OTP' });
