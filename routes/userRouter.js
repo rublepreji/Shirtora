@@ -1,11 +1,14 @@
 import express from 'express';
 import {loadHomePage,pageNotFound,loadSignin,signin,signup,verifyOtp,loadVerifyOtp,logout,loadSignup, resendOtp, viewProducts, filterProduct, productDetails} from '../controller/user/userController.js';
-import { loadForgotPassword, verifyEmail, verifyPassOtp, loadOTPpage, loadPasswordReset, resendOtps, resetPassword, loadAbout, loadContact, loadUserDetails, loadAddressBook, loadNewAddress, addNewAddress, loadEditAddress, editAddress, deleteAddress, loadChangeEmailOtp, verifyChangeEmailOtp, newEmail, setNewEmail, resetPass, loadResetPass} from '../controller/user/profileController.js';
+import { loadForgotPassword, verifyEmail, verifyPassOtp, loadOTPpage, loadPasswordReset, resendOtps, resetPassword, loadAbout, loadContact, loadUserDetails, loadAddressBook, loadNewAddress, addNewAddress, loadEditAddress, editAddress, deleteAddress, loadChangeEmailOtp, verifyChangeEmailOtp, newEmail, setNewEmail, resetPass, loadResetPass, updateDetails} from '../controller/user/profileController.js';
 import passport from '../config/passport.js';
 import { userAuth,userIsLogged } from '../middlewares/auth.js';
-
+import uploadTo from '../middlewares/multerCloudinary.js';
+import multer from 'multer';
+import {storage} from '../helpers/multer.js';
 
 const router = express.Router();
+const uploads = multer({ storage: storage });
 
 router.get('/',loadHomePage);
 // router.get('/landingPage',loadLandingPage);
@@ -63,5 +66,6 @@ router.get('/loadnewemail',userAuth,newEmail)
 router.post('/setnewemail',userAuth,setNewEmail)
 router.get('/resetpass',userAuth,loadResetPass)
 router.post('/resetpass',userAuth,resetPass)
+router.post('/updatedetails',userAuth,uploadTo('users').single('profileImage'),updateDetails)
 
 export default router;

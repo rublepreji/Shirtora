@@ -11,16 +11,56 @@ dotenv.config();
 
 
 
+
+async function updateDetails(req,res) {
+  try {
+    const data= req.body
+    const userId= req.session.user._id
+    const updateFields={
+      firstName:data.firstName,
+      lastName:data.lastName,
+      phone:data.phone
+    }
+    if(req.file){
+      const imageUrl=req.file.path
+      updateFields.profileImg=imageUrl
+    }
+    const updateUser= await User.findByIdAndUpdate(userId,{$set:updateFields},{new:true})
+    if(!updateUser){
+      req.flash('error','Not able to update user data')
+      return res.redirect('/userProfile')
+    }
+    req.session.user=updateUser
+    req.flash('success','User Profile updated successfully')
+    return res.redirect('/userProfile')
+  } catch (error) {
+    req.flash('error','Internal server error')
+    res.redirect('/userProfile')
+  }
+}
+
 async function resetPass(req,res) {
   try {
     const {currentPassword, newPassword, confirmPassword}= req.body
     const user= req.session.user._id
     if(!user){
       req.flash('error','Session expired')
+      return res.redirect('/userProfile')
     }    
-    
+    const fetchUser= await User.findOne({_id:user})
+    const isMatch= await bcrypt.compare(currentPassword,fetchUser.password)
+    if(!isMatch){
+      req.flash('error','Incorrect password')
+      return res.redirect('/resetpass')
+    }
+    const hashedPassword=await utils.securePassword(newPassword)
+    fetchUser.password=hashedPassword
+    await fetchUser.save()
+    req.flash('success','Password updated successfully')
+    return res.redirect('/userProfile')
   } catch (error) {
-    
+    req.flash('error','Internal server error')
+    res.redirect('/pageNotFound')
   }
 }
 
@@ -465,4 +505,4 @@ async function loadForgotPassword(req, res) {
   }
 }
 
-export { loadForgotPassword, verifyEmail, verifyPassOtp, loadOTPpage, loadPasswordReset, resendOtps, resetPassword, loadAbout, loadContact, loadUserDetails, loadAddressBook, loadNewAddress, addNewAddress, loadEditAddress, editAddress, deleteAddress, loadChangeEmailOtp, verifyChangeEmailOtp, newEmail, setNewEmail, loadResetPass, resetPass};
+export { loadForgotPassword, verifyEmail, verifyPassOtp, loadOTPpage, loadPasswordReset, resendOtps, resetPassword, loadAbout, loadContact, loadUserDetails, loadAddressBook, loadNewAddress, addNewAddress, loadEditAddress, editAddress, deleteAddress, loadChangeEmailOtp, verifyChangeEmailOtp, newEmail, setNewEmail, loadResetPass, resetPass, updateDetails};

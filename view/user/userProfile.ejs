@@ -6,105 +6,160 @@
   <title>My Account</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    .profile-img-container {
+      /* Subtle shadow for depth */
+      box-shadow: 0 0 0 4px rgba(255, 255, 255, 1), 0 0 0 5px rgba(0, 0, 0, 0.1);
+    }
+  </style>
 </head>
 <%-include("../../view/partials/user/header")%>
 <body class="bg-gray-50">
 
-  <!-- Wrapper -->
   <div class="min-h-screen flex flex-col md:flex-row">
 
   <%-include("../../view/partials/user/sideBar")%>
 
-    <!-- Main Content -->
     <main class="flex-1 p-6 md:p-10">
       <div class="text-right text-sm text-gray-500 mb-4">
         Welcome! Customer Name
       </div>
 
-      <div class="bg-white shadow-lg p-8 rounded-md max-w-4xl mx-auto">
+      <div class="bg-white shadow-lg p-8 rounded-xl max-w-4xl mx-auto"> <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-6 mb-8">
+          <h2 class="text-2xl font-bold mb-4 sm:mb-0">Your Details</h2>
 
-        <!-- Header -->
-        <div class="flex justify-between border-b pb-4 mb-6">
-          <h2 class="text-lg font-semibold">Your Details</h2>
-
-          <div class="text-right">
-            <h3 class="text-lg font-semibold">Personal Information</h3>
-            <!-- <p class="text-sm text-gray-500">Referral code : 1234</p> -->
+          <div class="flex items-center space-x-6">
+            
+            <div class="text-center">
+              <div class="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden profile-img-container transition duration-300 ease-in-out hover:shadow-lg">
+                <%if(user.profileImg && user.profileImg.length>0){%>
+                  <img src="<%=user.profileImg%>" alt="<%=user.firstName%>"class="w-full h-full object-cover">
+                <%}else{%>
+                <svg class="w-12 h-12 text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
+                <%}%>
+              </div>
+              <input type="file" value="<%=user.profileImg%>" id="profile-upload-visible" class="hidden" accept="image/*" />
+              <label for="profile-upload-visible" class="cursor-pointer text-xs mt-2 text-blue-600 hover:text-blue-800 transition duration-150 ease-in-out block">
+                Change Picture
+              </label>
+            </div>
+            
+            <div class="text-right">
+              <h3 class="text-xl font-semibold text-gray-800">Personal Information</h3>
+            </div>
           </div>
         </div>
 
-        <!-- Form Grid -->
-        <form class="grid grid-cols-1 md:grid-cols-2 gap-6">
+       <form id="profileUpdateForm" class="grid grid-cols-1 md:grid-cols-2 gap-6" action="/updatedetails" method="POST" enctype="multipart/form-data">
+    
+    <div class="md:col-span-2 hidden">
+        <input type="file" id="profile-upload-submit" name="profileImage" accept="image/*" />
+    </div>
 
-          <div>
-            <label class="block text-sm font-medium mb-1">First Name</label>
-            <input type="text" value="<%=user.firstName%>" placeholder="name"
-              class="w-full p-3 border rounded bg-gray-100 focus:outline-none" />
-          </div>
+    <div>
+        <label class="block text-sm font-medium mb-1 text-gray-700">First Name</label>
+        <input type="text" name="firstName" value="<%=user.firstName%>" placeholder="name"
+            class="w-full p-3 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-black focus:border-black transition duration-150" />
+    </div>
 
-          <div>
-            <label class="block text-sm font-medium mb-1">Last Name</label>
-            <input type="text" value="<%=user.lastName%>" placeholder="Lastname"
-              class="w-full p-3 border rounded bg-gray-100 focus:outline-none" />
-          </div>
+    <div>
+        <label class="block text-sm font-medium mb-1 text-gray-700">Last Name</label>
+        <input type="text" name="lastName" value="<%=user.lastName%>" placeholder="Lastname"
+            class="w-full p-3 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-black focus:border-black transition duration-150" />
+    </div>
 
-          <div class="md:col-span-2">
-            <label class="block text-sm font-medium mb-1">Email</label>
-            <input type="email" value="<%=user.email%>" placeholder="example@gmail.com"
-              class="w-full p-3 border rounded bg-gray-100 focus:outline-none" readonly />
-          </div>
+    <div class="md:col-span-2">
+        <label class="block text-sm font-medium mb-1 text-gray-700">Email</label>
+        <input type="email" value="<%=user.email%>" placeholder="example@gmail.com"
+            class="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 focus:outline-none cursor-not-allowed" readonly />
+    </div>
 
-          <div>
-            <label class="block text-sm font-medium mb-1">Phone</label>
-            <input type="text" value="<%=user.phone%>" placeholder="+91 12345 67890"
-              class="w-full p-3 border rounded bg-gray-100 focus:outline-none" />
-          </div>
+    <div>
+        <label class="block text-sm font-medium mb-1 text-gray-700">Phone</label>
+        <input type="text" name="phone" value="<%=user.phone%>" placeholder="+91 12345 67890"
+            class="w-full p-3 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-black focus:border-black transition duration-150" />
+    </div>
 
-          <div>
-            <label class="block text-sm font-medium mb-1">Referral Code</label>
-            <input type="number" value="19625"
-            class="w-full p-3 border rounded bg-gray-100 focus:outline-none" readonly />
-          </div>
-        </form>
+    <div>
+        <label class="block text-sm font-medium mb-1 text-gray-700">Referral Code</label>
+        <input type="number" value="19625"
+        class="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 focus:outline-none cursor-not-allowed" readonly />
+    </div>
 
-        <!-- Buttons -->
-         <a href="/resetpass">
-        <div class="flex gap-4 mt-10">
-          <button class="px-6 py-2 bg-black text-white rounded hover:opacity-90">
-            Reset password
-          </button>
-          </a>
-          
-          <a href="/changeemailotp">
-          <button class="px-6 py-2 bg-black text-white rounded hover:opacity-90">
-            Change Email
-          </button>
-          </a>
-
-          <button class="px-6 py-2 bg-black text-white rounded hover:opacity-90">
-            Update
-          </button>
+    <div class="md:col-span-2 flex flex-wrap gap-4 mt-10 border-t pt-6">
+        <button type="submit" class="px-6 py-2 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition duration-150 shadow-md hover:shadow-lg">
+            Update Details
+        </button>
+        
+        <a href="/resetpass">
+            <button type="button" class="px-6 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition duration-150 shadow-md">
+                Reset Password
+            </button>
+        </a>
+        
+        <a href="/changeemailotp">
+            <button type="button" class="px-6 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition duration-150 shadow-md">
+                Change Email
+            </button>
+        </a>
+    </div>
+</form>
         </div>
       </div>
     </main>
   </div>
 <script>
-     const flashError= "<%=messages.error || ''%>"
-            if(flashError){
-                Swal.fire({
-                icon: "error",
-                title: "Error",
-                text: flashError,
-            });
+ 
+    const profileUploadVisible = document.getElementById('profile-upload-visible');
+    const profileUploadSubmit = document.getElementById('profile-upload-submit');
+    const profileImageContainer = document.querySelector('.profile-img-container');
+
+    profileUploadVisible.addEventListener('change', function(event) {
+        const file = event.target.files[0];
+
+        if (file) {
+            // 1. Show Preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                profileImageContainer.innerHTML = ''; 
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.alt = 'Profile Picture Preview';
+                img.className = 'w-full h-full object-cover';
+                profileImageContainer.appendChild(img);
             }
-             const flashSuccess= "<%=messages.success || ''%>"
-            if(flashSuccess){
-                Swal.fire({
-                icon: "success",
-                title: "Success",
-                text: flashSuccess,
-            });
-            }
+            reader.readAsDataURL(file);
+
+            // 2. ⭐ Transfer the File Object ⭐
+            // This assigns the selected file(s) from the visible input 
+            // to the hidden input that belongs to the submission form.
+            profileUploadSubmit.files = event.target.files;
+
+        } else {
+            // Clear the hidden file input if the user cancels selection
+            profileUploadSubmit.files = null; 
+        }
+    });
+
+    // ------------------------------------
+    // SweetAlerts
+    // ------------------------------------
+    const flashError= "<%=messages.error || ''%>"
+    if(flashError){
+        Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: flashError,
+        });
+    }
+    const flashSuccess= "<%=messages.success || ''%>"
+    if(flashSuccess){
+        Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: flashSuccess,
+        });
+    }
 </script>
 </body>
 <%-include("../../view/partials/user/footer")%>
