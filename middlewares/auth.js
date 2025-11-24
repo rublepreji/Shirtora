@@ -1,28 +1,51 @@
 import { log } from 'console';
 import User from '../model/userSchema.js';
 
- function userAuth(req, res, next) {
+
+async function userAuth(req, res, next) {
   try {
-    if (req.session.user ) {
-    next()
-  }else{
-    return res.redirect('/signin')
-  }
+      if (!req.session.user || !req.session.user._id) {
+          return res.redirect('/signin');
+      }
+      const userId = req.session.user._id;
+      const user = await User.findById(userId);
+
+      if (!user) {
+          req.session.destroy();
+          return res.redirect('/signin');
+      }
+      if (user.isBlocked) {
+          console.log(`Blocked user attempted access: ${user.email}`);
+          req.session.destroy();
+          return res.redirect('/signin'); 
+      }
+      req.user = user; 
+      next();
+
   } catch (error) {
-    console.log('something happen on userAuth',error);
+      console.error('Error in userAuth middleware:', error);
+      req.session.destroy(); 
+      return res.redirect('/signin'); 
   }
 }
 
-function userIsLogged(req,res,next){
-  try {
-    if(req.session.user){
-    return res.redirect('/')
-  }else{
-    next()
-  }
-  } catch (error) {
-    console.log('something happen on userIsLogged',error);
-  }
+async function userIsLogged(req, res, next) {
+try {
+    if (req.session.user && req.session.user._id) {
+        const userId = req.session.user._id;
+        const user = await User.findById(userId);
+        if (user && user.isBlocked) {
+            req.session.destroy();
+            return next(); 
+        }
+        return res.redirect('/'); 
+    } 
+      next();
+
+} catch (error) {
+    console.error('Error in userIsLogged middleware:', error);
+    next();
+}
 }
 
 function adminAuth(req, res, next) {
