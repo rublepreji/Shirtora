@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 
 const userSchema = new mongoose.Schema({
     firstName: {
@@ -18,6 +18,11 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
+    wishlist:[{
+        type:Schema.Types.ObjectId,
+        ref:"Wishlist"
+    }]
+    ,
     phone: {
         type: Number,
         default: null
@@ -45,8 +50,8 @@ const userSchema = new mongoose.Schema({
     },
     cart: [
         {
-            // type: Schema.Types.ObjectId,
-            // ref: "Cart"
+            type: Schema.Types.ObjectId,
+            ref: "Cart"
         }
     ],
     wallet: [

@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Wishlist — Demo</title>
+
+  <!-- Tailwind CDN (for quick prototyping) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+  <style>
+    :root{
+      --brand:#111827;
+      --accent:#ef4444;
+      --muted:#6b7280;
+    }
+    body { font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background:#fff; color: #111827; }
+    /* subtle divider */
+    .divider { border-top: 1px solid rgba(0,0,0,0.07); }
+    /* product thumbnail */
+    .prod-thumb { width:72px; height:72px; object-fit:cover; border-radius:6px; }
+    /* small star */
+    .star { width:14px; height:14px; display:inline-block; vertical-align:middle; margin-right:4px; }
+    /* footer small text color */
+    .foot-muted { color: rgba(255,255,255,0.75); }
+    /* app badges placeholders */
+    .app-badge { width:120px; height:36px; border-radius:6px; display:inline-block; background:#111827; color:#fff; font-size:12px; display:flex;align-items:center;justify-content:center; }
+    @media (max-width: 900px){
+      /* make wishlist layout stack on small screens */
+      .wishlist-row { grid-template-columns: 72px 1fr 1fr; }
+      .wishlist-actions { justify-content:flex-start; margin-top:8px; }
+      .just-for-you-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      header .nav-links { display:none; }
+    }
+    @media (max-width: 520px){
+      .just-for-you-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+
+
+  <!-- Main container -->
+   <%-include("../../view/partials/user/header")%>
+  <main class="max-w-7xl mx-auto px-4 py-10">
+
+    <!-- Wishlist header -->
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-lg font-semibold">Wishlist <span class="text-sm text-gray-500">(<%=products.length%>)</span></h2>
+      <div>
+        <button class="bg-white border text-sm px-4 py-2 rounded shadow-sm hover:bg-gray-50">Move All To Bag</button>
+      </div>
+    </div>
+
+    <!-- Wishlist items -->
+    <section class="bg-white rounded-lg shadow-sm border">
+      <div class="p-6 space-y-0">
+        <!-- Product row template (repeat) -->
+        <!-- Row 1 -->
+         <%if(products.length>0){%>
+            <%for(let i=0;i<products.length;i++){%>
+        <div class="grid grid-cols-12 items-center gap-6 py-6 border-b wishlist-row">
+          <div class="col-span-2">
+            <img class="prod-thumb" src="<%=products[i].productImage[0]%>" alt="Lymio Casual Shirt">
+          </div>
+
+          <div class="col-span-7">
+            <div class="text-sm text-gray-700 font-semibold"><%=products[i].productName%></div>
+            <div class="flex items-center text-xs text-yellow-500 mt-2">
+              <svg class="star" viewBox="0 0 24 24" fill="#FBBF24"><path d="M12 .587l3.668 7.431L24 9.748l-6 5.848 1.418 8.264L12 19.77 4.582 23.86 6 15.596 0 9.748l8.332-1.73z"/></svg>
+              <span class="text-sm text-gray-500 ml-2">(10854)</span>
+            </div>
+            <div class="mt-3">
+              <span class="text-lg font-semibold"><%products[i].variants[0].price%></span>
+              <span class="text-sm text-gray-500 line-through ml-2">₹5,999</span>
+              <span class="text-sm text-green-600 ml-3">10% off</span>
+            </div>
+          </div>
+
+          <div class="col-span-3 flex flex-col items-end space-y-3 wishlist-actions">
+            <button onclick="confirmRemoveProduct('<%=products[i]._id%>')" class="w-40 bg-black text-white py-2 rounded text-sm flex items-center justify-center gap-2">
+              <!-- trash icon -->
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white"><path d="M3 6h18M8 6v12a2 2 0 002 2h4a2 2 0 002-2V6M10 11v6M14 11v6M9 6V4h6v2"/></svg>
+              Remove
+            </button>
+            <button class="w-40 bg-gray-700 text-white py-2 rounded text-sm flex items-center justify-center gap-2">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white"><path d="M3 3h2l.4 2M7 13h10l3-8H6.4" /><circle cx="10" cy="20" r="1" /><circle cx="18" cy="20" r="1" /></svg>
+              Add To Cart
+            </button>
+          </div>
+        </div>
+        <%}%>
+        <%}else{%>
+            <div>No products found</div>
+            <%}%>
+        </div>
+      </div>
+    </section>
+
+    <!-- Just For You -->
+    <div class="flex items-center justify-between mt-10 mb-4">
+      <h3 class="font-semibold">Just For You</h3>
+      <a href="/viewproducts"><button class="text-sm border px-3 py-2 rounded">See All</button></a>
+    </div>
+
+    <section class="grid grid-cols-4 gap-6 just-for-you-grid">
+      <!-- Card 1 -->
+       <%for(let i=0;i<latestProduct.length;i++){%>
+      <div class="bg-white border rounded p-4">
+        <img src="<%=latestProduct[i].productImage[0]%>" alt="Christian t-shirt" class="w-full h-48 object-cover rounded mb-3">
+        <div class="text-sm font-semibold"><%=latestProduct[i].productName%></div>
+        <div class="text-sm text-gray-500 line-through"><%=latestProduct[i].variants[0].price%></div>
+        <!-- <div class="mt-1 text-sm font-semibold">₹176,400</div> -->
+        <div class="mt-2 text-yellow-500 text-sm flex items-center">
+          <svg class="star" viewBox="0 0 24 24" fill="#FBBF24"><path d="M12 .587l3.668 7.431L24 9.748l-6 5.848 1.418 8.264L12 19.77 4.582 23.86 6 15.596 0 9.748l8.332-1.73z"/></svg>
+          <span class="text-xs text-gray-500 ml-2">★★★★☆</span>
+        </div>
+      </div>
+      <%}%>
+    </section>
+
+  </main>
+<script>
+    async function confirmRemoveProduct(productId){
+        Swal.fire({
+        icon: "warning",
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        showCancelButton: true,
+        confirmButtonColor: "#f59e0b" , 
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, proceed!"
+        }).then(async(result)=>{
+            if(result.isConfirmed){
+                 const response= await fetch(`/removefromwishlist/${productId}`,{
+                    method:"post"
+                })
+                const data= await response.json()
+                if(data.success){
+                    Swal.fire({
+                    icon: "success",
+                    title: "Success!",
+                    text:data.message || "Your action was completed successfully.",
+                    confirmButtonColor: "#3085d6"
+                    }).then(()=>{
+                        window.location.reload();
+                    })
+
+                }else{
+                    Swal.fire({
+                    icon: "error",
+                    title: "Oops!",
+                    text: data.message || "Something went wrong. Please try again.",
+                    confirmButtonColor: "#d33"
+                    });
+
+                }
+            }
+        })
+    }
+</script>
+<%-include("../../view/partials/user/footer")%>
+</body>
+</html>

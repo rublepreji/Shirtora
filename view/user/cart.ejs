@@ -5,11 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cart - Shirtora</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f8f8f8;
-            color: #333;
         }
         .cart-item-image {
             width: 80px;
@@ -20,95 +21,147 @@
             width: 50px;
             text-align: center;
         }
-        .logo-display{
+        .logo-display {
             width: 70%;
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center py-8 px-4 sm:px-6 lg:px-8 bg-gray-50">
 
-    <div class="w-full max-w-5xl mb-8">
-        <nav class="text-sm">
-            <a href="#" class="text-gray-600 hover:text-gray-800">Home</a>
-            <span class="mx-2 text-gray-400">/</span>
-            <span class="text-gray-800 font-semibold">Cart</span>
-        </nav>
-    </div>
+<body class="min-h-screen bg-gray-50">
 
-    <div class="w-full max-w-5xl space-y-8">
-        <div class="bg-white rounded-lg shadow p-6">
-            <h1 class="text-2xl font-bold mb-6">Cart</h1>
+    <!-- ⭐ Header should be inside body -->
+    <%- include("../../view/partials/user/header") %>
 
-            <div class="flex flex-col sm:flex-row items-center justify-between border-b pb-4 mb-4">
-                <div class="flex items-center space-x-4 mb-4 sm:mb-0">
-                    <img src="https://via.placeholder.com/80x80" alt="Lymio Casual Shirt" class="cart-item-image rounded-md">
-                    <div>
-                        <p class="font-semibold">Lymio Casual Shirt</p>
-                        <p class="text-green-600 text-sm">In Stock</p>
-                        <div class="flex items-center mt-2">
-                            <label for="quantity-1" class="sr-only">Quantity</label>
-                            <input type="number" id="quantity-1" value="1" min="1" class="quantity-input border rounded-md p-1 text-sm focus:ring-blue-500 focus:border-blue-500">
+    <div class="flex flex-col items-center py-8 px-4 sm:px-6 lg:px-8">
+
+        <!-- Breadcrumb -->
+        <div class="w-full max-w-5xl mb-8">
+            <nav class="text-sm">
+                <a href="/" class="text-gray-600 hover:text-gray-800">Home</a>
+                <span class="mx-2 text-gray-400">/</span>
+                <span class="text-gray-800 font-semibold">Cart</span>
+            </nav>
+        </div>
+
+        <!-- Cart Section -->
+        <div class="w-full max-w-5xl space-y-8">
+            <div class="bg-white rounded-lg shadow p-6">
+                <h1 class="text-2xl font-bold mb-6">Cart</h1>
+
+                <% if (products.length > 0) { %>
+
+                    <% products.forEach((item, i) => { %>
+                    <div class="flex flex-col sm:flex-row items-center justify-between border-b pb-4 mb-4">
+
+                        <div class="flex items-center space-x-4 mb-4 sm:mb-0">
+                            <img src="<%= item.productImage[0] %>" class="cart-item-image rounded-md">
+                            <div>
+                                <p class="font-semibold"><%= item.productName %></p>
+                                <p class="text-green-600 text-sm">In Stock</p>
+                                <div class="flex items-center mt-2">
+                                    <input type="number" value="1" min="1"
+                                           class="quantity-input border rounded-md p-1 text-sm">
+                                </div>
+                            </div>
                         </div>
+
+                        <div class="text-right flex flex-col items-end">
+                            <p class="font-semibold">₹<%= item.variants[0].price %></p>
+                            
+                            <button onclick="removeformcart('<%=item._id%>')" class="text-red-600 hover:text-red-800 text-sm mt-2">Remove</button>
+                        </div>
+
                     </div>
-                </div>
-                <div class="text-right flex flex-col items-end">
-                    <p class="font-semibold">₹3,599.00</p>
-                    <button class="text-red-600 hover:text-red-800 text-sm mt-2">Remove</button>
+                    <% }) %>
+
+                <% } else { %>
+                    <p class="text-center text-gray-500 py-6">Your cart is empty</p>
+                <% } %>
+                    <% let Subtotal=products.reduce((sum,item)=>sum+item.variants[0].price,0)%>
+                <div class="flex justify-end pt-4">
+                    <p class="text-lg font-bold">Total: ₹<%=Subtotal%></p>
                 </div>
             </div>
 
-            <div class="flex flex-col sm:flex-row items-center justify-between border-b pb-4 mb-4">
-                <div class="flex items-center space-x-4 mb-4 sm:mb-0">
-                    <img src="https://via.placeholder.com/80x80" alt="Brown shirts for men" class="cart-item-image rounded-md">
-                    <div>
-                        <p class="font-semibold">Brown shirts for men</p>
-                        <p class="text-green-600 text-sm">In Stock</p>
-                        <div class="flex items-center mt-2">
-                            <label for="quantity-2" class="sr-only">Quantity</label>
-                            <input type="number" id="quantity-2" value="1" min="1" class="quantity-input border rounded-md p-1 text-sm focus:ring-blue-500 focus:border-blue-500">
+            <!-- Bottom Section -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+                <div class="logo-display flex justify-center">
+                    <img src="/img/Logo.png" class="max-h-full max-w-full object-contain">
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6 h-fit">
+                    <h2 class="text-xl font-bold mb-4">Cart Total</h2>
+
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span>Subtotal:</span>
+                            
+                            <span class="font-semibold">₹<%=Subtotal%></span>
+                        </div>
+
+                        <div class="flex justify-between">
+                            <span>Shipping:</span>
+                            <span class="font-semibold">Free</span>
+                        </div>
+
+                        <div class="border-t pt-2 mt-2">
+                            <div class="flex justify-between text-lg font-bold">
+                                <span>Total:</span>
+                                <span>₹<%=Subtotal%></span>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="text-right flex flex-col items-end">
-                    <p class="font-semibold">₹3,150.00</p>
-                    <button class="text-red-600 hover:text-red-800 text-sm mt-2">Remove</button>
-                </div>
-            </div>
 
-            <div class="flex justify-end pt-4">
-                <p class="text-lg font-bold">Total : ₹6,749.00</p>
+                    <button class="mt-6 w-full bg-black text-white py-3 rounded-md hover:bg-gray-800 transition">
+                        Proceed to checkout
+                    </button>
+                </div>
+
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div class="logo-display">
-                <img src="/img/Logo.png" alt="Shirtora Logo" class="max-h-full max-w-full object-contain">
-            </div>
-
-            <div class="bg-white rounded-lg shadow p-6 h-fit">
-                <h2 class="text-xl font-bold mb-4">Cart Total</h2>
-                <div class="space-y-2">
-                    <div class="flex justify-between">
-                        <span>Subtotal:</span>
-                        <span class="font-semibold">₹6,749.00</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span>Shipping:</span>
-                        <span class="font-semibold">Free</span>
-                    </div>
-                    <div class="border-t pt-2 mt-2">
-                        <div class="flex justify-between text-lg font-bold">
-                            <span>Total:</span>
-                            <span>₹6,749.00</span>
-                        </div>
-                    </div>
-                </div>
-                <button class="mt-6 w-full bg-black text-white py-3 rounded-md hover:bg-gray-800 transition duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">
-                    Proceed to checkout
-                </button>
-            </div>
-        </div>
     </div>
+    <script>
+        function removeformcart(productId){
 
+            Swal.fire({
+        icon: "warning",
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        showCancelButton: true,
+        confirmButtonColor: "#f59e0b", 
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, proceed!"
+        }).then(async(result)=>{
+            if(result.isConfirmed){
+                 const response= await fetch(`/removefromcart/${productId}`,{
+                    method:"post"
+                })
+                const data= await response.json()
+                if(data.success){
+                    Swal.fire({
+                    icon: "success",
+                    title: "Success!",
+                    text:data.message || "Your action was completed successfully.",
+                    confirmButtonColor: "#3085d6"
+                    }).then(()=>{
+                        window.location.reload();
+                    })
+
+                }else{
+                    Swal.fire({
+                    icon: "error",
+                    title: "Oops!",
+                    text: data.message || "Something went wrong. Please try again.",
+                    confirmButtonColor: "#d33"
+                    });
+
+                }
+            }
+        })
+        }
+    </script>
 </body>
-</html>     
+<%-include("../../view/partials/user/footer")%>
+</html>
