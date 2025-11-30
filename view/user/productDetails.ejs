@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/user/productDetails.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <%-include("../../view/partials/user/header")%>
 <body class="wp-4 sm:p-8">
@@ -102,14 +103,16 @@
     <label for="size-select" class="block text-base font-medium mb-2">
         Size: <span id="selected-size-label"><%= selectedVariant.size %></span>
     </label>
-    <select id="size-select" class="border border-gray-300 rounded-md p-2 w-32 focus:ring-black focus:border-black">
+    <input type="hidden" id="product-id" value="<%= product._id %>">
+
+    <!-- Add inside size dropdown -->
+    <select id="size-select" class="border border-gray-300 rounded-md p-2 w-32">
         <% variants.forEach((variant, index) => { %>
             <option 
                 value="<%= index %>" 
                 data-price="<%= variant.price %>" 
                 data-stock="<%= variant.stock %>"
                 data-size="<%= variant.size %>"
-                <%= index === 0 ? 'selected' : '' %>
             >
                 <%= variant.size %>
             </option>
@@ -125,9 +128,12 @@
         <button id="qty-plus" class="quantity-button p-2 w-8 h-full text-lg font-semibold">+</button>
     </div>
     
-    <button id="add-to-cart-btn" class="flex-grow bg-black text-white py-3 rounded-md font-semibold hover:bg-gray-800 transition duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed">
-        Add to cart
-    </button>
+    <button  
+    id="add-to-cart-btn" 
+    class="flex-grow bg-black text-white py-3 rounded-md font-semibold hover:bg-gray-800 transition"
+>
+    Add to cart
+</button>
     
     <button class="p-3 border border-gray-300 rounded-md hover:border-black transition duration-300 text-gray-500 hover:text-red-500">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

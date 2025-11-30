@@ -119,7 +119,7 @@
         <!-- Actions pushed to bottom -->
         
         <div class="mt-auto flex items-center gap-2 pt-3">
-          <button onclick="addtocart('${data._id}')" class="flex-1 border border-black py-2 rounded-md text-sm hover:bg-black hover:text-white transition">
+          <button onclick="addtocart('${data._id}',0,1)" class="flex-1 border border-black py-2 rounded-md text-sm hover:bg-black hover:text-white transition">
             Add to cart
           </button>
 
@@ -134,11 +134,17 @@
   `).join("");
 }
 
-async function addtocart(productId) {
+async function addtocart(productId,variantIndex,qty) {
     try {
-        const response=await fetch(`/addtocart/${productId}`,{
-        method:"post"
-    })
+        const response=await fetch(`/addToCart`,{
+        method:"post",
+        headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                productId,
+                variantIndex,
+                qty
+            })
+        })
 
     const data= await response.json()
     if(data.success){

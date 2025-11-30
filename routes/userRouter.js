@@ -1,9 +1,9 @@
 import express from 'express';
 import {loadHomePage,pageNotFound,loadSignin,signin,signup,verifyOtp,loadVerifyOtp,logout,loadSignup, resendOtp, viewProducts, filterProduct, productDetails} from '../controller/user/userController.js';
 import { loadForgotPassword, verifyEmail, verifyPassOtp, loadOTPpage, loadPasswordReset, resendOtps, resetPassword, loadAbout, loadContact, loadUserDetails, loadAddressBook, loadNewAddress, addNewAddress, loadEditAddress, editAddress, deleteAddress, loadChangeEmailOtp, verifyChangeEmailOtp, newEmail, setNewEmail, resetPass, loadResetPass, updateDetails} from '../controller/user/profileController.js';
-import {loadCart, addToCart, removeFromCart} from '../controller/user/cartController.js'
+import {loadCart, addToCart, removeFromCart ,updateCartQty} from '../controller/user/cartController.js'
 import passport from '../config/passport.js';
-import { userAuth,userIsLogged } from '../middlewares/auth.js';
+import { adminAuth, userAuth,userIsLogged } from '../middlewares/auth.js';
 import uploadTo from '../middlewares/multerCloudinary.js';
 import multer from 'multer';
 import {storage} from '../helpers/multer.js';
@@ -72,8 +72,9 @@ router.post('/updatedetails',userAuth,uploadTo('users').single('profileImage'),u
 
 //Cart Management
 router.get('/cart',userAuth,loadCart)
-router.post('/addtocart/:id',userAuth,addToCart)
-router.post('/removefromcart/:id',userAuth,removeFromCart)
+router.post('/addToCart',userAuth,addToCart)
+router.post('/removefromcart',userAuth,removeFromCart)
+router.post("/updatecartqty", updateCartQty);
 
 //wishlist Management
 router.get('/wishlist',userAuth,loadWishlist)

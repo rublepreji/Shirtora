@@ -94,12 +94,20 @@ async function filterProduct(req,res) {
       sortOption.createdAt=-1
     }
     let findProducts= await Product.find(query)
-    .populate("category","name")
-    .populate("brand","brandName")
+    .populate({
+      path:"category",
+      match:{isBlocked:false}
+    })
+    .populate({
+      path:"brand",
+      match:{isBlocked:false}
+    })
     .sort(sortOption)
     .skip(skip)
     .limit(limit)
     .lean()
+
+    findProducts=findProducts.filter(p=>p.category && p.brand)
 
     const totalProduct= await Product.countDocuments(query )
     const totalPage= Math.ceil(totalProduct/limit)
@@ -123,21 +131,43 @@ async function viewProducts(req,res) {
         const categories= await Category.find({isBlocked:false})
         const brand= await Brand.find({isBlocked:false})
         const categoryIds= categories.map(category=>category._id)
+        const brandIds= brand.map(b=>b._id)
         const limit=9
-        const page= req.query.page || 1
+        const page= Number(req.query.page) || 1
         const skip= (page-1)*limit
         const query={
           isBlocked:false,
           category:{$in:categoryIds},
+          brand:{$in:brandIds},
           "variants.stock":{$gt:0}
         }
-        const product=await Product.find(query)
+        let product=await Product.find(query)
+        .populate({
+          path:"category",
+          match:{isBlocked:false}
+        })
+        .populate({
+          path:"brand",
+          match:{isBlocked:false}
+        })
         .sort({createdAt:-1})
         .skip(skip)
         .limit(limit)
         .lean()
 
-        const totalProduct= await Product.countDocuments(query)
+        product=product.filter(p=>p.category && p.brand)
+
+        const unblockedProducts= await Product.find(query)
+        .populate({
+          path:"category",
+          match:{isBlocked:false}
+        })
+        .populate({
+          path:"brand",
+          match:{isBlocked:false}
+        })
+
+        const totalProduct= unblockedProducts.filter(p=>p.category && p.brand).length
         const totalPages = Math.ceil(totalProduct/limit)
         const categoryWithIds= categories.map(cat=>({_id:cat._id,name:cat.name}))
 

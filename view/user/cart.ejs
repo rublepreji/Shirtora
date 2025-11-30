@@ -44,7 +44,7 @@
         </div>
 
         <!-- Cart Section -->
-        <div class="w-full max-w-5xl space-y-8">
+       <div class="w-full max-w-5xl space-y-8">
             <div class="bg-white rounded-lg shadow p-6">
                 <h1 class="text-2xl font-bold mb-6">Cart</h1>
 
@@ -57,18 +57,46 @@
                             <img src="<%= item.productImage[0] %>" class="cart-item-image rounded-md">
                             <div>
                                 <p class="font-semibold"><%= item.productName %></p>
-                                <p class="text-green-600 text-sm">In Stock</p>
-                                <div class="flex items-center mt-2">
-                                    <input type="number" value="1" min="1"
-                                           class="quantity-input border rounded-md p-1 text-sm">
+                               <% if(item.variant.stock<1){%>
+                                    <p class="text-red-600 text-sm">Out Of Stock</p>
+                                <%}else{%>
+                                    <p class="text-green-600 text-sm">In Stock</p>
+                                    <p class="text-600 text-sm">Size:<%=item.variant.size%></p>
+                                      <div class="quantity-box flex items-center gap-2 mt-2">
+
+                                    <button class="qty-minus bg-gray-200 hover:bg-gray-300 text-black px-2 py-1 rounded-md text-lg"
+                                            data-product="<%= item.productId %>"
+                                            data-variant="<%= item.variantIndex %>">
+                                        −
+                                    </button>
+
+                                    <input 
+                                        readonly
+                                        value="<%= item.quantity %>"
+                                        min="1"
+                                        class="quantity-input w-14 text-center border rounded-md p-1 text-sm"
+                                        data-product="<%= item.productId %>"
+                                        data-variant="<%= item.variantIndex %>"
+                                    >
+
+                                    <button class="qty-plus bg-gray-200 hover:bg-gray-300 text-black px-2 py-1 rounded-md text-lg"
+                                            data-product="<%= item.productId %>"
+                                            data-variant="<%= item.variantIndex %>">
+                                        +
+                                    </button>
+
                                 </div>
+
+                                <%}%>
+                                
+                              
                             </div>
                         </div>
 
                         <div class="text-right flex flex-col items-end">
-                            <p class="font-semibold">₹<%= item.variants[0].price %></p>
+                            <p class="font-semibold">₹<%= item.totalPrice %></p>
                             
-                            <button onclick="removeformcart('<%=item._id%>')" class="text-red-600 hover:text-red-800 text-sm mt-2">Remove</button>
+                            <button onclick="removeformcart('<%=item.productId%>','<%=item.variantIndex%>')" class="text-red-600 hover:text-red-800 text-sm mt-2">Remove</button>
                         </div>
 
                     </div>
@@ -77,9 +105,10 @@
                 <% } else { %>
                     <p class="text-center text-gray-500 py-6">Your cart is empty</p>
                 <% } %>
-                    <% let Subtotal=products.reduce((sum,item)=>sum+item.variants[0].price,0)%>
+                  
                 <div class="flex justify-end pt-4">
-                    <p class="text-lg font-bold">Total: ₹<%=Subtotal%></p>
+                    <%const grandTotal=products.reduce((acc,curr)=>acc+ curr.totalPrice,0)%>
+                    <p class="text-lg font-bold">Total: ₹<%=grandTotal%></p>
                 </div>
             </div>
 
@@ -97,7 +126,7 @@
                         <div class="flex justify-between">
                             <span>Subtotal:</span>
                             
-                            <span class="font-semibold">₹<%=Subtotal%></span>
+                            <span class="font-semibold">₹<%=products.totalPrice%></span>
                         </div>
 
                         <div class="flex justify-between">
@@ -108,7 +137,7 @@
                         <div class="border-t pt-2 mt-2">
                             <div class="flex justify-between text-lg font-bold">
                                 <span>Total:</span>
-                                <span>₹<%=Subtotal%></span>
+                                <span>₹<%=products.totalPrice%></span>
                             </div>
                         </div>
                     </div>
@@ -117,15 +146,13 @@
                         Proceed to checkout
                     </button>
                 </div>
-
             </div>
         </div>
 
     </div>
     <script>
-        function removeformcart(productId){
-
-            Swal.fire({
+        function removeformcart(productId, variantIndex){
+        Swal.fire({
         icon: "warning",
         title: "Are you sure?",
         text: "You won't be able to revert this!",
@@ -135,8 +162,10 @@
         confirmButtonText: "Yes, proceed!"
         }).then(async(result)=>{
             if(result.isConfirmed){
-                 const response= await fetch(`/removefromcart/${productId}`,{
-                    method:"post"
+                 const response= await fetch(`/removefromcart`,{
+                    method:"post",
+                    headers:{"Content-Type": "application/json"},
+                    body:JSON.stringify({productId,variantIndex})
                 })
                 const data= await response.json()
                 if(data.success){
@@ -161,6 +190,86 @@
             }
         })
         }
+
+
+document.addEventListener("click", async function (e) {
+
+   // MINUS BUTTON
+if (e.target.classList.contains("qty-minus")) {
+    const productId = e.target.dataset.product;
+    const variantIndex = e.target.dataset.variant;
+
+    const input = e.target.parentElement.querySelector(".quantity-input");
+    let qty = parseInt(input.value);
+
+    // Prevent below 1
+    if (qty <= 1) return;
+
+    const newQty = qty - 1;
+
+    const res = await fetch("/updatecartqty", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId, variantIndex, qty: newQty })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+        input.value = newQty;  // Only update UI if backend approved
+        window.location.reload();
+    } else {
+        Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: data.message || "Unable to reduce quantity."
+        });
+    }
+}
+
+    // PLUS BUTTON
+   if (e.target.classList.contains("qty-plus")) {
+    const productId = e.target.dataset.product;
+    const variantIndex = e.target.dataset.variant;
+
+    const input = e.target.parentElement.querySelector(".quantity-input");
+    let qty = parseInt(input.value);
+
+    if (qty >= 5) {
+        Swal.fire({
+            icon: "warning",
+            title: "Limit Reached",
+            text: "You can only add up to 5 units of this product."
+        });
+        return;
+    }
+
+    // DO NOT increase qty yet ❌
+    // First send request to backend with (qty + 1)
+
+    const newQty = qty + 1;
+
+    const res = await fetch("/updatecartqty", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId, variantIndex, qty: newQty })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+        input.value = newQty;   // ✔ only increase when backend says OK
+        window.location.reload();
+    } else {
+        Swal.fire({
+            icon: "warning",
+            title: "Stock Limited",
+            text: data.message
+        });
+    }
+}
+})
+
     </script>
 </body>
 <%-include("../../view/partials/user/footer")%>

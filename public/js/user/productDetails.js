@@ -1,184 +1,200 @@
-document.addEventListener("DOMContentLoaded",()=>{
+document.addEventListener("DOMContentLoaded", () => {
+
     function showTab(tabName) {
-    const descTab = document.getElementById('desc-tab');
-    const reviewsTab = document.getElementById('reviews-tab');
+        const descTab = document.getElementById('desc-tab');
+        const reviewsTab = document.getElementById('reviews-tab');
+        const descContent = document.getElementById('description-content');
+        const reviewsContent = document.getElementById('reviews-content');
 
-    const descContent = document.getElementById('description-content');
-    const reviewsContent = document.getElementById('reviews-content');
+        if (tabName === 'description') {
+            descTab.classList.add('tab-active');
+            reviewsTab.classList.remove('tab-active');
+            reviewsTab.classList.add('hover:text-black');
 
-    if (tabName === 'description') {
-        descTab.classList.add('tab-active');
-        descTab.classList.remove('hover:text-black');
-        reviewsTab.classList.remove('tab-active');
-        reviewsTab.classList.add('hover:text-black');
+            descContent.classList.remove('hidden');
+            reviewsContent.classList.add('hidden');
+        } else {
+            reviewsTab.classList.add('tab-active');
+            descTab.classList.remove('tab-active');
+            descTab.classList.add('hover:text-black');
 
-        descContent.classList.remove('hidden');
-        reviewsContent.classList.add('hidden');
-    } else if (tabName === 'reviews') {
-        reviewsTab.classList.add('tab-active');
-        reviewsTab.classList.remove('hover:text-black');
-        descTab.classList.remove('tab-active');
-        descTab.classList.add('hover:text-black');
-
-        reviewsContent.classList.remove('hidden');
-        descContent.classList.add('hidden');
-    }
-}
-        const qtyInput = document.getElementById('qty-input');
-        if (qtyInput.value === '2') {
-        qtyInput.value = '1';
+            reviewsContent.classList.remove('hidden');
+            descContent.classList.add('hidden');
         }
-window.changeImage=function(src) {
-document.getElementById("mainImage").src = src;
+    }
+    window.showTab = showTab;
 
-}
 
-//Zoom        
+    window.changeImage = function (src) {
+        document.getElementById("mainImage").src = src;
+    };
 
-//Zoom        
-const mainImage = document.getElementById("mainImage");
-const zoomLens = document.getElementById("zoomLens");
-const zoomResult = document.getElementById("zoomResult");
+    //Zoom function
+    const mainImage = document.getElementById("mainImage");
+    const zoomLens = document.getElementById("zoomLens");
+    const zoomResult = document.getElementById("zoomResult");
 
-mainImage.parentElement.addEventListener("mouseenter", () => {
-    zoomResult.innerHTML = `<img id="zoomedImg" src="${mainImage.src}">`;
-});
+    mainImage.parentElement.addEventListener("mouseenter", () => {
+        zoomResult.innerHTML = `<img id="zoomedImg" src="${mainImage.src}">`;
+    });
 
-mainImage.parentElement.addEventListener("mousemove", function (e) {
+    mainImage.parentElement.addEventListener("mousemove", function (e) {
+        const zoomedImg = document.getElementById("zoomedImg");
+        zoomLens.classList.remove("hidden");
+        zoomResult.classList.remove("hidden");
 
-    const zoomedImg = document.getElementById("zoomedImg");
-    zoomLens.classList.remove("hidden");
-    zoomResult.classList.remove("hidden");
+        const bounds = this.getBoundingClientRect();
+        const X = e.clientX - bounds.left;
+        const Y = e.clientY - bounds.top;
 
-    const bounds = this.getBoundingClientRect();
+        let lensX = X - zoomLens.offsetWidth / 2;
+        let lensY = Y - zoomLens.offsetHeight / 2;
 
-    const X = e.clientX - bounds.left;
-    const Y = e.clientY - bounds.top;
+        lensX = Math.max(0, Math.min(lensX, bounds.width - zoomLens.offsetWidth));
+        lensY = Math.max(0, Math.min(lensY, bounds.height - zoomLens.offsetHeight));
 
-    let lensX = X - zoomLens.offsetWidth / 2;
-    let lensY = Y - zoomLens.offsetHeight / 2;
+        zoomLens.style.left = `${lensX}px`;
+        zoomLens.style.top = `${lensY}px`;
 
-    if (lensX < 0) lensX = 0;
-    if (lensY < 0) lensY = 0;
-    if (lensX > bounds.width - zoomLens.offsetWidth) lensX = bounds.width - zoomLens.offsetWidth;
-    if (lensY > bounds.height - zoomLens.offsetHeight) lensY = bounds.height - zoomLens.offsetHeight;
+        const ratioX = zoomedImg.offsetWidth / mainImage.offsetWidth;
+        const ratioY = zoomedImg.offsetHeight / mainImage.offsetHeight;
 
-    zoomLens.style.left = `${lensX}px`;
-    zoomLens.style.top = `${lensY}px`;
+        zoomedImg.style.left = `${-lensX * ratioX}px`;
+        zoomedImg.style.top = `${-lensY * ratioY}px`;
+    });
 
-    // ---- REAL ZOOM RATIO FIX ----
-    const ratioX = zoomedImg.offsetWidth / mainImage.offsetWidth;
-    const ratioY = zoomedImg.offsetHeight / mainImage.offsetHeight;
+    mainImage.parentElement.addEventListener("mouseleave", () => {
+        zoomLens.classList.add("hidden");
+        zoomResult.classList.add("hidden");
+    });
 
-    zoomedImg.style.left = `${-lensX * ratioX}px`;
-    zoomedImg.style.top = `${-lensY * ratioY}px`;
-});
 
-mainImage.parentElement.addEventListener("mouseleave", () => {
-    zoomLens.classList.add("hidden");
-    zoomResult.classList.add("hidden");
-});
-
-})
-
-// Size selection handler
-document.addEventListener('DOMContentLoaded', function() {
     const sizeSelect = document.getElementById('size-select');
     const priceElement = document.getElementById('product-price');
     const stockMessage = document.getElementById('stock-message');
-    const stockCount = document.getElementById('stock-count');
     const selectedSizeLabel = document.getElementById('selected-size-label');
     const qtyInput = document.getElementById('qty-input');
     const qtyMinus = document.getElementById('qty-minus');
     const qtyPlus = document.getElementById('qty-plus');
     const addToCartBtn = document.getElementById('add-to-cart-btn');
     const buyNowBtn = document.getElementById('buy-now-btn');
-    
+    const headerStock = document.getElementById('header-stock');
+
     let currentStock = parseInt(sizeSelect.options[sizeSelect.selectedIndex].dataset.stock);
-    
-    // Update display based on selected size
-    sizeSelect.addEventListener('change', function() {
-        const selectedOption = this.options[this.selectedIndex];
-        const price = selectedOption.dataset.price;
-        const stock = parseInt(selectedOption.dataset.stock);
-        const size = selectedOption.dataset.size;
-        
-        currentStock = stock;
-        
-        // Update price
-        priceElement.textContent = `₹${price}/-`;
-        
-        // Update selected size label
-        selectedSizeLabel.textContent = size;
-        
-        // Update stock message
-        updateStockDisplay(stock);
-        
-        // Reset quantity to 1
-        qtyInput.value = 1;
-        
-        // Update button states
-        updateButtonStates(stock);
-    });
-    
+
     function updateStockDisplay(stock) {
         if (stock === 0) {
-            stockMessage.className = 'text-red-600 leading-relaxed font-semibold';
-            stockMessage.innerHTML = 'OUT OF STOCK';
+            stockMessage.className = 'text-red-600 font-semibold';
+            stockMessage.textContent = 'OUT OF STOCK';
         } else if (stock < 5) {
-            stockMessage.className = 'text-red-600 leading-relaxed';
-            stockMessage.innerHTML = `Remaining only <span id="stock-count">${stock}</span> products`;
-        } else if (stock >= 5 && stock < 10) {
-            stockMessage.className = 'text-orange-600 leading-relaxed';
-            stockMessage.innerHTML = `Stock: <span id="stock-count">${stock}</span>`;
+            stockMessage.className = 'text-red-600';
+            stockMessage.innerHTML = `Remaining only <span>${stock}</span> products`;
+        } else if (stock < 10) {
+            stockMessage.className = 'text-orange-600';
+            stockMessage.innerHTML = `Stock: <span>${stock}</span>`;
         } else {
-            stockMessage.className = 'text-green-600 leading-relaxed';
-            stockMessage.innerHTML = `Stock: <span id="stock-count">${stock}</span>`;
+            stockMessage.className = 'text-green-600';
+            stockMessage.innerHTML = `Stock: <span>${stock}</span>`;
         }
     }
-    
-    function updateButtonStates(stock) {
-        if (stock === 0) {
-            addToCartBtn.disabled = true;
-            buyNowBtn.disabled = true;
-            qtyMinus.disabled = true;
-            qtyPlus.disabled = true;
-        } else {
-            addToCartBtn.disabled = false;
-            buyNowBtn.disabled = false;
-            qtyMinus.disabled = false;
-            qtyPlus.disabled = false;
-        }
-    }
-    
-    // Quantity controls
-    qtyMinus.addEventListener('click', function() {
-        let qty = parseInt(qtyInput.value);
-        if (qty > 1) {
-            qtyInput.value = qty - 1;
-        }
-    });
-    
-    qtyPlus.addEventListener('click', function() {
-        let qty = parseInt(qtyInput.value);
-        if (qty < currentStock) {
-            qtyInput.value = qty + 1;
-        }
-    });
-    
-    // Initial button state check
-    updateButtonStates(currentStock);
-});
 
-// Add this inside the change event listener
-const headerStock = document.getElementById('header-stock');
-if (stock === 0) {
-    headerStock.className = 'text-red-600 font-semibold ml-auto lg:ml-0';
-    headerStock.textContent = '| OUT OF STOCK';
-} else if (stock < 5) {
-    headerStock.className = 'text-orange-600 font-semibold ml-auto lg:ml-0';
-    headerStock.textContent = '| LIMITED PRODUCT';
-} else {
-    headerStock.className = 'text-green-600 font-semibold ml-auto lg:ml-0';
-    headerStock.textContent = '| In Stock';
-}
+    function updateHeaderStock(stock) {
+        if (stock === 0) {
+            headerStock.className = 'text-red-600 font-semibold';
+            headerStock.textContent = '| OUT OF STOCK';
+        } else if (stock < 5) {
+            headerStock.className = 'text-orange-600 font-semibold';
+            headerStock.textContent = '| LIMITED PRODUCT';
+        } else {
+            headerStock.className = 'text-green-600 font-semibold';
+            headerStock.textContent = '| In Stock';
+        }
+    }
+
+    function updateButtonStates(stock) {
+        const disabled = stock === 0;
+        addToCartBtn.disabled = disabled;
+        buyNowBtn.disabled = disabled;
+        qtyMinus.disabled = disabled;
+        qtyPlus.disabled = disabled;
+    }
+
+
+    sizeSelect.addEventListener('change', function () {
+        const opt = this.options[this.selectedIndex];
+
+        const price = opt.dataset.price;
+        const stock = parseInt(opt.dataset.stock);
+        const size = opt.dataset.size;
+
+        currentStock = stock;
+
+        priceElement.textContent = `₹${price}/-`;
+        selectedSizeLabel.textContent = size;
+
+        qtyInput.value = 1;
+
+        updateStockDisplay(stock);
+        updateHeaderStock(stock);
+        updateButtonStates(stock);
+    });
+
+
+    qtyMinus.addEventListener('click', () => {
+        let qty = parseInt(qtyInput.value);
+        if (qty > 1) qtyInput.value = qty - 1;
+    });
+
+    qtyPlus.addEventListener('click', () => {
+        let qty = parseInt(qtyInput.value);
+        if (qty < currentStock) qtyInput.value = qty + 1;
+    });
+
+
+    const productId = document.getElementById("product-id");
+
+    addToCartBtn.addEventListener("click", async () => {
+
+        const variantIndex = sizeSelect.value;
+        const qty = qtyInput.value;
+
+        try {
+            const response = await fetch("/addToCart", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    productId: productId.value,
+                    variantIndex,
+                    qty
+                })
+            });
+
+            const data = await response.json();
+            console.log(data)
+
+            if (data.success) {
+                Swal.fire({
+                    icon: "success",
+                    title: "Added!",
+                    text: "Product added to cart successfully",
+                    showConfirmButton: false,
+                    timer: 1400
+                });
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Oops!",
+                    text: data.message
+                });
+            }
+
+        } catch (error) {
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "Something went wrong. Try again!"
+            });
+        }
+    });
+
+});
