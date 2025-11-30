@@ -43,139 +43,152 @@
     <!-- End Sidebar -->
 
     <!-- PAGE CONTAINER -->
-    <main class="flex-grow p-4 md:p-8 md:pl-0">
-        
-        <div class="max-w-6xl mx-auto">
-            <!-- Top Breadcrumb + Welcome -->
-            <div class="flex flex-col md:flex-row justify-between text-sm text-gray-600 mb-6 border-b pb-4">
-                <p>
-                    <a href="#" class="text-accent hover:underline">Home</a> / 
-                    <a href="#" class="text-accent hover:underline">Account</a> / 
-                    <a href="#" class="text-accent hover:underline">Manage Addresses</a> / 
-                    <span class="font-bold text-gray-900">Add New Address</span>
-                </p>
-                <p class="mt-2 md:mt-0 text-accent font-medium">Welcome! Customer Name</p>
-            </div>
+<main class="flex-grow p-4 md:p-8 md:pl-0">
     
-            <!-- MAIN FORM CARD -->
-            <div class="bg-white shadow-lg rounded-xl p-6 sm:p-10 border border-gray-100">
-    
-                <!-- Form Structure -->
-                <form action="/addnewaddress" method="POST" class="space-y-8" novalidate>
+    <div class="max-w-6xl mx-auto">
+        <!-- Top Breadcrumb + Welcome -->
+        <div class="flex flex-col md:flex-row justify-between text-sm text-gray-600 mb-6 border-b pb-4">
+            <p>
+                <a href="#" class="text-accent hover:underline">Home</a> / 
+                <a href="#" class="text-accent hover:underline">Account</a> / 
+                <a href="#" class="text-accent hover:underline">Manage Addresses</a> / 
+                <span class="font-bold text-gray-900">Add New Address</span>
+            </p>
+            <p class="mt-2 md:mt-0 text-accent font-medium">Welcome! Customer Name</p>
+        </div>
 
-                    <!-- Personal Information Header Section -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12">
-                        <h3 class="text-xl font-bold text-gray-800 border-b pb-2">Add New Address</h3>
-                        <h3 class="text-xl font-bold text-gray-800 border-b pb-2 hidden md:block">Personal Information</h3>
+        <!-- MAIN FORM CARD -->
+        <div class="bg-white shadow-lg rounded-xl p-6 sm:p-10 border border-gray-100">
+
+            <!-- Form Structure -->
+            <form action="/addnewaddress" method="POST" class="space-y-8" novalidate>
+
+                <!-- Personal Information Header Section -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12">
+                    <h3 class="text-xl font-bold text-gray-800 border-b pb-2">Add New Address</h3>
+                    <h3 class="text-xl font-bold text-gray-800 border-b pb-2 hidden md:block">Personal Information</h3>
+                </div>
+
+                <!-- Personal Information Fields -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+                    
+                    <!-- First Name -->
+                    <div>
+                        <label for="first-name" class="block text-sm font-medium text-gray-700">First Name</label>
+                        <input type="text" id="first-name" name="first-name" placeholder="FirstName"
+                            class="mt-1 block w-full px-4 py-3 bg-gray-100 border-none rounded-lg focus:ring-2 focus:ring-accent focus:bg-white transition" required />
                     </div>
-
-                    <!-- Personal Information Fields -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
-                        
-                        <!-- First Name -->
-                        <div>
-                            <label for="first-name" class="block text-sm font-medium text-gray-700">First Name</label>
-                            <input type="text" id="first-name" name="first-name" placeholder="FirstName"
-                                class="mt-1 block w-full px-4 py-3 bg-gray-100 border-none rounded-lg focus:ring-2 focus:ring-accent focus:bg-white transition" required />
-                        </div>
-                        
-                        <!-- Last Name -->
-                        <div>
-                            <label for="last-name" class="block text-sm font-medium text-gray-700">Last Name</label>
-                            <input type="text" id="last-name" name="last-name" placeholder="LastName"
-                                class="mt-1 block w-full px-4 py-3 bg-gray-100 border-none rounded-lg focus:ring-2 focus:ring-accent focus:bg-white transition" required />
-                        </div>
-
-                        <!-- Email -->
-                        <div>
-                            <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                            <input type="email" id="email" name="email" placeholder="example@gmail.com"
-                                class="mt-1 block w-full px-4 py-3 bg-gray-100 border-none rounded-lg focus:ring-2 focus:ring-accent focus:bg-white transition" required />
-                        </div>
-                        
-                        <!-- Phone -->
-                        <div>
-                            <label for="phone" class="block text-sm font-medium text-gray-700">Phone</label>
-                            <input type="tel" id="phone" name="phone" placeholder="+91 12345 67890"
-                                class="mt-1 block w-full px-4 py-3 bg-gray-100 border-none rounded-lg focus:ring-2 focus:ring-accent focus:bg-white transition" required />
-                        </div>
-                    </div>
-
-                    <!-- Address Header (Mobile Only) -->
-                    <h3 class="text-xl font-bold text-gray-800 border-b pb-2 md:hidden">Address</h3>
-
-
-                    <!-- Address Line -->
-                    <div class="space-y-2">
-                        <label for="address-line" class="block text-sm font-medium text-gray-700">Address</label>
-                        <input type="text" id="address-line" name="address-line" placeholder="House Name , House Number, Locality"
+                    
+                    <!-- Last Name -->
+                    <div>
+                        <label for="last-name" class="block text-sm font-medium text-gray-700">Last Name</label>
+                        <input type="text" id="last-name" name="last-name" placeholder="LastName"
                             class="mt-1 block w-full px-4 py-3 bg-gray-100 border-none rounded-lg focus:ring-2 focus:ring-accent focus:bg-white transition" required />
                     </div>
 
-                    <!-- City, State, Landmark, Pin Code -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
-                        
-                        <!-- District / Town -->
-                        <div>
-                            <label for="district" class="block text-sm font-medium text-gray-700">District / Town</label>
-                            <input type="text" id="district" name="district" placeholder="eg : Ernakulam"
-                                class="mt-1 block w-full px-4 py-3 bg-gray-100 border-none rounded-lg focus:ring-2 focus:ring-accent focus:bg-white transition" required />
-                        </div>
+                    <!-- Email -->
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                        <input type="email" id="email" name="email" placeholder="example@gmail.com"
+                            class="mt-1 block w-full px-4 py-3 bg-gray-100 border-none rounded-lg focus:ring-2 focus:ring-accent focus:bg-white transition" required />
+                    </div>
+                    
+                    <!-- Phone -->
+                    <div>
+                        <label for="phone" class="block text-sm font-medium text-gray-700">Phone</label>
+                        <input type="tel" id="phone" name="phone" placeholder="+91 12345 67890"
+                            class="mt-1 block w-full px-4 py-3 bg-gray-100 border-none rounded-lg focus:ring-2 focus:ring-accent focus:bg-white transition" required />
+                    </div>
+                </div>
 
-                        <!-- State -->
-                        <div>
-                            <label for="state" class="block text-sm font-medium text-gray-700">State</label>
-                            <input type="text" id="state" name="state" placeholder="eg : Kerala"
-                                class="mt-1 block w-full px-4 py-3 bg-gray-100 border-none rounded-lg focus:ring-2 focus:ring-accent focus:bg-white transition" required />
-                        </div>
+                <!-- Address Header (Mobile Only) -->
+                <h3 class="text-xl font-bold text-gray-800 border-b pb-2 md:hidden">Address</h3>
 
-                        <!-- Landmark -->
-                        <div>
-                            <label for="landmark" class="block text-sm font-medium text-gray-700">Landmark ( optional )</label>
-                            <input type="text" id="landmark" name="landmark" placeholder="eg : Hospital"
-                                class="mt-1 block w-full px-4 py-3 bg-gray-100 border-none rounded-lg focus:ring-2 focus:ring-accent focus:bg-white transition" />
-                        </div>
 
-                        <!-- Pin Code -->
-                        <div>
-                            <label for="pin-code" class="block text-sm font-medium text-gray-700">Pin Code</label>
-                            <input type="text" id="pin-code" name="pin-code" placeholder="eg : 689230"
-                                class="mt-1 block w-full px-4 py-3 bg-gray-100 border-none rounded-lg focus:ring-2 focus:ring-accent focus:bg-white transition" required />
+                <!-- Address Line -->
+                <div class="space-y-2">
+                    <label for="address-line" class="block text-sm font-medium text-gray-700">Address</label>
+                    <input type="text" id="address-line" name="address-line" placeholder="House Name , House Number, Locality"
+                        class="mt-1 block w-full px-4 py-3 bg-gray-100 border-none rounded-lg focus:ring-2 focus:ring-accent focus:bg-white transition" required />
+                </div>
+
+                <!-- City, State, Landmark, Pin Code -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+                    
+                    <!-- District / Town -->
+                    <div>
+                        <label for="district" class="block text-sm font-medium text-gray-700">District / Town</label>
+                        <input type="text" id="district" name="district" placeholder="eg : Ernakulam"
+                            class="mt-1 block w-full px-4 py-3 bg-gray-100 border-none rounded-lg focus:ring-2 focus:ring-accent focus:bg-white transition" required />
+                    </div>
+
+                    <!-- State -->
+                    <div>
+                        <label for="state" class="block text-sm font-medium text-gray-700">State</label>
+                        <input type="text" id="state" name="state" placeholder="eg : Kerala"
+                            class="mt-1 block w-full px-4 py-3 bg-gray-100 border-none rounded-lg focus:ring-2 focus:ring-accent focus:bg-white transition" required />
+                    </div>
+
+                    <!-- Landmark -->
+                    <div>
+                        <label for="landmark" class="block text-sm font-medium text-gray-700">Landmark ( optional )</label>
+                        <input type="text" id="landmark" name="landmark" placeholder="eg : Hospital"
+                            class="mt-1 block w-full px-4 py-3 bg-gray-100 border-none rounded-lg focus:ring-2 focus:ring-accent focus:bg-white transition" />
+                    </div>
+
+                    <!-- Pin Code -->
+                    <div>
+                        <label for="pin-code" class="block text-sm font-medium text-gray-700">Pin Code</label>
+                        <input type="text" id="pin-code" name="pin-code" placeholder="eg : 689230"
+                            class="mt-1 block w-full px-4 py-3 bg-gray-100 border-none rounded-lg focus:ring-2 focus:ring-accent focus:bg-white transition" required />
+                    </div>
+                </div>
+
+                <!-- Address Type & Submit Button -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 pt-4 items-end">
+                    
+                    <!-- Address Type Radio Buttons -->
+                    <div class="flex items-center space-x-6">
+                        <label class="block text-sm font-medium text-gray-700">Address Type</label>
+                        <div class="flex space-x-4">
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="address-type" value="home" class="form-radio text-accent h-4 w-4 border-gray-300" checked>
+                                <span class="ml-2 text-gray-700">Home</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="address-type" value="work" class="form-radio text-accent h-4 w-4 border-gray-300">
+                                <span class="ml-2 text-gray-700">Work</span>
+                            </label>
                         </div>
                     </div>
 
-                    <!-- Address Type & Submit Button -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 pt-4 items-end">
-                        
-                        <!-- Address Type Radio Buttons -->
-                        <div class="flex items-center space-x-6">
-                            <label class="block text-sm font-medium text-gray-700">Address Type</label>
-                            <div class="flex space-x-4">
-                                <label class="inline-flex items-center">
-                                    <input type="radio" name="address-type" value="home" class="form-radio text-accent h-4 w-4 border-gray-300" checked>
-                                    <span class="ml-2 text-gray-700">Home</span>
-                                </label>
-                                <label class="inline-flex items-center">
-                                    <input type="radio" name="address-type" value="work" class="form-radio text-accent h-4 w-4 border-gray-300">
-                                    <span class="ml-2 text-gray-700">Work</span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <!-- Submit Button -->
-                        <div class="md:text-right">
-                            <button type="submit" class="w-full md:w-auto px-10 py-3 bg-gray-800 text-white font-semibold rounded-lg shadow-md hover:bg-black transition duration-200">
-                                Add Address
-                            </button>
-                        </div>
-
+                    <!-- Set as Default Address -->
+                    <div class="flex items-center space-x-3">
+                        <input 
+                            type="checkbox" 
+                            id="set-default" 
+                            name="set-default" 
+                            class="h-5 w-5 text-accent border-gray-300"
+                        >
+                        <label for="set-default" class="text-gray-700 text-sm font-medium">
+                            Set as Default Address
+                        </label>
                     </div>
-                </form>
 
-            </div>
+                    <!-- Submit Button -->
+                    <div class="md:text-right">
+                        <button type="submit" class="w-full md:w-auto px-10 py-3 bg-gray-800 text-white font-semibold rounded-lg shadow-md hover:bg-black transition duration-200">
+                            Add Address
+                        </button>
+                    </div>
+
+                </div>
+            </form>
+
         </div>
-        
-    </main>
+    </div>
+    
+</main>
     <script>
 document.addEventListener("DOMContentLoaded", function () {
 

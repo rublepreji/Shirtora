@@ -13,6 +13,13 @@ async function addToCart(req, res) {
     const product = await Product.findById(productId);
     if (!product) return res.status(STATUS.NOT_FOUND).json({ success: false, message: "Product not found" });
 
+    if (product.isBlocked) {
+      return res.status(STATUS.BAD_REQUEST).json({
+        success: false,
+        message: "This product is currently unavailable"
+      });
+    }
+
     const variant = product.variants[variantIndex];
     if (!variant) return res.status(STATUS.BAD_REQUEST).json({ success: false, message: "Invalid variant" });
 
@@ -148,7 +155,7 @@ async function removeFromCart(req, res) {
 
     const cart = await Cart.findOne({ userId }).populate({
       path: "items.productId",
-      populate: { path: "category" }
+      populate:[{ path: "category" },{path:"brand"}]
     }).sort({createdAt:-1}).lean();
 
     if (!cart || cart.items.length === 0) {
@@ -159,6 +166,11 @@ async function removeFromCart(req, res) {
       const product = item.productId;
       const variant = product.variants[item.variantIndex];
       const totalPrice= variant.price * item.quantity
+      const isBlocked =
+        (product?.isBlocked === true) ||
+        (product?.brand?.isBlocked === true) ||
+        (product?.category?.isBlocked === true);
+
 
       return {
         _id: item._id,
@@ -168,7 +180,8 @@ async function removeFromCart(req, res) {
         variantIndex: item.variantIndex,
         variant: variant,      
         quantity: item.quantity,
-        totalPrice: totalPrice
+        totalPrice: totalPrice,
+        status: isBlocked
       };
     });
 

@@ -153,46 +153,6 @@ async function loadChangeEmailOtp(req, res) {
   }
 }
 
-
-// async function changeEmail(req,res) {
-//   try {    
-//     console.log('inner changeEmail',req.body.email);
-    
-//     const {email}=req.body
-//     const user= await User.findOne({email})
-//     if(!user){
-//       const otp=utils.generateOtp()  
-//       const emailSent=await utils.sendEmailVerification(email,otp)
-//       if(emailSent){
-//         req.session.userOtp=otp
-//         req.session.userData=req.body
-//         req.session.email=email
-//         console.log('Email sent',email);
-//         console.log('OTP',otp);
-//         res.redirect('/changeemailotp')
-//       }
-//       else{
-//         req.flash("error", "Not able to send OTP");
-//         return res.redirect('/changeemail')
-//       }
-//     }else{
-//       req.flash("error", "User with this email already exists");
-//       return res.redirect('/changeemail')
-//     }
-//   } catch (error) {
-//     req.flash('error','Something went wrong!')
-//     return res.redirect('/pageNotFound')
-//   }
-// }
- 
-// async function loadChangeEmail(req,res) {
-//   try {
-//     return res.render('changeEmail')
-//   } catch (error) {
-//     return res.redirect('/pageNotFound')
-//   }
-// }
-
 async function deleteAddress(req,res) {
   try {
     const user= req.session.user
@@ -209,50 +169,70 @@ async function deleteAddress(req,res) {
   }
 }
 
-async function editAddress(req,res) {
+async function editAddress(req, res) {
   try {
-    const addressData= req.body
-    const user =req.session.user
-    const addressId= req.params.addressId
-    
+    const user = req.session.user;
+    const addressId = req.params.addressId;
+
+    if (!user) return res.redirect('/signin');
+
     const {
       "first-name": firstName,
       "last-name": lastName,
       email,
       district,
-      "address-line":addressLine,
+      "address-line": addressLine,
       state,
       landmark,
       "pin-code": pincode,
       phone,
-      "address-type": addressType
-    }=req.body
+      "address-type": addressType,
+    } = req.body;
 
-    const addressDoc= await Address.findOne({userId:user._id})
-    const editAddress= addressDoc.address.id(addressId)
+    const setDefault = req.body["set-default"] === "on";
 
-    editAddress.firstName=firstName
-    editAddress.lastName=lastName
-    editAddress.addressType=addressType
-    editAddress.city=district
-    editAddress.landMark=landmark
-    editAddress.addressLine=addressLine
-    editAddress.email=email
-    editAddress.state=state
-    editAddress.pincode=pincode
-    editAddress.phone=phone
-    editAddress.updatedAt=new Date()
+    const addressDoc = await Address.findOne({ userId: user._id });
+    const editAddress = addressDoc.address.id(addressId);
 
-    await addressDoc.save()
+    if (!editAddress) {
+      req.session.error = "Address not found!";
+      return res.redirect("/addressbook");
+    }
+
+
+    editAddress.firstName = firstName;
+    editAddress.lastName = lastName;
+    editAddress.addressType = addressType;
+    editAddress.city = district;
+    editAddress.landMark = landmark;
+    editAddress.addressLine = addressLine;
+    editAddress.email = email;
+    editAddress.state = state;
+    editAddress.pincode = pincode;
+    editAddress.phone = phone;
+    editAddress.updatedAt = new Date();
+
+
+    if (setDefault) {
+      addressDoc.address.forEach(addr => addr.isDefault = false); 
+      editAddress.isDefault = true;
+    } 
+    else if (editAddress.isDefault) {
+      editAddress.isDefault = true; 
+    }
+
+    await addressDoc.save();
+
     req.session.message = "Address updated successfully!";
-    return res.redirect('/addressbook')    
+    return res.redirect('/addressbook');
+
   } catch (error) {
-    req.session.error = "something went wrong!";
-    console.log('editAddress error',error);
-    req.session.error="Failed to update address"
-    return res.redirect('/pageNotFound')
+    console.log("editAddress error", error);
+    req.session.error = "Failed to update address!";
+    return res.redirect('/pageNotFound');
   }
 }
+
 
 
 async function loadEditAddress(req,res) {
@@ -272,65 +252,78 @@ async function loadEditAddress(req,res) {
   }
 }
 
-async function addNewAddress(req,res) {
+async function addNewAddress(req, res) {
   try {
-    const user=req.session.user
-      if(!user){
-        return res.redirect('/signin')
-      }
-      const {
-        "first-name":firstName,
-        "last-name":lastName,
-        email,
-        phone,
-        "address-line":addressLine,
-        district,
-        state,
-        landmark,
-        "pin-code":pincode,
-        "address-type":addressType,
-      }=req.body
-      const existingAddressDoc= await Address.findOne({userId:user._id})
-      const newAddress={
-        addressType,
-        firstName,
-        lastName,
-        city:district,
-        landMark:landmark,
-        addressLine,
-        state,
-        pincode,
-        email,
-        phone,
-        isDefault:false,
-        createdAt:new Date(),
-        updatedAt:new Date()
-      }
-    if(!existingAddressDoc){
-      newAddress.isDefault=true
+    const user = req.session.user;
+    if (!user) return res.redirect('/signin');
 
-      const newAddressDoc=new Address({
-        userId:user._id,
-        address:[newAddress]
-      })
-      await newAddressDoc.save()
-      req.session.message="Address added successfull"
-      return res.redirect('/addressbook')
+    const {
+      "first-name": firstName,
+      "last-name": lastName,
+      email,
+      phone,
+      "address-line": addressLine,
+      district,
+      state,
+      landmark,
+      "pin-code": pincode,
+      "address-type": addressType,
+    } = req.body;
+
+    const setDefault = req.body["set-default"] === "on";
+
+    const existingAddressDoc = await Address.findOne({ userId: user._id });
+
+    const newAddress = {
+      addressType,
+      firstName,
+      lastName,
+      city: district,
+      landMark: landmark,
+      addressLine,
+      state,
+      pincode,
+      email,
+      phone,
+      isDefault: false,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+
+    if (!existingAddressDoc) {
+      newAddress.isDefault = true;
+
+      const newAddressDoc = new Address({
+        userId: user._id,
+        address: [newAddress]
+      });
+
+      await newAddressDoc.save();
+      req.session.message = "Address added successfully";
+      return res.redirect('/addressbook');
     }
-    if(existingAddressDoc.address.length==0){
-      newAddress.isDefault=true
+
+    if (setDefault) {
+      existingAddressDoc.address.forEach(addr => addr.isDefault = false); 
+      newAddress.isDefault = true;
+    } 
+    else if (existingAddressDoc.address.length === 0) {
+      newAddress.isDefault = true;
     }
-    existingAddressDoc.address.push(newAddress)
-    await existingAddressDoc.save()
-    req.session.message="Address added successfull"
-    return res.redirect('/addressbook')
-    
+
+    existingAddressDoc.address.push(newAddress);
+    await existingAddressDoc.save();
+
+    req.session.message = "Address added successfully";
+    return res.redirect('/addressbook');
+
   } catch (error) {
-    console.log('error on add New Address',error);
-    req.session.error="Failed to add address"
-    res.redirect('/pageNotFound')
+    console.log('Error on addNewAddress:', error);
+    req.session.error = "Failed to add address";
+    res.redirect('/pageNotFound');
   }
 }
+
 
 async function loadNewAddress(req,res) {
   try {

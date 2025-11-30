@@ -67,15 +67,16 @@
                     <div class="border border-gray-300 rounded-xl p-5 shadow-sm hover:shadow-md transition duration-150">
                         <div class="flex justify-between items-start mb-4">
                             <div class="text-gray-800 leading-relaxed">
-                                <p class="text-lg font-semibold"><%=val.name%></p>
+                                <p class="text-lg font-semibold"><%=val.firstName%></p>
                                 <p class="text-gray-600"><%=val.city%> <%=val.landMark%>, <%=val.state%></p>
                                 <p class="text-gray-600">Pin Code: <%=val.pincode%></p>
                                 <p class="mt-2 text-sm font-medium">Contact: +91<%=val.phone%></p>
                             </div>
-    
-                            <!-- <button class="text-sm text-indigo-600 font-medium py-1 px-3 rounded-full bg-indigo-50 hover:bg-indigo-100 transition whitespace-nowrap">
-                                Set as Primary
-                            </button> -->
+                            <%if(val.isDefault){%>
+                            <button class="text-sm text-indigo-600 font-medium py-1 px-3 rounded-full bg-indigo-50 hover:bg-indigo-100 transition whitespace-nowrap">
+                                Default
+                            </button>
+                            <%}%>
                         </div>
     
                         <div class="flex gap-3 mt-4 pt-3 border-t">

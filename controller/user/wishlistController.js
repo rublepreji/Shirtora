@@ -44,11 +44,11 @@ async function loadWishlist(req,res) {
     try {
         const userId= req.session.user._id
         const user= await User.findById(userId)
+        const latestProduct= await Product.find({isBlocked:false}).sort({createdAt:-1}).limit(4).lean()
         if(!user || !user.wishlist || user.wishlist.length==0){
             console.log('User not found or wishlist is empty');
-            return res.render('wishlist',{products:[],user:req.session.user})
+            return res.render('wishlist',{products:[],user:req.session.user,latestProduct})
         }
-        const latestProduct= await Product.find().sort({createdAt:-1}).limit(4)
         const product= await Product.find({_id:{$in:user.wishlist}}).populate('category').lean()
         return res.render('wishlist',{
             products:product,

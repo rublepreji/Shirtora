@@ -55,6 +55,9 @@
 
                         <div class="flex items-center space-x-4 mb-4 sm:mb-0">
                             <img src="<%= item.productImage[0] %>" class="cart-item-image rounded-md">
+                            <%if(item.status){%>
+                                <p>This product is currently unavailable</p>
+                            <%}else{%>
                             <div>
                                 <p class="font-semibold"><%= item.productName %></p>
                                <% if(item.variant.stock<1){%>
@@ -67,7 +70,7 @@
                                     <button class="qty-minus bg-gray-200 hover:bg-gray-300 text-black px-2 py-1 rounded-md text-lg"
                                             data-product="<%= item.productId %>"
                                             data-variant="<%= item.variantIndex %>">
-                                        −
+                                        -
                                     </button>
 
                                     <input 
@@ -91,6 +94,7 @@
                                 
                               
                             </div>
+                            <%}%>
                         </div>
 
                         <div class="text-right flex flex-col items-end">
@@ -270,6 +274,7 @@ if (e.target.classList.contains("qty-minus")) {
 }
 })
 
+    
     </script>
 </body>
 <%-include("../../view/partials/user/footer")%>
