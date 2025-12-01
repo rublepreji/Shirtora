@@ -1,65 +1,32 @@
-import mongoose, { Schema } from 'mongoose';
-import { v4 as uuidv4 } from 'uuid';
+import mongoose from "mongoose";
 
 const orderSchema = new mongoose.Schema({
-    orderId: {
-        type: Schema.Types.ObjectId,
-        default: () => uuidv4(),
-        unique: true
+    orderId:{
+        type:String,
+        unique:true
     },
-    orderedItems: [
-        {
-            product: {
-                type: Schema.Types.ObjectId,
-                ref: "Product",
-                required: true
-            },
-            quantity: {
-                type: Number,
-                required: true
-            },
-            price: {
-                type: Number,
-                default: 0
-            }
-        }
-    ],
-    totalPrice: {
-        type: Number,
-        required: true
-    },
-    discount: {
-        type: Number,
-        default: 0
-    },
-    finalAmount: {
-        type: Number,
-        required: true
-    },
-    address: {
-        type: Schema.Types.ObjectId,
-        ref: "User",
-        required: true
-    },
-    invoiceDate: {
-        type: Date
-    },
-    status: {
-        type: String,
-        required: true,
-        enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Return', 'Request', 'Returned']
-    },
-    createdOn: {
-        type: Date,
-        default: Date.now,
-        required: true
-    },
-    couponApplied: {
-        type: Boolean,
-        default: false
+  userId: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: "User", 
+    required: true 
+},
+  items: [
+    {
+      productId: {
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: "Product" },
+        quantity: Number,
+        variantIndex: Number
     }
+  ],
+  totalAmount: Number,
+  paymentMethod: String,
+  address: Object,
+  status: {
+    type: String,
+    default: "Pending"
+  },
+  createdAt: { type: Date, default: Date.now }
 });
 
-const Order = mongoose.model('Order', orderSchema);
-
-export default Order;
+export default mongoose.model("Order", orderSchema);

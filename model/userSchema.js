@@ -20,7 +20,6 @@ const userSchema = new mongoose.Schema({
     },
     wishlist:[{
         type:Schema.Types.ObjectId,
-        ref:"Wishlist"
     }]
     ,
     phone: {
