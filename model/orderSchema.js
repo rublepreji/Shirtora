@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 const orderSchema = new mongoose.Schema({
     orderId:{
         type:String,
+        required:true,
         unique:true
     },
   userId: { 
@@ -14,7 +15,8 @@ const orderSchema = new mongoose.Schema({
     {
       productId: {
         type: mongoose.Schema.Types.ObjectId, 
-        ref: "Product" },
+        ref: "Product" 
+      },
         quantity: Number,
         variantIndex: Number
     }
@@ -26,7 +28,10 @@ const orderSchema = new mongoose.Schema({
     type: String,
     default: "Pending"
   },
-  createdAt: { type: Date, default: Date.now }
+  createdAt: { 
+    type: Date, 
+    default: Date.now 
+  }
 });
 
 export default mongoose.model("Order", orderSchema);

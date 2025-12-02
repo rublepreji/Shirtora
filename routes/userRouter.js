@@ -8,7 +8,7 @@ import uploadTo from '../middlewares/multerCloudinary.js';
 import multer from 'multer';
 import {storage} from '../helpers/multer.js';
 import { loadWishlist , addToWishlist, removeFromWishlist} from '../controller/user/wishlistController.js';
-import {loadCheckout , placeOrder ,orderSuccessPage} from '../controller/user/checkoutController.js'
+import {loadCheckout , placeOrder, loadOrderFailed ,orderSuccessPage} from '../controller/user/checkoutController.js'
 
 const router = express.Router();
 const uploads = multer({ storage: storage });
@@ -85,6 +85,7 @@ router.post('/removefromwishlist/:id',userAuth,removeFromWishlist)
 //checkout mangement
 router.get('/checkout',userAuth,loadCheckout)
 router.get('/ordersuccess/:id',userAuth,orderSuccessPage)
+router.get('/orderfailed',userAuth,loadOrderFailed)
 router.post('/placeorder',userAuth,placeOrder)
 
 export default router;

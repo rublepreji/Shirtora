@@ -4,77 +4,133 @@ import Cart from "../../model/cartSchema.js";
 import Address from "../../model/addressSchema.js";
 import {STATUS} from '../../utils/statusCode.js'
 import Order from '../../model/orderSchema.js'
-import {generateOrderId} from '../../helpers/generateOrderId.js'
+import mongoose from "mongoose";
 
+
+
+async function loadOrderFailed(req,res) {
+   try {
+      res.render('orderFailed')
+   } catch (error) {
+      res.redirect('/pageNotFound')
+   }
+}
 
 async function orderSuccessPage(req,res) {
    try {
       const orderId= req.params.id
-      res.render('orderSuccess',{orderId:orderId})
+      res.render  ('orderSuccess',{orderId:orderId})
    } catch (error) {
       res.redirect('/pageNotFound')
    }
 }
 
 
-async function placeOrder(req,res) {
-   try {
-      const userId= req.session.user._id
-      const {selectedAddressIndex, paymentMethod}= req.body
+async function placeOrder(req, res) {
+  const session = await mongoose.startSession();
+  try {
+    console.log("Inside placeOrder");
 
-      if(!selectedAddressIndex){
-         return res.status(STATUS.BAD_REQUEST).json({success:false,message:"No address selected"})
+    const userId = req.session.user._id;
+    const { selectedAddressIndex, paymentMethod } = req.body;
+   console.log(paymentMethod)
+    if (!selectedAddressIndex) {
+      return res
+        .status(STATUS.BAD_REQUEST)
+        .json({ success: false, message: "No address selected" });
+    }
+
+    if (!paymentMethod) {
+      return res
+        .status(STATUS.BAD_REQUEST)
+        .json({ success: false, message: "No payment method selected" });
+    }
+
+    await session.withTransaction(async () => {
+      // 1️⃣ Get cart inside transaction
+      const cart = await Cart.findOne({ userId })
+        .populate("items.productId")
+        .session(session);
+
+      if (!cart || cart.items.length === 0) {
+        throw new Error("Cart is empty");
       }
 
-      if(!paymentMethod){
-         return res.status(STATUS.BAD_REQUEST).json({success:false,message:"No payment method selected"})
+      // 2️⃣ Get address
+      const addressDoc = await Address.findOne({ userId }).session(session);
+      const selectedAddress = addressDoc.address[selectedAddressIndex];
+
+      if (!selectedAddress) {
+        throw new Error("Invalid address selected");
       }
 
-      const cart= await Cart.findOne({userId}).populate("items.productId")
-
-      if(!cart || cart.items.length==0){
-         return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Cart is empty"})
-      }
-
-      const addressDoc= await Address.findOne({userId})
-      const selectedAddress= addressDoc.address[selectedAddressIndex]
-
+      // 3️⃣ Calculate total
       let total = 0;
       for (const item of cart.items) {
-         total += item.totalPrice;   // GOOD
+        total += item.totalPrice; // assuming already calculated in cart
       }
 
-      for(const item of cart.items){
-         const product= item.productId
-         const variantIndex= item.variantIndex
-         const qty= item.quantity
+      // 4️⃣ Check stock first
+      for (const item of cart.items) {
+        const product = item.productId;
+        const variantIndex = item.variantIndex;
+        const qty = item.quantity;
 
-         product.variants[variantIndex].stock-=qty
-
-         if(product.variants[variantIndex].stock<0){
-            return res.status(STATUS.BAD_REQUEST).json({success:false,message:`${product.productName} is out of stock`})
-         }
-         await product.save()
+        if (product.variants[variantIndex].stock < qty) {
+          throw new Error(`${product.productName} is out of stock`);
+        }
       }
 
-      const orderId=await generateOrderId()
+      // 5️⃣ Deduct stock
+      for (const item of cart.items) {
+        const product = item.productId;
+        const variantIndex = item.variantIndex;
+        const qty = item.quantity;
 
-      const newOrder= new Order({
-         orderId,
-         userId,
-         items:cart.items,
-         totalAmount:total,
-         paymentMethod,
-         address:selectedAddress,
-         status:"Pending"
-      })
-      await newOrder.save()
-      await Cart.updateOne({userId},{$set:{items:[]}})
-      return res.redirect(`/ordersuccess/${newOrder.orderId}`)
-   } catch (error) {      
-      return res.redirect('/pageNotFound')
-   }
+        product.variants[variantIndex].stock -= qty;
+        await product.save({ session });
+      }
+
+      // 6️⃣ Create custom order id
+      const customOrderId = `ORD-${Date.now().toString(36).toUpperCase()}`;
+
+      // 7️⃣ Create order
+      const newOrder = await Order.create(
+        [
+          {
+            orderId: customOrderId,
+            userId,
+            items: cart.items,
+            totalAmount: total,
+            paymentMethod,
+            address: selectedAddress,
+            status: "Pending",
+          },
+        ],
+        { session }
+      );
+
+      // 8️⃣ Clear cart
+      await Cart.updateOne(
+        { userId },
+        { $set: { items: [] } },
+        { session }
+      );
+
+      // 9️⃣ After transaction block: redirect using saved orderId
+      // NOTE: newOrder is an array because of Order.create([...])
+      res.redirect(`/ordersuccess/${newOrder[0].orderId}`);
+    });
+
+    session.endSession();
+  } catch (error) {
+    console.error("Place order error:", error.message);
+    await session.abortTransaction().catch(() => {});
+    session.endSession();
+    return res.redirect("/orderfailed");
+  }
 }
+
 
 async function loadCheckout(req,res) {
     try {
@@ -97,7 +153,7 @@ async function loadCheckout(req,res) {
       
 
       if(!cart || cart.items.length==0){
-         res.render('checkout',{
+        return res.render('checkout',{
             user:req.session.user,
             cartItems:[],
             addresses,
@@ -106,19 +162,24 @@ async function loadCheckout(req,res) {
             defaultAddress,
          })
       }
+      const filteredProducts=cart.items.filter((product)=>{
+        return product.productId.isBlocked===false
+      })
+
       let subtotal=0
-      cart.items.forEach(item=>{
+      filteredProducts.forEach(item=>{
          subtotal+=item.productId.variants[item.variantIndex].price * item.quantity
       })
+      
       const grandTotal= subtotal
 
-      res.render('checkout',{
+     return res.render('checkout',{
          user:req.session.user,
-         cartItems:cart.items,
+         cartItems:filteredProducts,
          addresses,
          subtotal,
          grandTotal,
-         defaultAddress
+         defaultAddress,
       })
 
     } catch (error) {
@@ -127,4 +188,4 @@ async function loadCheckout(req,res) {
 }
 
 
-export {loadCheckout, placeOrder, orderSuccessPage}
+export {loadCheckout, placeOrder, orderSuccessPage, loadOrderFailed}

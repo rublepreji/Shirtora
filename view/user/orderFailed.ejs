@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment Successful - Order Confirmation</title>
+    <title>Payment Failed - Retry</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -17,10 +17,6 @@
             justify-content: center;
             padding: 1rem;
         }
-        /* Custom colors to match the design */
-        .text-green-arrival {
-            color: #22c55e; /* Tailwind 'green-500' is a good match */
-        }
     </style>
 </head>
 <body>
@@ -28,18 +24,24 @@
     <!-- Main Container - Centers content and limits maximum width -->
     <div class="w-full max-w-lg mx-auto">
 
-        <!-- Payment Successful Card -->
+        <!-- Payment Failed Card -->
         <div class="bg-white rounded-lg p-6 sm:p-10 shadow-lg border border-gray-200">
             <div class="flex flex-col items-center text-center">
                 
-                <!-- Success Checkmark Icon (Blue Circle) -->
-                <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-blue-600 flex items-center justify-center mb-6">
+                <!-- Failure X Icon (Red Circle) -->
+                <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-red-600 flex items-center justify-center mb-6">
                     <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        <!-- X Mark path -->
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </div>
                 
-                <h1 class="text-xl sm:text-2xl font-semibold text-gray-800 mb-8">Payment Successful</h1>
+                <h1 class="text-xl sm:text-2xl font-semibold text-red-700 mb-4">Payment Failed</h1>
+                
+                <!-- Error Message -->
+                <p class="text-gray-600 mb-8 max-w-sm">
+                    Your transaction could not be processed. Please check your payment details or try a different method.
+                </p>
 
                 <!-- Order Details Section -->
                 <div class="w-full text-left space-y-3 mb-6">
@@ -47,9 +49,7 @@
                     <!-- Detail Row: Order ID -->
                     <div class="flex justify-between text-sm sm:text-base">
                         <span class="text-gray-500">Order ID</span>
-                        <%if(orderId){%>
-                        <span class="font-medium text-gray-800"><%=orderId%></span>
-                        <%}%>
+                        <span class="font-medium text-gray-800">000085752257</span>
                     </div>
 
                     <!-- Detail Row: Date -->
@@ -80,25 +80,13 @@
             </div>
         </div>
 
-        <!-- Arrival Date Confirmation -->
-        <div class="text-center mt-8 mb-8">
-            <p class="text-lg font-semibold text-green-700 tracking-wide">
-                Arriving By 07 - February - 2025
-            </p>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="flex flex-col sm:flex-row justify-center gap-4 px-4 sm:px-0">
+        <!-- Action Buttons (Now only the Back button) -->
+        <div class="flex justify-center mt-8">
             
-            <!-- View Order Button (Gray) -->
-            <button class="w-full sm:w-auto px-10 py-3 text-white bg-gray-600 hover:bg-gray-700 font-medium rounded-md transition duration-200">
-                View Order
+            <!-- Back Button (Black, uses JavaScript history to go back) -->
+            <button onclick="history.back()" class="w-full sm:w-auto px-12 py-3 text-white bg-black hover:bg-gray-800 font-medium rounded-md transition duration-200 shadow-lg">
+                Back
             </button>
-
-            <!-- Continue Shopping Button (Black) -->
-            <a href="/viewproducts"><button class="w-full sm:w-auto px-8 py-3 text-white bg-black hover:bg-gray-800 font-medium rounded-md transition duration-200">
-                Continue Shopping
-            </button></a>
             
         </div>
 

@@ -197,6 +197,15 @@
         });
         return;
     }
+     if(paymentMethodInput.value!=="Cash on Delivery"){
+       Swal.fire({
+          title: 'Warning!',                 
+          text: 'Payment method is not implemented.', 
+          icon: 'warning',                    
+          confirmButtonText: 'OK!'         
+        });
+        return;
+    }
 
     document.getElementById('checkoutForm').submit();
   });
