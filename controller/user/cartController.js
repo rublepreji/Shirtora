@@ -4,24 +4,28 @@ import Product from "../../model/productSchema.js";
 import { STATUS } from "../../utils/statusCode.js";
 
 async function addToCart(req, res) {
-  try {    
+  try {
     const userId = req.session.user._id;
     const { productId, variantIndex, qty } = req.body;
 
     const quantity = Number(qty);
 
     const product = await Product.findById(productId);
-    if (!product) return res.status(STATUS.NOT_FOUND).json({ success: false, message: "Product not found" });
+    if (!product) {
+      return res.status(404).json({ success: false, message: "Product not found" });
+    }
 
     if (product.isBlocked) {
-      return res.status(STATUS.BAD_REQUEST).json({
+      return res.status(400).json({
         success: false,
         message: "This product is currently unavailable"
       });
     }
 
     const variant = product.variants[variantIndex];
-    if (!variant) return res.status(STATUS.BAD_REQUEST).json({ success: false, message: "Invalid variant" });
+    if (!variant) {
+      return res.status(400).json({ success: false, message: "Invalid variant" });
+    }
 
     const stock = variant.stock;
 
@@ -29,21 +33,21 @@ async function addToCart(req, res) {
     if (!cart) {
       cart = new Cart({ userId, items: [] });
     }
-    const vIndex= Number(variantIndex)
 
+    const vIndex = Number(variantIndex);
+
+    // Check if item exists
     const existing = cart.items.find(
       item => item.productId.toString() === productId && item.variantIndex === vIndex
     );
 
     if (existing) {
-      if (existing.quantity + quantity > stock ) {
-        return res.status(STATUS.BAD_REQUEST).json({
-          success: false,
-          message: `Only ${stock} available`
-        });
+      if (existing.quantity + quantity > stock) {
+        return res.status(400).json({ success: false, message: `Only ${stock} available` });
       }
-      else if(existing.quantity >=5){
-        return res.status(STATUS.BAD_REQUEST).json({
+
+      if (existing.quantity >= 5) {
+        return res.status(400).json({
           success: false,
           message: `You can only add up to 5 units of this product.`
         });
@@ -51,6 +55,7 @@ async function addToCart(req, res) {
 
       existing.quantity += quantity;
       existing.totalPrice = existing.quantity * variant.price;
+
     } else {
       if (quantity > stock) {
         return res.json({
@@ -61,25 +66,33 @@ async function addToCart(req, res) {
 
       cart.items.push({
         productId,
-        variantIndex,
+        variantIndex: vIndex,
         quantity,
         totalPrice: variant.price * quantity
       });
     }
 
+    // Remove from wishlist
     await User.updateOne(
       { _id: userId },
       { $pull: { wishlist: productId } }
     );
 
+    // SAVE CART (No grandTotal stored here)
     await cart.save();
-    return res.status(STATUS.OK).json({ success: true, message: "Product added to cart" });
+
+    return res.status(200).json({
+      success: true,
+      message: "Product added to cart"
+    });
 
   } catch (err) {
     console.log(err);
-    return res.status(STATUS.INTERNAL_SERVER_ERROR).json({ success: false, message: "Internal server error" });
+    return res.status(500).json({ success: false, message: "Internal server error" });
   }
 }
+
+
 
 
 const updateCartQty = async (req, res) => {
@@ -153,47 +166,73 @@ async function removeFromCart(req, res) {
   try {
     const userId = req.session.user._id;
 
-    const cart = await Cart.findOne({ userId }).populate({
-      path: "items.productId",
-      populate:[{ path: "category" },{path:"brand"}]
-    }).sort({createdAt:-1}).lean();
+    const cart = await Cart.findOne({ userId })
+      .populate({
+        path: "items.productId",
+        populate: [
+          { path: "category", select: "name isBlocked" },
+          { path: "brand", select: "name isBlocked" }
+        ]
+      })
+      .sort({ createdAt: -1 })
+      .lean();
 
+    // If cart is empty
     if (!cart || cart.items.length === 0) {
-      return res.render("cart", { products: [], user: req.session.user });
+      return res.render("cart", { 
+        products: [], 
+        user: req.session.user,
+        grandTotal: 0
+      });
     }
 
-      const products = cart.items.map(item => {
-      const product = item.productId;
-      const variant = product.variants[item.variantIndex];
-      const totalPrice= variant.price * item.quantity
+    // Build product list & skip blocked ones
+    const products = [];
+
+    for (let item of cart.items) {
+      const p = item.productId;
+      if (!p) continue;
+
+      const variant = p.variants[item.variantIndex];
+      if (!variant) continue;
+
+      // Check if the product OR brand OR category is blocked
       const isBlocked =
-        (product?.isBlocked === true) ||
-        (product?.brand?.isBlocked === true) ||
-        (product?.category?.isBlocked === true);
+        p.isBlocked === true ||
+        p?.brand?.isBlocked === true ||
+        p?.category?.isBlocked === true;
 
+      if (isBlocked) continue;  // 🚀 skip blocked items completely
 
-      return {
+      const totalPrice = variant.price * item.quantity;
+
+      products.push({
         _id: item._id,
-        productId: product._id,
-        productName: product.productName,
-        productImage: product.productImage,
+        productId: p._id,
+        productName: p.productName,
+        productImage: p.productImage,
         variantIndex: item.variantIndex,
-        variant: variant,      
+        variant,
         quantity: item.quantity,
-        totalPrice: totalPrice,
-        status: isBlocked
-      };
-    });
+        totalPrice
+      });
+    }
 
+    // 🧮 Calculate grandTotal from valid products only
+    const grandTotal = products.reduce((sum, item) => sum + item.totalPrice, 0);
+
+    // Render the cart page
     return res.render("cart", {
       products,
-      user: req.session.user
+      user: req.session.user,
+      grandTotal
     });
 
   } catch (err) {
     console.log(err);
-    res.redirect("/pageNotFound");
+    return res.redirect("/pageNotFound");
   }
 }
+
 
 export {loadCart, addToCart, removeFromCart, updateCartQty}

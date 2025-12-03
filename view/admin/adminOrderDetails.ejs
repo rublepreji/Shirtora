@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <%-include("../../view/partials/admin/sideBar")%>
+    <!-- MAIN CONTENT (shifted right for sidebar) -->
+<div class="ml-64 p-6 md:p-10">
+
+    <!-- Page Title -->
+    <h2 class="text-2xl font-semibold mb-6">Order Details</h2>
+
+    <!-- Order ID + Status -->
+    <div class="flex items-center gap-3 mb-4">
+        <p class="text-xl font-semibold">Orders ID: <%=order.orderId%></p>
+
+        <span class="px-3 py-1 rounded-md bg-red-100 text-red-600 text-sm font-medium">
+            <%=order.status%>
+        </span>
+    </div>
+
+    <!-- Date Range -->
+    <div class="flex items-center text-gray-700 gap-2 mb-8">
+        <svg class="w-5 h-5 text-black" fill="none" stroke="currentColor" stroke-width="2"
+             viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 
+                     0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        <p class="text-gray-800">
+            <%=new Date(order.createdAt).toDateString()%>
+        </p>
+    </div>
+
+    <!-- Details Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6 text-gray-700 text-sm">
+
+        <!-- Left Column -->
+        <div>
+            <p class="font-medium">Coupon :</p>
+            <input 
+                type="text"
+                value="AB-CD-123"
+                class="w-full mt-1 px-4 py-2 border rounded-md bg-gray-100"
+                readonly
+            />
+        </div>
+
+        <div>
+            <p class="font-medium">Payment Method :</p>
+            <input 
+                type="text"
+                value="<%=order.paymentMethod%>"
+                class="w-full mt-1 px-4 py-2 border rounded-md bg-gray-100"
+                readonly
+            />
+        </div>
+
+        <div>
+            <p class="font-medium">Customer Name :</p>
+            <input 
+                type="text"
+                value="<%=order.address.firstName%>  <%=order.address.lastName%>"
+                class="w-full mt-1 px-4 py-2 border rounded-md bg-gray-100"
+                readonly
+            />
+        </div>
+
+        <div>
+            <p class="font-medium">Mobile Number :</p>
+            <input 
+                type="text"
+                value="<%=order.address.phone%>"
+                class="w-full mt-1 px-4 py-2 border rounded-md bg-gray-100"
+                readonly
+            />
+        </div>
+
+        <div>
+            <p class="font-medium">Shipping Address :</p>
+            <input 
+                type="text"
+                value="<%=order.address.addressLine%>"
+                class="w-full mt-1 px-4 py-2 border rounded-md bg-gray-100"
+                readonly
+            />
+        </div>
+
+        <div>
+            <p class="font-medium">Delivery Date :</p>
+            <input 
+                type="text"
+                value="21-09-2024"
+                class="w-full mt-1 px-4 py-2 border rounded-md bg-gray-100"
+                readonly
+            />
+        </div>
+
+        <div>
+            <p class="font-medium">Product :</p>
+            <%order.items.forEach((name,i)=>{%>
+            <input 
+                type="text" 
+                value="<%=name.productId.productName%> "    
+                class="w-full mt-1 px-4 py-2 border rounded-md bg-gray-100"
+                readonly
+            />
+            <%})%>
+        </div>
+
+        <div>
+            <p class="font-medium">Size :</p>
+            <%order.items.forEach((name,i)=>{%>
+            <input 
+                type="text"
+                value="<%=name.productId.variants[name.variantIndex].size%>"   
+                class="w-full mt-1 px-4 py-2 border rounded-md bg-gray-100"
+                readonly
+            />
+            <%})%>
+        </div>
+
+        <div class="md:col-span-2">
+            <p class="font-medium">Total Amount :</p>
+            <input 
+                type="text"
+                value="<%=order.totalAmount%>/-"
+                class="w-full mt-1 px-4 py-2 border rounded-md bg-gray-100"
+                readonly
+            />
+        </div>
+
+        <div class="md:col-span-2">
+            <p class="font-medium">Change Status :</p>
+
+            <% const statusOptions = ['Pending','Processing','Shipped','Delivered','Cancelled','Return Requested','Returned']; %>
+
+            <select
+                name="status"
+                class="w-full mt-1 px-4 py-2 border rounded-md border-gray-400 bg-white text-gray-700"
+            >
+                <% statusOptions.forEach((status) => { %>
+                    <option value="<%= status %>" 
+                        <%= order.status === status ? "selected" : "" %>>
+                        <%= status %>
+                    </option>
+                <% }) %>
+            </select>
+        </div>
+
+    </div>
+
+    <!-- Buttons -->
+    <div class="flex flex-col sm:flex-row gap-4 justify-center mt-10">
+
+        <button class="px-8 py-3 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700">
+            Cancel Order
+        </button>
+
+        <button class="px-8 py-3 bg-blue-500 text-white font-medium rounded-lg hover:bg-blue-600">
+            Update Status
+        </button>
+
+    </div>
+
+</div>
+
+</body>
+</html>

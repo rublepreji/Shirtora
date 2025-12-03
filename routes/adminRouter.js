@@ -45,8 +45,11 @@ import {
     loadEditBrand,
     editBrand,
     dataForBrandPage,
-    
     } from '../controller/admin/brandController.js';
+import {
+    loadOrderList,
+    loadOrderDetails
+} from '../controller/admin/orderController.js'
 import uploadTo from '../middlewares/multerCloudinary.js';
 import multer from 'multer';
 import {storage} from '../helpers/multer.js';
@@ -102,6 +105,10 @@ router.put('/imagechanges',adminAuth,uploadTo('products').single('image') , imag
 router.put('/blockproduct',adminAuth ,blockProduct)
 router.put('/unblockproduct',adminAuth,unblockProduct)
 router.get('/dataforproductpage',adminAuth,dataForProductPage)
+
+//Order management
+router.get('/orderlist',adminAuth,loadOrderList)
+router.get('/orderdetails/:id',adminAuth,loadOrderDetails)
 
 
 export default router;

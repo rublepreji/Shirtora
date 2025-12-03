@@ -5,8 +5,271 @@ import Address from "../../model/addressSchema.js";
 import {STATUS} from '../../utils/statusCode.js'
 import Order from '../../model/orderSchema.js'
 import mongoose from "mongoose";
+import PDFDocument from "pdfkit";
 
 
+
+// Declare doc outside the try block so it's accessible in the catch block.
+let doc = null; 
+
+async function downloadInvoice(req, res) {
+  try {
+    const orderId = req.params.id;
+    console.log('inside download', orderId);
+
+    const order = await Order.findById(orderId)
+     .populate({
+        path: "items.productId",
+        select: "productName variants"
+      });
+
+    if (!order) return res.status(404).send("Order not found");
+
+    // --- SCOPE FIX: Initialize doc inside the try block ---
+    doc = new PDFDocument({ margin: 50 });
+
+    // --- FINANCIAL ADJUSTMENTS (Set to 0 as requested) ---
+    const itemTotal = parseFloat(order.totalAmount) || 0;
+    const shippingCharge = 0.00; // Adjusted to 0
+    const taxAndOthers = 0.00;   // Adjusted to 0
+    const grandTotal = itemTotal + shippingCharge + taxAndOthers;
+
+    // --- SETUP PDF DOCUMENT ---
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=Invoice-${order.orderId}.pdf`
+    );
+     res.setHeader("Content-Type", "application/pdf");
+
+    doc.pipe(res);
+
+    // --- PDF CONTENT START ---
+    const pageMargin = 50;
+    const pageWidth = 612; // Standard Letter/A4 width
+    const contentWidth = pageWidth - 2 * pageMargin;
+
+    // 1. HEADER (Invoice Title & Date)
+    doc.fontSize(28)
+    .fillColor('#333333')
+    .text("SHIRTORA", pageMargin, 60, { align: "left" });
+
+    doc.fontSize(10)
+    .text(`Date: ${order.createdAt.toDateString()}`, pageMargin, 70, { align: "right" });
+
+    doc.moveDown(3);
+
+     // 2. SHIPPING ADDRESS SECTION
+    let currentY = doc.y;
+
+    doc.fontSize(14)
+      .fillColor('#000000')
+      .text("Shipping Details:", pageMargin, currentY, { underline: true });
+
+     doc.fontSize(10).moveDown(0.5);
+
+    if (order.address) {
+      doc.text(`${order.address.firstName} ${order.address.lastName}`);
+      doc.text(order.address.addressLine);
+      doc.text(order.address.landMark || '');
+      doc.text(`${order.address.city}, ${order.address.pincode}`);
+      doc.text(`Phone: ${order.address.phone}`);
+    } else {
+     doc.text("Address not available");
+    }
+
+   // 3. ORDER DETAILS (Aligned to the right)
+    const orderDetailsX = pageMargin + contentWidth / 2;
+    doc.y = currentY; 
+
+     doc.fontSize(14)
+    .text("Order Info:", orderDetailsX, currentY, { underline: true });
+
+    doc.fontSize(10).moveDown(0.5);
+ 
+    doc.text("Order ID:", orderDetailsX, doc.y);
+    doc.text(order.orderId, orderDetailsX + 70, doc.y - 10);
+    doc.text("Ordered On:", orderDetailsX, doc.y);
+    doc.text(order.createdAt.toDateString(), orderDetailsX + 70, doc.y - 10);
+    
+   //  ADJUSTMENT: Adding more vertical space here to move the table down
+    doc.moveDown(4); 
+
+
+    // 4. ITEMS TABLE HEADER
+    const tableTop = doc.y; // Table starts lower now
+    const col1X = pageMargin; // Product Name
+    const col2X = pageMargin + 300; // Quantity (Moved left)
+    const col3X = pageMargin + 400; // Price/Unit (Moved left)
+    // const col4X = pageMargin + 500; // Total (Removed)
+
+   // Draw a separator line
+    doc.lineWidth(1)
+       .strokeColor('#aaaaaa')
+       .moveTo(pageMargin, tableTop)
+       .lineTo(pageWidth - pageMargin, tableTop)
+       .stroke();
+
+    doc.fillColor('#000000')
+       .fontSize(11)
+       .font('Helvetica-Bold')
+       .text("Item / Description", col1X, tableTop + 5)
+       .text("Qty", col2X, tableTop + 5, { width: 50, align: 'right' }) // Variant removed
+       .text("Price/Unit", col3X, tableTop + 5, { width: 60, align: 'right' }); 
+     // Total removed
+  
+    // Draw a separator line below header
+     const itemsStart = tableTop + 25;
+     doc.lineWidth(1)
+     .moveTo(pageMargin, itemsStart)
+     .lineTo(pageWidth - pageMargin, itemsStart)
+     .stroke();
+ let itemY = itemsStart + 10;
+   doc.font('Helvetica'); // Reset font
+
+   // 5. ITEMS TABLE BODY
+   order.items.forEach((item, i) => {
+     if (itemY + 30 > doc.page.height - pageMargin) {
+      doc.addPage();
+       itemY = pageMargin + 10;
+    }
+
+        if (!item.productId) {
+       doc.fontSize(10).text(`${i + 1}. PRODUCT REMOVED`, col1X, itemY);
+       } else {
+       const variant = item.productId.variants[item.variantIndex];
+        const price = variant ? parseFloat(variant.price) : NaN;
+
+        // Displaying product name and variant name/index on separate lines for clarity
+        doc.fontSize(10)
+        .text(item.productId.productName, col1X, itemY);
+
+        // Optional: Show variant index/name below product name if helpful
+         const variantName = variant && variant.name ? variant.name : `Index: ${item.variantIndex}`;
+         doc.fontSize(8).text(`Variant: ${variantName}`, col1X, itemY + 10);
+         
+         // Display Qty and Price
+         doc.fontSize(10)
+         .text(item.quantity, col2X, itemY, { width: 50, align: 'right' }) 
+       .text(`₹${price.toFixed(2)}`, col3X, itemY, { width: 60, align: 'right' });
+    }
+    itemY += 35; // Increased spacing since we use two lines for product description
+    doc.y = itemY; 
+   });
+
+   // 6. ORDER SUMMARY
+    doc.moveDown(2);
+   let summaryY = doc.y;
+
+   // Final Separator Line
+   doc.lineWidth(1)
+   .moveTo(pageMargin, summaryY)
+  .lineTo(pageWidth - pageMargin, summaryY)
+   .stroke();
+
+   summaryY += 10;
+
+    const summaryLabelX = pageMargin + contentWidth - 200; 
+    const summaryValueX = pageMargin + contentWidth - 80; 
+
+   // Item Total
+    doc.fontSize(10)
+    .text(`Item Total:`, summaryLabelX, summaryY, { width: 100, align: 'right' })
+    .text(`₹${itemTotal.toFixed(2)}`, summaryValueX, summaryY, { width: 80, align: 'right' });
+    summaryY += 15;
+    // Shipping (Now 0)
+    doc.text(`Shipping Charge:`, summaryLabelX, summaryY, { width: 100, align: 'right' })
+    .text(`₹${shippingCharge.toFixed(2)}`, summaryValueX, summaryY, { width: 80, align: 'right' });
+   summaryY += 15;
+ 
+  // Tax (Now 0)
+    doc.text(`Tax & Others:`, summaryLabelX, summaryY, { width: 100, align: 'right' })
+    .text(`₹${taxAndOthers.toFixed(2)}`, summaryValueX, summaryY, { width: 80, align: 'right' });
+   summaryY += 15;
+
+ // Grand Total Separator
+     doc.lineWidth(1) 
+     .moveTo(summaryLabelX, summaryY)
+     .lineTo(pageWidth - pageMargin, summaryY)
+     .stroke();
+    summaryY += 5;
+
+    // Grand Total
+      // Grand Total
+      doc.fontSize(14)
+        .font('Helvetica-Bold')
+        .text(`TOTAL:`, summaryLabelX, summaryY, { width: 100, align: 'right' })
+        .text(`₹${grandTotal.toFixed(1)}`, summaryValueX, summaryY, { width: 80, align: 'right' });
+
+ 
+     doc.moveDown(3);
+
+        // 7. FOOTER/THANK YOU
+        doc.fontSize(10)
+       .fillColor('#555555')
+       .text("Thank you for your order!", pageMargin, doc.y, { align: 'center' });
+
+
+    // --- PDF CONTENT END & STREAM ---
+   doc.end();
+
+  } catch (error) {
+   console.log("Invoice Error:", error);
+    
+    if (doc && !doc.ended) {
+     doc.end();
+    }
+    if (!res.headersSent) {
+      res.status(500).send("Server error");
+    }
+  }
+}
+
+async function loadOrderList(req,res) {
+  try {
+    const userId= req.session.user._id
+    const orders= await Order.find({userId})
+    .populate({
+      path:"items.productId",
+      select:"productImage variants productName"
+    })
+    .sort({createdAt:-1}).lean()
+    console.log('orders',orders);
+    
+    res.render('orderList',{
+      user:req.session.user,
+      orders
+    })
+  } catch (error) {
+    res.redirect('/pageNotFound')
+  }
+}
+
+
+async function loadOrderDetails(req,res) {
+  try {
+    const orderId = req.params.id
+    const order = await Order.findOne({orderId})
+    .populate({
+      path:"items.productId",
+      populate:[{path:"category"},{path:"brand"}]
+    }).lean()
+
+    if(!order){
+      return res.redirect('/pageNotFound')
+    }
+    const products=order.items.filter((product)=>{
+     return product.productId.isBlocked==false
+    })
+
+    return res.render('orderDetails',{
+      user:req.session.user,
+      products,
+      order
+    })
+  } catch (error) {
+    return res.redirect('/pageNotFound')
+  }
+}
 
 async function loadOrderFailed(req,res) {
    try {
@@ -56,6 +319,10 @@ async function placeOrder(req, res) {
         throw new Error("Cart is empty");
       }
 
+      const validItems=cart.items.filter((pro)=>{
+        return pro.productId.isBlocked==false
+      })
+
       // 2️⃣ Get address
       const addressDoc = await Address.findOne({ userId }).session(session);
       const selectedAddress = addressDoc.address[selectedAddressIndex];
@@ -66,7 +333,7 @@ async function placeOrder(req, res) {
 
       // 3️⃣ Calculate total
       let total = 0;
-      for (const item of cart.items) {
+      for (const item of validItems) {
         total += item.totalPrice; // assuming already calculated in cart
       }
 
@@ -181,11 +448,10 @@ async function loadCheckout(req,res) {
          grandTotal,
          defaultAddress,
       })
-
     } catch (error) {
        return res.redirect('/pageNotFound')
     }
 }
 
 
-export {loadCheckout, placeOrder, orderSuccessPage, loadOrderFailed}
+export {loadCheckout, placeOrder, orderSuccessPage, loadOrderFailed, loadOrderDetails, loadOrderList, downloadInvoice}

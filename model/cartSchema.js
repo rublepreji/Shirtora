@@ -6,7 +6,6 @@ const cartSchema = new mongoose.Schema({
         ref: "User",
         required: true
     },
-
     items: [
         {
             productId: {
@@ -40,7 +39,11 @@ const cartSchema = new mongoose.Schema({
                 default: "none"
             }
         }
-    ]
+    ],
+    grandTotal: {
+        type: Number,
+        default: 0
+    }
 }, { timestamps: true });
 
 const Cart = mongoose.model('Cart', cartSchema);

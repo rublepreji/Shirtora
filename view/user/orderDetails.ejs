@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details</title>
+    <!-- Include Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Set Inter font */
+        body {
+            font-family: 'Inter', sans-serif;
+            color: #1f2937;
+        }
+        /* Custom styling for the faint pink background under the order status */
+        .status-bg-faint {
+            background-color: #fce7f3; /* Light pink background */
+        }
+        /* Custom styling for the card border */
+        .card-border {
+            border: 1px solid #e5e7eb; /* Light gray border */
+        }
+        /* Custom style for the large black box icon next to "Just For You" */
+        .black-box {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            background-color: #000;
+            margin-right: 8px;
+            vertical-align: middle;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+  <%- include("../../view/partials/user/header") %>
+
+<body class="bg-white min-h-screen">
+
+    <div class="container mx-auto p-4 sm:p-8 max-w-7xl">
+
+        <!-- Top Header and Breadcrumbs -->
+        <div class="flex justify-between items-center mb-8">
+            <!-- Breadcrumbs -->
+            <nav class="text-xs sm:text-sm font-normal text-gray-600 space-x-1">
+                <a href="#" class="hover:underline">Home</a>
+                <span>/</span>
+                <a href="#" class="hover:underline">Account</a>
+                <span>/</span>
+                <a href="#" class="hover:underline">My Orders</a>
+                <span>/</span>
+                <span class="font-medium text-gray-800">Order Details</span>
+            </nav>
+            <!-- Welcome Message -->
+            <p class="text-purple-700 text-sm sm:text-base font-medium whitespace-nowrap">
+                Welcome! <%=user.firstName%>
+            </p>
+        </div>
+
+        <!-- Order Summary Card -->
+        <div class="card-border rounded-lg p-4 sm:p-6 mb-8">
+            
+            <!-- Order Info Header -->
+            <div class="flex justify-between items-start text-xs sm:text-sm mb-4 border-b border-gray-200 pb-2">
+                <p class="text-gray-600">
+                    Ordered on: <span class="font-semibold text-black"><%= new Date(order.createdAt).toDateString() %></span> | Order Id: <%=order.orderId%>
+                </p>
+                <a href="/downloadInvoice/<%=order._id%>">
+                <p class="uppercase text-black font-semibold border border-black px-2 py-0.5">
+                    Invoice
+                </p>
+                </a>
+            </div>
+
+            <!-- Detail Sections (Shipping, Payment, Summary) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
+
+                <!-- 1. Shipping Address -->
+                <div class="text-gray-700">
+                    <p class="font-semibold text-black mb-2 border-b border-gray-200 pb-1">Shipping Address</p>
+                    <p class="text-xs"><%=order.address.firstName%> <%=order.address.lastName%></p>
+                    <p class="text-xs"><%=order.address.addressLine%></p>
+                    <p class="text-xs"><%=order.address.landMark%></p>
+                    <p class="text-xs"><%=order.address.city%> - <%=order.address.pincode%></p>
+                    <p class="text-xs">Contact number:<%=order.address.phone%></p>
+                </div>
+
+                <!-- 2. Payment Method -->
+                <div class="text-gray-700">
+                    <p class="font-semibold text-black mb-2 border-b border-gray-200 pb-1">Payment Method</p>
+                    <p class="text-xs"><%=order.paymentMethod%></p>
+                </div>
+
+                <!-- 3. Order Summary -->
+                <div class="text-gray-700">
+                    <p class="font-semibold text-black mb-2 border-b border-gray-200 pb-1">Order Summary</p>
+                    
+                    <div class="grid grid-cols-2 text-xs gap-y-1">
+                        <span class="text-left">Item Total</span>
+                        <span class="text-right">₹<%=order.totalAmount%></span>
+                        
+                        <span class="text-left">Shipping Charge</span>
+                        <span class="text-right">₹99.00</span>
+                        
+                        <span class="text-left">Tax & Others</span>
+                        <span class="text-right">₹50.00</span>
+                        
+                        <span class="text-left font-bold text-black border-t border-black mt-1 pt-1">Grand Total</span>
+                        <span class="text-right font-bold text-black border-t border-black mt-1 pt-1">₹<%=order.totalAmount%></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+      <!-- Product Details Section -->
+<div class="flex justify-end space-x-3 mb-6">
+    <button class="px-4 py-2 text-sm font-medium border border-gray-500 text-black rounded-md hover:bg-gray-100 transition duration-150">
+        Track Order
+    </button>
+    <button class="px-4 py-2 text-sm font-medium border border-red-500 text-red-500 rounded-md hover:bg-red-50 transition duration-150">
+        Cancel Order
+    </button>
+</div>
+
+<!-- PRODUCT GRID -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <% products.forEach((val, i) => { %>
+
+    <div class="card-border rounded-lg p-4 sm:p-6">
+        <div class="flex flex-col items-start">
+
+            <!-- Product Image -->
+            <div class="w-full h-48 mb-4 rounded-md overflow-hidden card-border">
+                <img src="<%= val.productId.productImage[0] %>" class="w-full h-full object-cover" />
+            </div>
+
+            <!-- Product Info -->
+            <p class="text-lg font-semibold text-black">
+                <%= val.productId.productName %>
+            </p>
+
+            <p class="text-sm text-gray-600 mb-3">
+                Price: ₹<%= val.productId.variants[val.variantIndex].price %>
+            </p>
+
+            <!-- Status Badge -->
+            <div class="status-bg-faint p-2 rounded-md border border-purple-300 mb-2">
+                <p class="text-sm font-semibold text-purple-700 uppercase">
+                    Status: <%= order.status %>
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+    <% }) %>
+</div>
+
+    </div>
+  <%- include("../../view/partials/user/footer") %>
+
+</body>
+</html>
