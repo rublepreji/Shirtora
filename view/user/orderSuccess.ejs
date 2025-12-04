@@ -95,7 +95,6 @@
                 View Order
             </button></a>
 
-            <!-- Continue Shopping Button (Black) -->
             <a href="/viewproducts"><button class="w-full sm:w-auto px-8 py-3 text-white bg-black hover:bg-gray-800 font-medium rounded-md transition duration-200">
                 Continue Shopping
             </button></a>
@@ -103,5 +102,12 @@
         </div>
 
     </div>
+
+    <script>
+    history.pushState(null, null, location.href);
+    window.onpopstate = function () {
+        history.go(1);  
+    };
+</script>
 </body>
 </html>

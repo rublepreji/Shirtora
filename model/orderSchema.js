@@ -17,8 +17,17 @@ const orderSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId, 
         ref: "Product" 
       },
-        quantity: Number,
-        variantIndex: Number
+      quantity: Number,
+      variantIndex: Number,
+      itemStatus: {
+        type: String,
+        enum: ["Ordered", "Cancelled", "Returned", "Delivered", "Return-Approved", "Return-Rejected","Return Requested"],
+        default: "Ordered"
+      },
+      returnReason:{
+      type:String,
+      default:null
+    },
     }
   ],
   totalAmount: Number,

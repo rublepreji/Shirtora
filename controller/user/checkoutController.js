@@ -6,8 +6,54 @@ import {STATUS} from '../../utils/statusCode.js'
 import Order from '../../model/orderSchema.js'
 import mongoose from "mongoose";
 import PDFDocument from "pdfkit";
+import {updateStatus} from "../../helpers/updateOrderStatus.js"
 
 
+async function returnRequest(req,res) {
+  try {
+        const { orderId, productIndex, reason, newStatus } = req.body;
+        console.log('inside the return request');
+        console.log(newStatus);
+        
+        const order = await Order.findOne({ orderId });
+        if (!order) return res.json({ success: false });
+
+        order.items[productIndex].itemStatus = newStatus;
+        order.items[productIndex].returnReason = reason;
+
+        await order.save();
+
+        res.json({ success: true });
+    } catch (error) {
+        res.json({ success: false });
+    }
+}
+
+async function cancelOrder(req,res) {
+  try {
+    const {orderId,newStatus}= req.body
+    console.log("Form cancel order",orderId,newStatus);
+    
+    const result= await updateStatus(orderId,newStatus)
+
+    if(result){
+      const order= await Order.findOne({orderId}).populate("items.productId")
+      for(const item of order.items){
+        const product= item.productId
+        const variantIndex= item.variantIndex
+
+        product.variants[variantIndex].stock+=item.quantity
+        await product.save()
+      }
+      return res.status(STATUS.OK).json({success:true,message:"Updated successfully"})
+    }
+    else{
+      return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Failed to update status"})
+    }
+  } catch (error) {
+    return res.status(STATUS.INTERNAL_SERVER_ERROR).json({success:false,message:"Internal server error"})
+  }
+}
 
 // Declare doc outside the try block so it's accessible in the catch block.
 let doc = null; 
@@ -281,6 +327,9 @@ async function loadOrderFailed(req,res) {
 
 async function orderSuccessPage(req,res) {
    try {
+    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, private");
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
       const orderId= req.params.id
       res.render  ('orderSuccess',{orderId:orderId})
    } catch (error) {
@@ -292,6 +341,9 @@ async function orderSuccessPage(req,res) {
 async function placeOrder(req, res) {
   const session = await mongoose.startSession();
   try {
+    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, private");
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
     console.log("Inside placeOrder");
 
     const userId = req.session.user._id;
@@ -399,59 +451,67 @@ async function placeOrder(req, res) {
 }
 
 
-async function loadCheckout(req,res) {
+async function loadCheckout(req, res) {
     try {
-      console.log('inside loadcheckout');
-      
-       const userId= req.session.user._id
-       const cart =await Cart.findOne({userId:userId})
-       .populate({
-         path:"items.productId",
-         populate:[{path:"category"},{path:"brand"}]
-      }).lean()
-       
-      const addressDoc= await Address.findOne({userId}).lean()
-      const addresses= addressDoc ? addressDoc.address :[]
-      const defaultAddress= addresses.find(a=>a.isDefault===true)
+        console.log('inside loadcheckout');
 
-      const userDetail= await User.findById(userId).lean()
-      const wishlistCount= userDetail.wishlist.length
-      console.log('wishlistCount',wishlistCount);
-      
+        res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, private");
+        res.setHeader("Pragma", "no-cache");
+        res.setHeader("Expires", "0");
 
-      if(!cart || cart.items.length==0){
-        return res.render('checkout',{
-            user:req.session.user,
-            cartItems:[],
+        const userId = req.session.user._id;
+
+        const cart = await Cart.findOne({ userId })
+            .populate({
+                path: "items.productId",
+                populate: [{ path: "category" }, { path: "brand" }]
+            })
+            .lean();
+
+        const addressDoc = await Address.findOne({ userId }).lean();
+        const addresses = addressDoc ? addressDoc.address : [];
+        const defaultAddress = addresses.find(a => a.isDefault === true);
+
+        const userDetail = await User.findById(userId).lean();
+        const wishlistCount = userDetail.wishlist.length;
+        console.log('wishlistCount', wishlistCount);
+
+        if (!cart || cart.items.length === 0) {
+            return res.render("checkout", {
+                user: req.session.user,
+                cartItems: [],
+                addresses,
+                subtotal: 0,
+                grandTotal: 0,
+                defaultAddress
+            });
+        }
+
+        const filteredProducts = cart.items.filter((product) => {
+            return product.productId.isBlocked === false;
+        });
+
+        let subtotal = 0;
+        filteredProducts.forEach(item => {
+            subtotal += item.productId.variants[item.variantIndex].price * item.quantity;
+        });
+
+        const grandTotal = subtotal;
+
+        return res.render("checkout", {
+            user: req.session.user,
+            cartItems: filteredProducts,
             addresses,
-            subtotal:0,
-            grandTotal:0,
-            defaultAddress,
-         })
-      }
-      const filteredProducts=cart.items.filter((product)=>{
-        return product.productId.isBlocked===false
-      })
+            subtotal,
+            grandTotal,
+            defaultAddress
+        });
 
-      let subtotal=0
-      filteredProducts.forEach(item=>{
-         subtotal+=item.productId.variants[item.variantIndex].price * item.quantity
-      })
-      
-      const grandTotal= subtotal
-
-     return res.render('checkout',{
-         user:req.session.user,
-         cartItems:filteredProducts,
-         addresses,
-         subtotal,
-         grandTotal,
-         defaultAddress,
-      })
     } catch (error) {
-       return res.redirect('/pageNotFound')
+        return res.redirect("/pageNotFound");
     }
 }
 
 
-export {loadCheckout, placeOrder, orderSuccessPage, loadOrderFailed, loadOrderDetails, loadOrderList, downloadInvoice}
+
+export {loadCheckout, placeOrder, orderSuccessPage, loadOrderFailed, loadOrderDetails, loadOrderList, downloadInvoice, cancelOrder, returnRequest}

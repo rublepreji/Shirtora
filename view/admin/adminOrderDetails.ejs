@@ -101,29 +101,94 @@
             />
         </div>
 
+        
+            
+<% order.items.forEach((item, i) => { %>
+
+<div class="w-full mt-3">
+    
+    <p class="font-medium">Product : <%= item.productId.productName %></p>
+
+    <div class="relative mt-1">
+
+        <!-- Dropdown -->
+        <select 
+            id="productStatus-<%= i %>"
+            class="w-full px-4 py-2 pr-20 border rounded-md bg-white text-gray-800"
+        >
+            <% ["Ordered","Cancelled","Returned","Delivered","Return-Approved","Return-Rejected","Return Requested"].forEach(status => { %>
+                <option value="<%= status %>" 
+                    <%= item.itemStatus === status ? 'selected' : '' %>>
+                    <%= status %>
+                </option>
+            <% }) %>
+        </select>
+
+        <!-- Save Button -->
+        <button
+            onclick="saveProductStatus('<%= order._id %>', '<%= i %>')"
+            class="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-500 
+                   text-white text-xs px-3 py-1 rounded hover:bg-blue-600">
+            Save
+        </button>
+
+    </div>
+
+</div>
+
+
+
+<% if (item.itemStatus === "Return Requested") { %>
+
+<div class="mt-3 border border-yellow-300 bg-yellow-50 rounded-md p-4">
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+        <!-- LEFT COLUMN : PRODUCT NAME -->
         <div>
-            <p class="font-medium">Product :</p>
-            <%order.items.forEach((name,i)=>{%>
-            <input 
-                type="text" 
-                value="<%=name.productId.productName%> "    
-                class="w-full mt-1 px-4 py-2 border rounded-md bg-gray-100"
-                readonly
-            />
-            <%})%>
+            <p class="text-sm font-semibold text-gray-800 mb-1">Product</p>
+            <p class="text-sm bg-white border rounded p-2 font-medium">
+                <%= item.productId.productName %>
+            </p>
         </div>
 
+        <!-- RIGHT COLUMN : REASON + BUTTONS -->
         <div>
-            <p class="font-medium">Size :</p>
-            <%order.items.forEach((name,i)=>{%>
-            <input 
-                type="text"
-                value="<%=name.productId.variants[name.variantIndex].size%>"   
-                class="w-full mt-1 px-4 py-2 border rounded-md bg-gray-100"
-                readonly
-            />
-            <%})%>
+            <p class="text-sm font-semibold text-yellow-700 mb-1">Return Reason</p>
+
+            <p class="text-xs bg-white border rounded p-2 mb-3 text-gray-800">
+                <%= item.returnReason || "No reason provided" %>
+            </p>
+
+            <div class="flex gap-3">
+                <button 
+                    onclick="approveReturn('<%= order._id %>', '<%= i %>')"
+                    class="px-4 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700">
+                    Approve
+                </button>
+
+                <button 
+                    onclick="rejectReturn('<%= order._id %>', '<%= i %>')"
+                    class="px-4 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">
+                    Reject
+                </button>
+            </div>
         </div>
+
+    </div>
+
+</div>
+
+<% } %>
+
+
+<% }) %>
+
+        
+
+    
+
+    
 
         <div class="md:col-span-2">
             <p class="font-medium">Total Amount :</p>
@@ -162,13 +227,83 @@
             Cancel Order
         </button>
 
-        <button class="px-8 py-3 bg-blue-500 text-white font-medium rounded-lg hover:bg-blue-600">
+        <button class="px-8 py-3 bg-blue-500 text-white font-medium rounded-lg hover:bg-blue-600 update-status-btn">
             Update Status
         </button>
 
     </div>
 
 </div>
+<script>
+document.querySelector(".update-status-btn").addEventListener("click", async () => {
+    const selectedStatus = document.querySelector("select[name='status']").value;
+    const orderId = "<%= order.orderId %>";
+
+    const res = await fetch("/admin/updateOrderStatus", {
+        method: "put",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId, newStatus: selectedStatus })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+        Swal.fire("Updated!", "Order status changed successfully", "success");
+    } else {
+        Swal.fire("Error", "Failed to update", "error");
+    }
+});
+
+
+async function saveProductStatus(orderId, itemIndex) {
+    const newStatus = document.getElementById(`productStatus-${itemIndex}`).value;
+
+    const res = await fetch("/admin/updateItemStatus", {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ orderId, itemIndex, newStatus })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+        Swal.fire("Success", "Product status updated!", "success");
+    } else {
+        Swal.fire("Error", "Failed to update status", "error");
+    }
+}
+
+
+async function approveReturn(orderId, itemIndex) {
+    await updateReturnStatus(orderId, itemIndex, "Return-Approved");
+}
+
+async function rejectReturn(orderId, itemIndex) {
+    await updateReturnStatus(orderId, itemIndex, "Return-Rejected");
+}
+
+async function updateReturnStatus(orderId, itemIndex, newStatus) {
+    const res = await fetch("/admin/updateReturnStatus", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId, itemIndex, newStatus })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+
+        document.getElementById(`productStatus-${itemIndex}`).value = newStatus;
+        window.location.reload()
+    } else {
+        Swal.fire("Error", data.message || "Failed to update", "error");
+    }
+}
+
+
+</script>
 
 </body>
 </html>

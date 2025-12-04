@@ -48,7 +48,11 @@ import {
     } from '../controller/admin/brandController.js';
 import {
     loadOrderList,
-    loadOrderDetails
+    loadOrderDetails,
+    dataForOrderList,
+    updateOrderStatus,
+    updateReturnStatus,
+    updateItemStatus
 } from '../controller/admin/orderController.js'
 import uploadTo from '../middlewares/multerCloudinary.js';
 import multer from 'multer';
@@ -108,7 +112,12 @@ router.get('/dataforproductpage',adminAuth,dataForProductPage)
 
 //Order management
 router.get('/orderlist',adminAuth,loadOrderList)
+router.get('/dataForOrderList',adminAuth,dataForOrderList)
 router.get('/orderdetails/:id',adminAuth,loadOrderDetails)
+router.put('/updateOrderStatus',adminAuth,updateOrderStatus)
+router.put('/updateReturnStatus',adminAuth,updateReturnStatus)
+router.put("/updateItemStatus", adminAuth, updateItemStatus);
+
 
 
 export default router;

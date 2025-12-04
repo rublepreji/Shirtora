@@ -72,7 +72,7 @@
             </div>
 
             <!-- Detail Sections (Shipping, Payment, Summary) -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 text-sm">
 
                 <!-- 1. Shipping Address -->
                 <div class="text-gray-700">
@@ -88,6 +88,11 @@
                 <div class="text-gray-700">
                     <p class="font-semibold text-black mb-2 border-b border-gray-200 pb-1">Payment Method</p>
                     <p class="text-xs"><%=order.paymentMethod%></p>
+                </div>
+
+                <div class="text-gray-700">
+                    <p class="font-semibold text-black mb-2 border-b border-gray-200 pb-1">Status</p>
+                    <p class="text-xs"><%=order.status%></p>
                 </div>
 
                 <!-- 3. Order Summary -->
@@ -116,9 +121,11 @@
     <button class="px-4 py-2 text-sm font-medium border border-gray-500 text-black rounded-md hover:bg-gray-100 transition duration-150">
         Track Order
     </button>
-    <button class="px-4 py-2 text-sm font-medium border border-red-500 text-red-500 rounded-md hover:bg-red-50 transition duration-150">
+    <%if(order.status !=="Delivered"){%>
+    <button onclick="cancelOrder('<%=order.orderId%>','Cancelled')" class="px-4 py-2 text-sm font-medium border border-red-500 text-red-500 rounded-md hover:bg-red-50 transition duration-150">
         Cancel Order
     </button>
+    <%}%>
 </div>
 
 <!-- PRODUCT GRID -->
@@ -143,11 +150,40 @@
             </p>
 
             <!-- Status Badge -->
-            <div class="status-bg-faint p-2 rounded-md border border-purple-300 mb-2">
-                <p class="text-sm font-semibold text-purple-700 uppercase">
-                    Status: <%= order.status %>
-                </p>
-            </div>
+       <% if (val.itemStatus === "Delivered") { %>
+
+<div class="flex items-center gap-4 mb-3">
+
+    <!-- Status box -->
+    <div class="status-bg-faint px-4 py-2 rounded-md border border-purple-300">
+        <p class="text-sm font-semibold text-purple-700 uppercase">
+            Status: <%= val.itemStatus %>
+        </p>
+    </div>
+
+    <!-- Return button -->
+    <button 
+    onclick="openReturnModal('<%= order.orderId %>', '<%= i %>')"
+    class="status-bg-red px-4 py-2 rounded-md border border-red-300
+           text-sm font-semibold text-red-700 uppercase hover:bg-red-100">
+        Return
+    </button>
+
+
+</div>
+
+<% } else { %>
+
+<div class="mb-3">
+    <div class="status-bg-faint px-4 py-2 rounded-md border border-purple-300">
+        <p class="text-sm font-semibold text-purple-700 uppercase">
+            Status: <%= val.itemStatus %>
+        </p>
+    </div>
+</div>
+
+<% } %>
+
 
         </div>
     </div>
@@ -156,7 +192,96 @@
 </div>
 
     </div>
+
+
+    <!-- RETURN MODAL -->
+<div id="returnModal" 
+     class="fixed inset-0 bg-black bg-opacity-40 hidden flex items-center justify-center z-50">
+  
+  <div class="bg-white p-6 rounded-lg w-80 shadow-lg">
+      <h3 class="text-lg font-semibold mb-3">Reason for Return</h3>
+
+      <textarea id="returnReason" 
+                class="w-full border rounded p-2 text-sm"
+                placeholder="Enter your reason..." 
+                rows="3"></textarea>
+
+      <div class="flex justify-end gap-3 mt-4">
+          <button onclick="closeReturnModal()"
+                  class="px-3 py-1 text-sm border rounded hover:bg-gray-100">
+              Cancel
+          </button>
+
+          <button id="submitReturnBtn"
+                  class="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700">
+              Submit
+          </button>
+      </div>
+  </div>
+</div>
+
   <%- include("../../view/partials/user/footer") %>
 
+  <script>
+   async function cancelOrder(orderId,newStatus){
+        const res = await fetch("/cancelorder", {
+        method: "put",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId, newStatus })
+    });
+    const data= await res.json()
+    if(data.success){
+        Swal.fire("Cancelled!", "Order cancelled", "success");
+    }else{
+        Swal.fire("Error", "Failed to update", "error");
+    }
+    }
+
+
+let selectedOrderId = null;
+let selectedProductIndex = null;
+
+function openReturnModal(orderId, index) {
+    selectedOrderId = orderId;
+    selectedProductIndex = index;
+    document.getElementById("returnModal").classList.remove("hidden");
+}
+
+function closeReturnModal() {
+    document.getElementById("returnModal").classList.add("hidden");
+    document.getElementById("returnReason").value = "";
+}
+
+document.getElementById("submitReturnBtn").addEventListener("click", async () => {
+    const reason = document.getElementById("returnReason").value.trim();
+
+    if (!reason) {
+        Swal.fire("Error", "Please enter a reason", "warning");
+        return;
+    }
+
+    const res = await fetch("/returnRequest", {
+        method: "put",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            orderId: selectedOrderId,
+            productIndex: selectedProductIndex,
+            reason,
+            newStatus: "Return Requested"
+        })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+        Swal.fire("Success!", "Return request submitted", "success")
+            .then(() => location.reload());
+    } else {
+        Swal.fire("Error", "Unable to process return", "error");
+    }
+
+    closeReturnModal();
+});
+  </script>
 </body>
 </html>
