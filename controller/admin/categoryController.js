@@ -1,6 +1,7 @@
 import { json } from 'express';
 import Category from '../../model/categorySchema.js';
 import {STATUS} from '../../utils/statusCode.js'
+import {logger} from '../../logger/logger.js'
 
 async function blockCategory(req,res) {
   try {

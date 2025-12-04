@@ -7,6 +7,7 @@ import { generateOtp, sendEmailVerification, securePassword } from '../../utils/
 import { json } from 'express';
 import bcrypt from 'bcrypt';
 import {STATUS} from '../../utils/statusCode.js'
+import {logger} from '../../logger/logger.js'
 
 dotenv.config();
 

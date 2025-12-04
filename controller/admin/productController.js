@@ -3,7 +3,7 @@ import Category from '../../model/categorySchema.js';
 import Brand from '../../model/brandSchema.js';
 import {STATUS} from '../../utils/statusCode.js'
 import { json } from 'stream/consumers';
-
+import {logger} from '../../logger/logger.js'
 
 
 async function dataForProductPage(req,res) {

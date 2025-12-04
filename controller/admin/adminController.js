@@ -1,6 +1,7 @@
 import User from '../../model/userSchema.js';
 import bcrypt from 'bcrypt';
 import {STATUS} from '../../utils/statusCode.js'
+import {logger} from '../../logger/logger.js'
 
 async function adminLogout(req, res) {
   try {

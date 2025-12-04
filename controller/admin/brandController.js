@@ -2,6 +2,7 @@ import Brand from '../../model/brandSchema.js';
 import {STATUS} from '../../utils/statusCode.js'
 import Product from '../../model/productSchema.js';
 import cloudinary from '../../config/cloudinary.js';
+import {logger} from '../../logger/logger.js'
 
 
 async function editBrand(req, res) {

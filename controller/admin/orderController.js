@@ -1,6 +1,7 @@
 import Order from "../../model/orderSchema.js"
 import {STATUS}  from "../../utils/statusCode.js"
 import {updateStatus} from "../../helpers/updateOrderStatus.js"
+import {logger} from '../../logger/logger.js'
 
 
 async function updateItemStatus(req,res) {

@@ -7,6 +7,7 @@ import Order from '../../model/orderSchema.js'
 import mongoose from "mongoose";
 import PDFDocument from "pdfkit";
 import {updateStatus} from "../../helpers/updateOrderStatus.js"
+import {logger} from '../../logger/logger.js'
 
 
 async function returnRequest(req,res) {
@@ -270,25 +271,59 @@ async function downloadInvoice(req, res) {
   }
 }
 
-async function loadOrderList(req,res) {
+async function loadOrderList(req, res) {
   try {
-    const userId= req.session.user._id
-    const orders= await Order.find({userId})
-    .populate({
-      path:"items.productId",
-      select:"productImage variants productName"
-    })
-    .sort({createdAt:-1}).lean()
-    console.log('orders',orders);
-    
-    res.render('orderList',{
-      user:req.session.user,
-      orders
-    })
+    res.render("orderList", { user: req.session.user });
   } catch (error) {
-    res.redirect('/pageNotFound')
+    res.redirect("/pageNotFound");
   }
 }
+
+
+
+async function loadOrderListData(req, res) {
+  try {
+    const userId = req.session.user._id;
+
+    let page = parseInt(req.query.page) || 1;
+    let limit = 5; 
+    let search = req.query.search || "";
+
+    let query = { userId };
+
+    if (search.trim() !== "") {
+      query.$or = [
+        { orderId: { $regex: search, $options: "i" } },
+        { "address.firstName": { $regex: search, $options: "i" } },
+        { "address.lastName": { $regex: search, $options: "i" } }
+      ];
+    }
+
+    const total = await Order.countDocuments(query);
+
+    const orders = await Order.find(query)
+      .populate({
+        path: "items.productId",
+        select: "productImage variants productName",
+      })
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .lean();
+
+    return res.json({
+      success: true,
+      orders,
+      totalPages: Math.ceil(total / limit),
+      currentPage: page,
+    });
+
+  } catch (err) {
+    console.log(err);
+    return res.json({ success: false });
+  }
+}
+
 
 
 async function loadOrderDetails(req,res) {
@@ -514,4 +549,4 @@ async function loadCheckout(req, res) {
 
 
 
-export {loadCheckout, placeOrder, orderSuccessPage, loadOrderFailed, loadOrderDetails, loadOrderList, downloadInvoice, cancelOrder, returnRequest}
+export {loadCheckout, placeOrder, orderSuccessPage, loadOrderFailed, loadOrderDetails, loadOrderList, loadOrderListData, downloadInvoice, cancelOrder, returnRequest}

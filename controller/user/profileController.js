@@ -8,6 +8,7 @@ import {generateOtp,sendEmailForgotPassword} from '../../utils/userUtils.js'
 import {STATUS} from '../../utils/statusCode.js'
 import Address from '../../model/addressSchema.js';
 dotenv.config();
+import {logger} from '../../logger/logger.js'
 
 
 

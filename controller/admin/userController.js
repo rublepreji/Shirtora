@@ -1,5 +1,6 @@
 import User from '../../model/userSchema.js';
 import {STATUS} from '../../utils/statusCode.js'
+import {logger} from '../../logger/logger.js'
 
 async function dataForUserPage(req,res) {
   try {
