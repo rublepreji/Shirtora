@@ -54,7 +54,6 @@ async function dataForProductPage(req,res) {
   }
 }
 
-
 async function blockProduct(req,res) {
   try {
     const id=req.body.id

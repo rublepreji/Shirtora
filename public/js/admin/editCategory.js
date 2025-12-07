@@ -58,11 +58,11 @@ form.addEventListener("submit", async (e) => {
 
     const result = await response.json();
 
-    if (!response.ok) {
+    if (!result.success) {
         Swal.fire({
         icon: "error",
         title: "Oops...",
-        text: result.error || "Something went wrong!",
+        text: result.message || "Something went wrong!",
         });
         return;
     }

@@ -72,10 +72,8 @@ async function downloadInvoice(req, res) {
 
     if (!order) return res.status(404).send("Order not found");
 
-    // --- SCOPE FIX: Initialize doc inside the try block ---
     doc = new PDFDocument({ margin: 50 });
 
-    // --- FINANCIAL ADJUSTMENTS (Set to 0 as requested) ---
     const itemTotal = parseFloat(order.totalAmount) || 0;
     const shippingCharge = 0.00; // Adjusted to 0
     const taxAndOthers = 0.00;   // Adjusted to 0
@@ -256,7 +254,6 @@ async function downloadInvoice(req, res) {
        .text("Thank you for your order!", pageMargin, doc.y, { align: 'center' });
 
 
-    // --- PDF CONTENT END & STREAM ---
    doc.end();
 
   } catch (error) {
@@ -397,7 +394,6 @@ async function placeOrder(req, res) {
     }
 
     await session.withTransaction(async () => {
-      // 1️⃣ Get cart inside transaction
       const cart = await Cart.findOne({ userId })
         .populate("items.productId")
         .session(session);
@@ -410,7 +406,6 @@ async function placeOrder(req, res) {
         return pro.productId.isBlocked==false
       })
 
-      // 2️⃣ Get address
       const addressDoc = await Address.findOne({ userId }).session(session);
       const selectedAddress = addressDoc.address[selectedAddressIndex];
 
@@ -418,13 +413,11 @@ async function placeOrder(req, res) {
         throw new Error("Invalid address selected");
       }
 
-      // 3️⃣ Calculate total
       let total = 0;
       for (const item of validItems) {
         total += item.totalPrice; // assuming already calculated in cart
       }
 
-      // 4️⃣ Check stock first
       for (const item of cart.items) {
         const product = item.productId;
         const variantIndex = item.variantIndex;
@@ -435,7 +428,6 @@ async function placeOrder(req, res) {
         }
       }
 
-      // 5️⃣ Deduct stock
       for (const item of cart.items) {
         const product = item.productId;
         const variantIndex = item.variantIndex;
@@ -445,10 +437,8 @@ async function placeOrder(req, res) {
         await product.save({ session });
       }
 
-      // 6️⃣ Create custom order id
       const customOrderId = `ORD-${Date.now().toString(36).toUpperCase()}`;
 
-      // 7️⃣ Create order
       const newOrder = await Order.create(
         [
           {
@@ -464,15 +454,12 @@ async function placeOrder(req, res) {
         { session }
       );
 
-      // 8️⃣ Clear cart
       await Cart.updateOne(
         { userId },
         { $set: { items: [] } },
         { session }
       );
 
-      // 9️⃣ After transaction block: redirect using saved orderId
-      // NOTE: newOrder is an array because of Order.create([...])
       res.redirect(`/ordersuccess/${newOrder[0].orderId}`);
     });
 

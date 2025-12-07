@@ -121,7 +121,7 @@
     <button class="px-4 py-2 text-sm font-medium border border-gray-500 text-black rounded-md hover:bg-gray-100 transition duration-150">
         Track Order
     </button>
-    <%if(order.status !=="Delivered"){%>
+    <%if(order.status !=="Delivered" && order.status !=="Cancelled"){%>
     <button onclick="cancelOrder('<%=order.orderId%>','Cancelled')" class="px-4 py-2 text-sm font-medium border border-red-500 text-red-500 rounded-md hover:bg-red-50 transition duration-150">
         Cancel Order
     </button>
@@ -224,18 +224,34 @@
 
   <script>
    async function cancelOrder(orderId,newStatus){
-        const res = await fetch("/cancelorder", {
-        method: "put",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderId, newStatus })
-    });
-    const data= await res.json()
-    if(data.success){
-        Swal.fire("Cancelled!", "Order cancelled", "success");
-    }else{
-        Swal.fire("Error", "Failed to update", "error");
+        return Swal.fire({
+        title: "Are you sure?",
+        text: "Do you want to cancel the order",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Proceed",
+        cancelButtonText: "Cancel",
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33"
+    }).then(async(arr) =>{
+        if(arr.isConfirmed){
+            const res = await fetch("/cancelorder", {
+            method: "put",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ orderId, newStatus })
+        });
+        const data= await res.json()
+        if(data.success){
+            Swal.fire("Cancelled!", "Order cancelled", "success").then(()=>window.location.reload());
+        }else{
+            Swal.fire("Error", "Failed to update", "error");
+        }
     }
-    }
+     
+});
+
+    
+}
 
 
 let selectedOrderId = null;
@@ -275,7 +291,7 @@ document.getElementById("submitReturnBtn").addEventListener("click", async () =>
 
     if (data.success) {
         Swal.fire("Success!", "Return request submitted", "success")
-            .then(() => location.reload());
+            .then(() => window.location.reload());
     } else {
         Swal.fire("Error", "Unable to process return", "error");
     }

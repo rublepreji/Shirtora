@@ -1,167 +1,208 @@
-async function removeImage(imageId, productId) {
-          console.log('remove btn pressed');
-          console.log(imageId,' ',productId);
-          
-          
-          const response = await fetch(`/admin/removeimg?imageid=${encodeURIComponent(imageId)}&productid=${productId}`, {
-            method: "delete",
-          });
-          const data = await response.json();
-          if (data.success){
-          Swal.fire({
-              icon: "success",
-              title: "Updated!",
-              text: data.message || "Image removed!",
-              showConfirmButton: false,
-              timer: 2000,
-            });
-            setTimeout(()=>window.location.reload(),1400)
-          } 
-          else{
-            Swal.fire({
-                icon: "error",
-                title: "Failed",
-                text: data.message || "Failed to remove image!",
-              });
-          }
-        }
-        
-        const form = document.getElementById("productForm");
-        const fileInputs = ["img1", "img2", "img3", "img4"];
-        const croppedImages = {};
+// =========================
+// VALIDATION HELPERS
+// =========================
+function showError(id, msg) {
+  const el = document.getElementById(id);
+  el.innerText = msg;
+  el.classList.remove("hidden");
+}
 
-        form.addEventListener("submit", async (e) => {
-          e.preventDefault();
+function hideError(id) {
+  document.getElementById(id).classList.add("hidden");
+}
 
-          // Collect values
-          const name = document.getElementById("productName").value.trim();
-          const desc = document.getElementById("description").value.trim();
-          const cat = document.getElementById("category").value.trim();
-          const brand = document.getElementById("brand").value.trim();
-          const color = document.getElementById("color").value.trim();
+// =========================
+// VALIDATION FUNCTION
+// =========================
+function validateForm() {
+  let valid = true;
 
-          const variants = [...document.querySelectorAll(".variant")].map((v) => ({
-            size: v.querySelector(".variant-size").value,
-            price: v.querySelector(".variant-price").value,
-            stock: v.querySelector(".variant-stock").value,
-          }));
+  const name = productName.value.trim();
+  const descText = description.value.trim();
+  const colorValue = color.value.trim();
+  const colorRegex = /^[A-Za-z\s]+$/;
 
-          // Prepare form data
-          const payload = {
-            productId: originalProduct.id,
-            productName: name,
-            description: desc,
-            category: cat,
-            brand: brand,
-            colour: color,
-            variants 
-          };
-          try{
-          const res = await fetch("/admin/editproduct", {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
-          });
-            const data = await res.json();
+  // Product Name
+  if (name.length < 3) {
+    showError("nameError", "Product name must be at least 3 characters.");
+    valid = false;
+  } else hideError("nameError");
 
-            if (data.success) {
-              Swal.fire({
-                icon: "success",
-                title: "Updated!",
-                text: data.message || "Product updated successfully!",
-                showConfirmButton: false,
-                timer: 2000,
-              });
-            } else {
-              Swal.fire({
-                icon: "error",
-                title: "Failed",
-                text: data.message || "Failed to update product!",
-              });
-            }
-          } catch (err) {
-            console.error("Error:", err);
-            Swal.fire({
-              icon: "error",
-              title: "Network error",
-              text: "Something went wrong while updating.",
-            });
-          }
-        });
-  let cropper;
-  const cropperModal = document.getElementById("cropperModal");
-  const cropperImage = document.getElementById("cropperImage");
-  const cropImageBtn = document.getElementById("cropImageBtn");
-  const closeCropper = document.getElementById("closeCropper");
-  let currentPreviewId = null;
+  // Description
+  if (descText.length < 10) {
+    showError("descError", "Description must be at least 10 characters.");
+    valid = false;
+  } else hideError("descError");
 
-  function handleImageBrowse(event, previewId, index) {
-    const file = event.target.files[0];
-    if (!file) return;
+  // Category
+  if (!category.value.trim()) {
+    showError("catError", "Please select a category.");
+    valid = false;
+  } else hideError("catError");
 
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      cropperImage.src = e.target.result;
-      cropperModal.classList.remove("hidden");
-      cropper = new Cropper(cropperImage, {
-        aspectRatio: 3 / 4,
-        viewMode: 1,
-      });
-      currentPreviewId = previewId;
-    };
-    reader.readAsDataURL(file);
+  // Brand
+  if (!brand.value.trim()) {
+    showError("brandError", "Please select a brand.");
+    valid = false;
+  } else hideError("brandError");
+
+  // Color
+  if (!colorRegex.test(colorValue)) {
+    showError("colorError", "Colour must contain only letters.");
+    valid = false;
+  } else hideError("colorError");
+
+  // Variants
+  const variants = document.querySelectorAll(".variant");
+
+  if (variants.length === 0) {
+    showError("variantError", "At least 1 variant is required.");
+    valid = false;
+  } else {
+    hideError("variantError");
+
+    variants.forEach((v, i) => {
+      const price = v.querySelector(".variant-price").value.trim();
+      const stock = v.querySelector(".variant-stock").value.trim();
+
+      if (price === "" || isNaN(price) || Number(price) < 0) {
+        showError("variantError", `Variant ${i + 1}: Price cannot be negative.`);
+        valid = false;
+      }
+
+      if (stock === "" || isNaN(stock) || Number(stock) < 0) {
+        showError("variantError", `Variant ${i + 1}: Stock cannot be negative.`);
+        valid = false;
+      }
+    });
   }
 
-  cropImageBtn.addEventListener("click", async () => {
-    if (!cropper) return;
+  return valid;
+}
 
-    cropper.getCroppedCanvas().toBlob(async (blob) => {
-      const preview = document.getElementById(currentPreviewId);
-      const url = URL.createObjectURL(blob);
-      preview.src = url;
+// =========================
+// FORM SUBMIT
+// =========================
+const form = document.getElementById("productForm");
 
-      const key = currentPreviewId.replace("Preview", "");
-      croppedImages[key] = blob;
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-      cropper.destroy();
-      cropper = null;
-      cropperModal.classList.add("hidden");
+  if (!validateForm()) return;
 
-    
-      try {
-        const formData = new FormData();
-        formData.append("productId", originalProduct.id);
-        formData.append("imageIndex", key.replace("img", "")); 
-        formData.append("image", blob, `${key}.jpg`);
+  const payload = {
+    productId: originalProduct.id,
+    productName: productName.value.trim(),
+    description: description.value.trim(),
+    category: category.value.trim(),
+    brand: brand.value.trim(),
+    colour: color.value.trim(),
+    variants: [...document.querySelectorAll(".variant")].map((v) => ({
+      size: v.querySelector(".variant-size").value,
+      price: v.querySelector(".variant-price").value,
+      stock: v.querySelector(".variant-stock").value,
+    })),
+  };
 
-        const res = await fetch("/admin/imagechanges", {
-          method: "put",
-          body:formData
-        });
+  try {
+    const res = await fetch("/admin/editproduct", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
 
-        const data = await res.json();
-        if (data.success) {
-          Swal.fire({
-            icon: "success",
-            title: "Image Updated",
-            text: data.message || "Product image updated successfully!",
-            showConfirmButton: false,
-            timer: 2000,
-          });
-        } else {
-          Swal.fire({
-            icon: "error",
-            title: "Image Update Failed",
-            text: data.message || "Unable to update image!",
-          });
-        }
-      } catch (err) {
-        console.error("Error updating image:", err);
-        Swal.fire({
-          icon: "error",
-          title: "Network Error",
-          text: "Something went wrong while updating the image.",
-        });
-      }
-    }, "image/jpeg");
+    const data = await res.json();
+
+    if (data.success) {
+      Swal.fire({
+        icon: "success",
+        title: "Updated!",
+        text: "Product updated successfully",
+        showConfirmButton: false,
+        timer: 2000,
+      });
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Failed",
+        text: data.message || "Update failed",
+      });
+    }
+  } catch (err) {
+    Swal.fire({
+      icon: "error",
+      title: "Network error",
+      text: "Something went wrong.",
+    });
+  }
+});
+
+
+
+// image cropper
+let cropper;
+const cropperModal = document.getElementById("cropperModal");
+const cropperImage = document.getElementById("cropperImage");
+const cropButton = document.getElementById("cropImageBtn");
+let currentPreviewId = null;
+
+window.handleImageBrowse = function (event, previewId) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    cropperImage.src = reader.result;
+    cropperModal.classList.remove("hidden");
+
+    cropper = new Cropper(cropperImage, {
+      aspectRatio: 3 / 4,
+      viewMode: 1,
+    });
+
+    currentPreviewId = previewId;
+  };
+  reader.readAsDataURL(file);
+};
+
+cropButton.addEventListener("click", () => {
+  if (!cropper) return;
+
+  cropper.getCroppedCanvas().toBlob(async (blob) => {
+    const preview = document.getElementById(currentPreviewId);
+    preview.src = URL.createObjectURL(blob);
+
+    const key = currentPreviewId.replace("Preview", "");
+
+    const formData = new FormData();
+    formData.append("productId", originalProduct.id);
+    formData.append("imageIndex", key.replace("img", ""));
+    formData.append("image", blob, `${key}.jpg`);
+
+    const res = await fetch("/admin/imagechanges", {
+      method: "PUT",
+      body: formData,
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      Swal.fire({
+        icon: "success",
+        title: "Image Updated",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Failed",
+        text: data.message,
+      });
+    }
+
+    cropper.destroy();
+    cropper = null;
+    cropperModal.classList.add("hidden");
   });
+});

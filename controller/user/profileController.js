@@ -1,5 +1,4 @@
 import User from '../../model/userSchema.js';
-import nodemailer from 'nodemailer';
 import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
 import session from 'express-session';
@@ -11,12 +10,24 @@ dotenv.config();
 import {logger} from '../../logger/logger.js'
 
 
+  async function updateUserProfile(req,res) {
+    try {
+      const userId= req.session.user._id
+      const user= await User.findOne({_id:userId})
+      res.render('updateUserDetails',user)
+    } catch (error) {
+      return res.redirect('/pageNotFound')
+    }
+  }
 
 
 async function updateDetails(req,res) {
   try {
+    console.log('inside updateDetails');
+    
     const data= req.body
     const userId= req.session.user._id
+    
     const updateFields={
       firstName:data.firstName,
       lastName:data.lastName,
@@ -28,15 +39,12 @@ async function updateDetails(req,res) {
     }
     const updateUser= await User.findByIdAndUpdate(userId,{$set:updateFields},{new:true})
     if(!updateUser){
-      req.flash('error','Not able to update user data')
-      return res.redirect('/userProfile')
+      return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Not able to update"})
     }
     req.session.user=updateUser
-    req.flash('success','User Profile updated successfully')
-    return res.redirect('/userProfile')
-  } catch (error) {
-    req.flash('error','Internal server error')
-    res.redirect('/userProfile')
+    return res.status(STATUS.OK).json({success:true ,message:"Updated successfully"})
+  } catch (error) { 
+    return res.status(STATUS.INTERNAL_SERVER_ERROR).json({success:false,message:"Internal from server error"})
   }
 }
 
@@ -499,4 +507,4 @@ async function loadForgotPassword(req, res) {
   }
 }
 
-export { loadForgotPassword, verifyEmail, verifyPassOtp, loadOTPpage, loadPasswordReset, resendOtps, resetPassword, loadAbout, loadContact, loadUserDetails, loadAddressBook, loadNewAddress, addNewAddress, loadEditAddress, editAddress, deleteAddress, loadChangeEmailOtp, verifyChangeEmailOtp, newEmail, setNewEmail, loadResetPass, resetPass, updateDetails};
+export { loadForgotPassword, verifyEmail, verifyPassOtp, loadOTPpage, loadPasswordReset, resendOtps, resetPassword, loadAbout, loadContact, loadUserDetails, loadAddressBook, loadNewAddress, addNewAddress, loadEditAddress, editAddress, deleteAddress, loadChangeEmailOtp, verifyChangeEmailOtp, newEmail, setNewEmail, loadResetPass, resetPass, updateDetails, updateUserProfile};

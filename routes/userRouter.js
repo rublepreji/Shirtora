@@ -1,6 +1,6 @@
 import express from 'express';
 import {loadHomePage,pageNotFound,loadSignin,signin,signup,verifyOtp,loadVerifyOtp,logout,loadSignup, resendOtp, viewProducts, filterProduct, productDetails} from '../controller/user/userController.js';
-import { loadForgotPassword, verifyEmail, verifyPassOtp, loadOTPpage, loadPasswordReset, resendOtps, resetPassword, loadAbout, loadContact, loadUserDetails, loadAddressBook, loadNewAddress, addNewAddress, loadEditAddress, editAddress, deleteAddress, loadChangeEmailOtp, verifyChangeEmailOtp, newEmail, setNewEmail, resetPass, loadResetPass, updateDetails} from '../controller/user/profileController.js';
+import { loadForgotPassword, verifyEmail, verifyPassOtp, loadOTPpage, loadPasswordReset, resendOtps, resetPassword, loadAbout, loadContact, loadUserDetails, loadAddressBook, loadNewAddress, addNewAddress, loadEditAddress, editAddress, deleteAddress, loadChangeEmailOtp, verifyChangeEmailOtp, newEmail, setNewEmail, resetPass, loadResetPass, updateDetails, updateUserProfile} from '../controller/user/profileController.js';
 import {loadCart, addToCart, removeFromCart ,updateCartQty} from '../controller/user/cartController.js'
 import passport from '../config/passport.js';
 import { adminAuth, userAuth,userIsLogged } from '../middlewares/auth.js';
@@ -69,7 +69,8 @@ router.get('/loadnewemail',userAuth,newEmail)
 router.post('/setnewemail',userAuth,setNewEmail)
 router.get('/resetpass',userAuth,loadResetPass)
 router.post('/resetpass',userAuth,resetPass)
-router.post('/updatedetails',userAuth,uploadTo('users').single('profileImage'),updateDetails)
+router.post('/updatedetails',userAuth,uploadTo('users').single('profileImg'),updateDetails)
+router.get('/updateuserprofile',userAuth,updateUserProfile)
 
 //Cart Management
 router.get('/cart',userAuth,loadCart)
@@ -96,6 +97,7 @@ router.get("/ordersData", userAuth, loadOrderListData);
 router.get('/downloadInvoice/:id',userAuth,downloadInvoice)
 router.put('/cancelorder',userAuth,cancelOrder)
 router.put('/returnRequest',userAuth,returnRequest)
+
 
 
 export default router;

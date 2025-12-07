@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update User Details</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        /* Optional: Hide the default file input, we use the button instead */
+        .hidden-input {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-lg bg-white p-8 rounded-xl shadow-2xl">
+        <h2 class="text-2xl font-bold mb-4 sm:mb-0">
+             Update Profile Details
+        </h2>
+
+        <form id="profile-form" enctype="multipart/form-data" novalidate>
+            
+            <div class="mb-8 flex flex-col items-center">
+                <label class="block text-sm font-medium text-gray-700 mb-3">Profile Image</label>
+                
+                <div class="relative w-32 h-32 mb-4 rounded-full overflow-hidden border-4 border-indigo-200 shadow-lg">
+                    <img id="imagePreview" 
+                         src="<%=user.profileImg%>" 
+                         alt="Profile Preview" 
+                         class="object-cover w-full h-full">
+                </div>
+                
+                <input type="file" name="profileImg" id="profile-image-upload" accept="image/*" class="hidden-input">
+                
+                <button type="button" 
+                        onclick="document.getElementById('profile-image-upload').click()"
+                        class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition duration-150 ease-in-out shadow-md">
+                    Change Image
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <div class="form-group">
+                    <label for="first-name" class="block text-sm font-medium text-gray-700">First Name</label>
+                    <input type="text" id="firstName" name="firstName" value="<%=user.firstName%>" 
+                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                </div>
+
+                <div class="form-group">
+                    <label for="last-name" class="block text-sm font-medium text-gray-700">Last Name</label>
+                    <input type="text" id="lastName" name="lastName" value="<%=user.lastName%>" 
+                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                </div>
+            </div>
+
+            <div class="form-group mt-6">
+                <label for="phone-number" class="block text-sm font-medium text-gray-700">Phone Number</label>
+                <input type="tel" id="phone" name="phone" value="<%=user.phone%>"
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            </div>
+
+            <div class="mt-8">
+                <button type="submit" 
+                        class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-lg font-semibold text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150 ease-in-out">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('profile-image-upload').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                // Check if the file is an image (optional, but good practice)
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        // Update the src attribute of the image tag
+                        document.getElementById('imagePreview').src = e.target.result;
+                    };
+                    
+                    // Read the file as a data URL (Base64 string)
+                    reader.readAsDataURL(file);
+                } else {
+                    alert('Please select a valid image file.');
+                    // Optionally clear the file input if it wasn't an image
+                    event.target.value = null; 
+                }
+            }
+        });
+
+        function validateForm() {
+    const firstName = document.getElementById("firstName").value.trim();
+    const lastName = document.getElementById("lastName").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const file = document.getElementById("profile-image-upload").files[0];
+
+    const nameRegex = /^[A-Za-z\s]{2,}$/;
+    const phoneRegex = /^[0-9]{10}$/;
+
+    // First Name Validation
+    if (!nameRegex.test(firstName)) {
+        Swal.fire({
+            icon: "error",
+            title: "Invalid First Name!",
+            text: "First name must have at least 2 letters and contain only alphabets.",
+        });
+        return false;
+    }
+
+    // Last Name Validation
+    if (!nameRegex.test(lastName)) {
+        Swal.fire({
+            icon: "error",
+            title: "Invalid Last Name!",
+            text: "Last name must have at least 2 letters and contain only alphabets.",
+        });
+        return false;
+    }
+
+    // Phone Validation
+    if (!phoneRegex.test(phone)) {
+        Swal.fire({
+            icon: "error",
+            title: "Invalid Phone Number!",
+            text: "Phone number must be exactly 10 digits.",
+        });
+        return false;
+    }
+
+    // Image validation (optional but useful)
+    if (file && !file.type.startsWith("image/")) {
+        Swal.fire({
+            icon: "error",
+            title: "Invalid Image!",
+            text: "Please upload a valid image file.",
+        });
+        return false;
+    }
+
+    return true;
+}
+
+        
+    document.getElementById("profile-form").addEventListener("submit", async function(e) {
+    e.preventDefault();
+
+    if (!validateForm()) return;
+
+    const formData = new FormData();
+    formData.append("firstName", document.getElementById("firstName").value);
+    formData.append("lastName", document.getElementById("lastName").value);
+    formData.append("phone", document.getElementById("phone").value);
+
+    const file = document.getElementById("profile-image-upload").files[0];
+    if (file) {
+        formData.append("profileImg", file);
+    }
+    try {
+        const response = await fetch("/updatedetails", {
+        method: "POST",
+        body: formData,
+    });
+    const data=await response.json()
+ if(data.success){
+    Swal.fire({
+        icon: "success",
+        title: "Success!",
+        text: data.message||"category updated successfully",
+        showConfirmButton: false,
+        timer: 1500
+    })
+ }else{
+    Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: data.message ||"something went wrong",
+        confirmButtonColor: "#d33"
+    });
+ }
+    } catch (error) {
+        Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: "Internal server error",
+        confirmButtonColor: "#d33"
+    });
+    }
+
+
+});
+
+    </script>
+
+</body>
+</html>

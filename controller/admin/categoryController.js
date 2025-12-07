@@ -1,5 +1,6 @@
 import { json } from 'express';
 import Category from '../../model/categorySchema.js';
+import Product from '../../model/productSchema.js';
 import {STATUS} from '../../utils/statusCode.js'
 import {logger} from '../../logger/logger.js'
 
@@ -83,7 +84,11 @@ async function editCategory(req, res) {
 
     const existCategory = await Category.findById(id);
     if (!existCategory) {
-      return res.status(STATUS.NOT_FOUND).json({ message: 'Category not found' });
+      return res.status(STATUS.NOT_FOUND).json({success:false, message: 'Category not found' });
+    }
+    const categoryWithSameName=await Category.findOne({name})
+    if(categoryWithSameName){
+      return res.status(STATUS.BAD_REQUEST).json({success:false, message:"This category already exist!"})
     }
 
     const updateCategory = await Category.findByIdAndUpdate(
@@ -93,12 +98,12 @@ async function editCategory(req, res) {
     );
 
     if (updateCategory) {
-      return res.status(STATUS.OK).json({ message: 'Category updated successfully' });
+      return res.status(STATUS.OK).json({success:true, message: 'Category updated successfully' });
     } else {
-      return res.status(STATUS.BAD_REQUEST).json({ error: 'Category cannot be updated' });
+      return res.status(STATUS.BAD_REQUEST).json({success:false, message: 'Category cannot be updated' });
     }
   } catch (error) {
-    return res.status(STATUS.INTERNAL_SERVER_ERROR).json({ error: 'Internal server error' });
+    return res.status(STATUS.INTERNAL_SERVER_ERROR).json({success:false, message: 'Internal server error' });
   }
 }
 

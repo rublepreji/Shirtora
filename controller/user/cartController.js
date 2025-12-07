@@ -37,7 +37,6 @@ async function addToCart(req, res) {
 
     const vIndex = Number(variantIndex);
 
-    // Check if item exists
     const existing = cart.items.find(
       item => item.productId.toString() === productId && item.variantIndex === vIndex
     );
@@ -73,13 +72,11 @@ async function addToCart(req, res) {
       });
     }
 
-    // Remove from wishlist
     await User.updateOne(
       { _id: userId },
       { $pull: { wishlist: productId } }
     );
 
-    // SAVE CART (No grandTotal stored here)
     await cart.save();
 
     return res.status(200).json({
@@ -92,9 +89,6 @@ async function addToCart(req, res) {
     return res.status(500).json({ success: false, message: "Internal server error" });
   }
 }
-
-
-
 
 const updateCartQty = async (req, res) => {
     try {
@@ -131,7 +125,6 @@ const updateCartQty = async (req, res) => {
             });
         }
         
-
         item.quantity = qty;
         item.totalPrice = qty * product.variants[variantIndex].price;
 
@@ -178,7 +171,6 @@ async function removeFromCart(req, res) {
       .sort({ createdAt: -1 })
       .lean();
 
-    // If cart is empty
     if (!cart || cart.items.length === 0) {
       return res.render("cart", { 
         products: [], 
@@ -187,7 +179,6 @@ async function removeFromCart(req, res) {
       });
     }
 
-    // Build product list & skip blocked ones
     const products = [];
 
     for (let item of cart.items) {
@@ -197,13 +188,12 @@ async function removeFromCart(req, res) {
       const variant = p.variants[item.variantIndex];
       if (!variant) continue;
 
-      // Check if the product OR brand OR category is blocked
       const isBlocked =
         p.isBlocked === true ||
         p?.brand?.isBlocked === true ||
         p?.category?.isBlocked === true;
 
-      if (isBlocked) continue;  // 🚀 skip blocked items completely
+      if (isBlocked) continue;  
 
       const totalPrice = variant.price * item.quantity;
 
@@ -219,10 +209,8 @@ async function removeFromCart(req, res) {
       });
     }
 
-    // 🧮 Calculate grandTotal from valid products only
     const grandTotal = products.reduce((sum, item) => sum + item.totalPrice, 0);
 
-    // Render the cart page
     return res.render("cart", {
       products,
       user: req.session.user,

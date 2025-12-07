@@ -197,14 +197,7 @@
         onchange="handleImageBrowse(event, 'img<%=i+1%>Preview', '<%=i+1%>')"
       />
 
-      <!-- Remove Button -->
-      <button
-        type="button"
-        class="absolute top-1 right-1 bg-red-500 text-white rounded-full text-xs w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
-        onclick="removeImage('<%=product.productImage[i]%>','<%=product._id%>')"
-      >
-        ×
-      </button>
+  
     </div>
     <% } %>
   </div>
@@ -243,7 +236,7 @@
       <script>
           const originalProduct = {
           id: "<%= product._id %>",
-            _productImage: <%- JSON.stringify(product.productImage) %> ,
+            _productImage: '<%- JSON.stringify(product.productImage) %>' ,
           get productImage() {
               return this._productImage;
           },
