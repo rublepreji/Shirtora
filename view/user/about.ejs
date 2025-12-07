@@ -9,36 +9,30 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #ffffff; /* Consistent white background */
+            background-color: #ffffff; 
             min-height: 100vh;
         }
-        /* Custom gradient for the dark metric cards */
         .dark-card-bg {
             background: linear-gradient(145deg, #1f1f1f 0%, #000000 100%);
         }
-        /* Custom gradient border effect for the white metric cards */
         .light-card-border {
             border: 1px solid transparent;
             background: linear-gradient(white, white) padding-box,
                         linear-gradient(to right, #ffffff, #e0e0e0) border-box;
-            border-radius: 0.5rem; /* rounded-lg */
+            border-radius: 0.5rem; 
         }
-        /* Text color for the light cards */
         .light-card-text {
             color: #333;
         }
-        /* Icon styling for service guarantees */
         .service-icon {
-            color: #1f1f1f; /* Dark color for icons */
+            color: #1f1f1f; 
             transition: transform 0.2s;
         }
         .service-card:hover .service-icon {
             transform: scale(1.1);
         }
     </style>
-    <!-- Placeholder SVG for Icons (for the lock/moneybag/etc icons) -->
     <script>
-        // Simple SVG generator function for the icons (using Lucide style placeholders)
         function getIcon(name, size = 24) {
             const icons = {
                 lock: `<path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 15a1 1 0 1 1 1-1 1 1 0 0 1-1 1zm4-6h-3V7a1 1 0 0 0-2 0v4H8a1 1 0 0 0 0 2h8a1 1 0 0 0 0-2z"/>`,

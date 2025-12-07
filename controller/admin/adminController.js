@@ -9,13 +9,13 @@ async function adminLogout(req, res) {
 
     req.session.destroy((err) => {
       if (err) {
-        console.log('Error occur during logout (Session destroy)');
+        logger.error('Error occur during logout (Session destroy)');
         return res.redirect('/admin/pageError');
       }
       return res.redirect('/admin/login');
     });
   } catch (error) {
-    console.log('Unexpected error in logout');
+    logger.error('Unexpected error in logout');
     res.redirect('/admin/pageError');
   }
 }
@@ -53,7 +53,7 @@ async function login(req, res) {
       if (passwordMatch) {
         req.session.admin = true;
         return res.redirect('/admin');
-      } else {
+      } else {  
         console.log('Password do not match');
         return res.redirect('/admin/login');
       }

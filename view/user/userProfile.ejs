@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>My Account</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
   <style>
     .profile-img-container {
       /* Subtle shadow for depth */
@@ -39,8 +39,8 @@
                 <%}%>
               </div>
               <input type="file" value="<%=user.profileImg%>" id="profile-upload-visible" class="hidden" accept="image/*" />
-              <label for="profile-upload-visible" class="cursor-pointer text-xs mt-2 text-blue-600 hover:text-blue-800 transition duration-150 ease-in-out block">
-                Change Picture
+              <label class="text-xs mt-2 text-600">
+                User Profile
               </label>
             </div>
             
@@ -109,52 +109,9 @@
       </div>
     </main>
   </div>
-<script>
+<script src="/js/user/userProfile.js">
  
-    const profileUploadVisible = document.getElementById('profile-upload-visible');
-    const profileUploadSubmit = document.getElementById('profile-upload-submit');
-    const profileImageContainer = document.querySelector('.profile-img-container');
-
-    profileUploadVisible.addEventListener('change', function(event) {
-        const file = event.target.files[0];
-
-        if (file) {
-            // 1. Show Preview
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                profileImageContainer.innerHTML = ''; 
-                const img = document.createElement('img');
-                img.src = e.target.result;
-                img.alt = 'Profile Picture Preview';
-                img.className = 'w-full h-full object-cover';
-                profileImageContainer.appendChild(img);
-            }
-            reader.readAsDataURL(file);
-
-            profileUploadSubmit.files = event.target.files;
-
-        } else {
-            profileUploadSubmit.files = null; 
-        }
-    });
-
-    // SweetAlerts
-    const flashError= "<%=messages.error || ''%>"
-    if(flashError){
-        Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: flashError,
-        });
-    }
-    const flashSuccess= "<%=messages.success || ''%>"
-    if(flashSuccess){
-        Swal.fire({
-        icon: "success",
-        title: "Success",
-        text: flashSuccess,
-        });
-    }
+   
 </script>
 </body>
 <%-include("../../view/partials/user/footer")%>
