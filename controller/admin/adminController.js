@@ -1,7 +1,6 @@
-import User from '../../model/userSchema.js';
-import bcrypt from 'bcrypt';
 import {STATUS} from '../../utils/statusCode.js'
 import {logger} from '../../logger/logger.js'
+import adminService from '../../services/adminService/adminService.js'
 
 async function adminLogout(req, res) {
   try {
@@ -46,10 +45,10 @@ async function login(req, res) {
     const { email, password } = req.body;
     console.log(email + ' ' + password);
 
-    const admin = await User.findOne({ email: email, isAdmin: true });
+    const admin = await adminService.findAdminByEmail(email)
 
     if (admin) {
-      const passwordMatch = await bcrypt.compare(password, admin.password);
+      const passwordMatch = await adminService.verifyPassword(password,admin.password);
       if (passwordMatch) {
         req.session.admin = true;
         return res.redirect('/admin');

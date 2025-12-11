@@ -28,7 +28,6 @@
     
 }
 
-
 let selectedOrderId = null;
 let selectedProductIndex = null;
 

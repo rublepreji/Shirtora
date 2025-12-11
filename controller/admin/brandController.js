@@ -1,16 +1,13 @@
 import Brand from '../../model/brandSchema.js';
 import {STATUS} from '../../utils/statusCode.js'
-import Product from '../../model/productSchema.js';
-import cloudinary from '../../config/cloudinary.js';
-import {logger} from '../../logger/logger.js'
+import BrandService from '../../services/adminService/brandService.js';
 
 
 async function editBrand(req, res) {
   try {
     const { id, name, description } = req.body;
-    console.log(id, ' ', name, ' ', description);
 
-    const brand = await Brand.findById(id);
+    const brand = await BrandService.findBrandById(id)
     if (!brand) {
       return res.status(STATUS.NOT_FOUND).json({success:false, message: 'Brand not found' });
     }
@@ -20,11 +17,7 @@ async function editBrand(req, res) {
       imageUrl = req.file.path;
     }
 
-    const updateBrand = await Brand.findByIdAndUpdate(
-      id,
-      { brandName: name, description: description, brandImage: imageUrl },
-      { new: true }
-    );
+    const updateBrand = await BrandService.findBrandByIdandUpdate(id,name,description,imageUrl)
 
     if (updateBrand) {
       return res.status(STATUS.OK).json({success:true, message: 'Brand updated successfully' });
@@ -40,7 +33,7 @@ async function editBrand(req, res) {
 async function loadEditBrand(req, res) {
   try {
     const id = req.params.id;
-    const brand = await Brand.findOne({ _id: id });
+    const brand = await BrandService.findBrandById(id);
     return res.render('editBrand', { data: brand });
   } catch (error) {
     return res.status(STATUS.INTERNAL_SERVER_ERROR).json({ message: 'Internal server error' });
@@ -54,7 +47,7 @@ async function blockBrand(req, res) {
     if (!id) {
       return res.status(STATUS.NOT_FOUND).json({ success: false, message: 'Brand not found' });
     }
-    await Brand.updateOne({ _id: id }, { $set: { isBlocked: true } });
+    await BrandService.blockUnblockBrand(id, true)
     return res.status(STATUS.OK).json({ success: true, message: 'Brand has been blocked!' });
   } catch (error) {
     return res.status(STATUS.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Internal server error' });
@@ -68,7 +61,7 @@ async function unBlockBrand(req, res) {
     if (!id) {
       return res.status(STATUS.NOT_FOUND).json({ success: false, message: 'Brand not found' });
     }
-    await Brand.updateOne({ _id: id }, { $set: { isBlocked: false } });
+    await BrandService.blockUnblockBrand(id,false)
     return res.status(STATUS.OK).json({ success: true, message: 'Brand has been unBlocked' });
   } catch (error) {
     res.status(STATUS.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Internal server error' });
@@ -86,30 +79,19 @@ async function loadBrandPage(req, res) {
 async function dataForBrandPage(req, res) {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = 4;
-    const skip = (page - 1) * limit;
+    const limit = 4;  
     const search = req.query.search || '';
-    const query = {
-      brandName: { $regex:search,$options:"i"}
-    };
-
-    const brandData = await Brand.find(query)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit);
-
-    const totalBrand = await Brand.countDocuments(query);
-    const totalPages = Math.ceil(totalBrand / limit);
+    const result= await BrandService.getBrandList(page,limit,search)
 
     return res.json({
       status: true,
-      data: brandData,
+      data: result.brandData,
       currentPage: page,
-      totalBrand,
-      totalPages
+      totalBrand:result.totalBrand,
+      totalPages:result.totalPages
     });
   } catch (error) {
-    console.log('error', error);
+    logger.error('error', error);
     return res.redirect('/admin/pageError');
   }
 }
@@ -134,19 +116,14 @@ async function addBrand(req, res) {
 
     console.log(req.file);
 
-    const brand = await Brand.findOne({ brandName:{ $regex: new RegExp(`^${name}$`, "i") }});
+    const brand = await BrandService.findBrand(name)
     if (brand) {
       return res.status(STATUS.BAD_REQUEST).json({ message: 'Brand already exist' });
     }
 
     const imageUrl = req.file.path;
-    const newBrand = new Brand({
-      brandName: name,
-      description: description,
-      brandImage: imageUrl
-    });
+    await BrandService.createBrand(name,description,imageUrl)
 
-    await newBrand.save();
     return res.status(STATUS.OK).json({ message: 'Brand added successfully' });
   } catch (error) {
     console.log('Error on uploading brand');

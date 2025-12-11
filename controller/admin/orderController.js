@@ -2,33 +2,21 @@ import Order from "../../model/orderSchema.js"
 import {STATUS}  from "../../utils/statusCode.js"
 import {updateStatus} from "../../helpers/updateOrderStatus.js"
 import {logger} from '../../logger/logger.js'
+import orderService from '../../services/adminService/orderService.js'
 
 
 async function updateItemStatus(req,res) {
-  try {
-    console.log('Inside the updateItemstatus');
-    
+  try {    
     const { orderId, itemIndex, newStatus } = req.body;
 
-    await Order.updateOne(
-      { _id: orderId },
-      { $set: { [`items.${itemIndex}.itemStatus`]: newStatus } }
-    ); 
-    const order= await Order.findOne({_id:orderId}).populate("items.productId")
-    const item = order.items[itemIndex]
+    const {item}= await orderService.updateItemStatus(orderId,itemIndex,newStatus)
 
-    if(newStatus =="Return-Approved"){
-        const product=item.productId
-        const variantIndex= item.variantIndex
+    await orderService.updateStockIfRetured(item,newStatus)
 
-        product.variants[variantIndex].stock+=item.quantity
-        await product.save()
-    }
-
-  res.status(STATUS.OK).json({ success: true });
+    return res.status(STATUS.OK).json({ success: true });
   } catch (error) {
-    console.log("Update item status error:", error);
-    res.status(STATUS.INTERNAL_SERVER_ERROR).json({ success: false });
+    logger.error("Update item status error:", error);
+    return res.status(STATUS.INTERNAL_SERVER_ERROR).json({ success: false });
   }
 }
 
@@ -41,24 +29,16 @@ async function updateItemStatus(req,res) {
       return res.json({ success: false, message: "Invalid data" });
     }
 
-    const order = await Order.findById(orderId).populate("items.productId");
+    const order = await orderService.findOrderWithproductDetails(orderId)
 
     if (!order) {
       return res.json({ success: false, message: "Order not found" });
     }
-
-    order.items[itemIndex].itemStatus = newStatus;
-
-    await order.save();
+    await orderService.updateReturnStatus(order,itemIndex,newStatus)
+    
     const item=order.items[itemIndex]
 
-    if(newStatus=="Return-Approved"){
-        const product= item.productId
-        const variantIndex= item.variantIndex
-
-        product.variants[variantIndex].stock+=item.quantity
-        await product.save()
-    }
+    await orderService.updateStockIfReturnApproved(item, newStatus)
     return res.json({ success: true });
   } catch (err) {
     return res.json({ success: false, message: "Server error" });
@@ -67,7 +47,7 @@ async function updateItemStatus(req,res) {
 
 
 async function updateOrderStatus(req,res) {
- try {
+ try {    
     const { orderId, newStatus } = req.body;
     const result =await updateStatus(orderId, newStatus)
     if(result){
@@ -85,10 +65,7 @@ async function updateOrderStatus(req,res) {
 async function loadOrderDetails(req,res) {
     try {
         const orderId= req.params.id
-        const order= await Order.findById(orderId)
-        .populate({
-            path:"items.productId"
-        })          
+        const order= await orderService.findOrderWithproductDetails(orderId)
         return res.render('adminOrderDetails',{order})
     } catch (error) {
         return res.redirect('/pageNotFound')
@@ -106,42 +83,19 @@ async function loadOrderList(req,res) {
 async function dataForOrderList(req,res) {
     try {
         let page = parseInt(req.query.page) || 1;
-        let limit = 8;
-
         let search = req.query.search || "";
         let status = req.query.status || "";
-
-        let query = {};
-
-        if (search.trim() !== "") {
-            query.$or = [
-                { orderId: { $regex: search, $options: "i" } },
-                { "address.firstName": { $regex: search, $options: "i" } },
-                { "address.lastName": { $regex: search, $options: "i" } },
-            ];
-        }
-
-        if (status !== "") {
-            query.status = status;
-        }
-
-        const totalOrder = await Order.countDocuments(query);
-
-        const orders = await Order.find(query)
-            .populate("items.productId")
-            .sort({ createdAt: -1 })
-            .skip((page - 1) * limit)
-            .limit(limit);
+        const result=await orderService.listOrders(page,search,status)
 
         return res.status(200).json({
             success: true,
-            orders,
-            totalPages: Math.ceil(totalOrder / limit),
+            orders:result.orders,
+            totalPages: result.totalPages,
             currentPage: page
         });
 
     } catch (error) {
-        console.log(error);
+        logger.error(error);
         return res.redirect("/pageNotFound");
     }
 }

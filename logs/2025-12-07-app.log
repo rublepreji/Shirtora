@@ -1,0 +1,30 @@
+2025-12-07 20:18:05 [INFO] insider updateorderstatus
+2025-12-07 20:18:05 [INFO] true
+2025-12-07 20:21:07 [INFO] insider updateorderstatus
+2025-12-07 20:21:07 [INFO] false
+2025-12-07 20:21:14 [INFO] insider updateorderstatus
+2025-12-07 20:21:14 [INFO] false
+2025-12-07 20:21:36 [INFO] insider updateorderstatus
+2025-12-07 20:21:36 [INFO] true
+2025-12-07 20:22:55 [INFO] insider updateorderstatus
+2025-12-07 20:22:55 [INFO] true
+2025-12-07 20:23:02 [INFO] insider updateorderstatus
+2025-12-07 20:23:02 [INFO] true
+2025-12-07 20:27:05 [INFO] insider updateorderstatus
+2025-12-07 20:27:05 [INFO] true
+2025-12-07 20:27:45 [INFO] insider updateorderstatus
+2025-12-07 20:27:45 [INFO] true
+2025-12-07 20:27:49 [INFO] insider updateorderstatus
+2025-12-07 20:27:49 [INFO] true
+2025-12-07 20:29:25 [INFO] insider updateorderstatus
+2025-12-07 20:29:25 [INFO] true
+2025-12-07 20:45:45 [INFO] insider updateorderstatus
+2025-12-07 20:45:45 [INFO] <%= order.orderId %>
+2025-12-07 20:45:45 [INFO] true
+2025-12-07 20:46:47 [INFO] insider updateorderstatus
+2025-12-07 20:46:47 [INFO] <%= order.orderId %>
+2025-12-07 20:46:47 [INFO] true
+2025-12-07 20:47:40 [INFO] insider updateorderstatus
+2025-12-07 20:47:40 [INFO] true
+2025-12-07 20:53:43 [INFO] insider updateorderstatus
+2025-12-07 20:53:43 [INFO] true

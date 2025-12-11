@@ -1,22 +1,3 @@
-document.querySelector(".update-status-btn").addEventListener("click", async () => {
-    const selectedStatus = document.querySelector("select[name='status']").value;
-    const orderId = "<%= order.orderId %>";
-
-    const res = await fetch("/admin/updateOrderStatus", {
-        method: "put",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderId, newStatus: selectedStatus })
-    });
-
-    const data = await res.json();
-
-    if (data.success) {
-        Swal.fire("Updated!", "Order status changed successfully", "success");
-    } else {
-        Swal.fire("Error", "Failed to update", "error");
-    }
-});
-
 
 async function saveProductStatus(orderId, itemIndex) {
     const newStatus = document.getElementById(`productStatus-${itemIndex}`).value;

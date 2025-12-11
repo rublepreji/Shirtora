@@ -1,14 +1,15 @@
 import { json } from 'express';
 import Category from '../../model/categorySchema.js';
-import Product from '../../model/productSchema.js';
 import {STATUS} from '../../utils/statusCode.js'
 import {logger} from '../../logger/logger.js'
+import categoryService from '../../services/adminService/categoryService.js'
+
 
 async function blockCategory(req,res) {
   try {
     const id= req.body.id
     if(id){
-      await Category.findByIdAndUpdate(id,{isBlocked:true})
+      await categoryService.blockAndUnblockCategory(id,true)
       return res.status(STATUS.OK).json({success:true,message:"Category blocked"})
     }else{
       return res.status(STATUS.BAD_REQUEST),json({success:false,message:"Category Id cannot find"})
@@ -22,7 +23,7 @@ async function unblockCategory(req,res) {
   try {
     const id= req.body.id
     if(id){
-      await Category.findByIdAndUpdate(id,{isBlocked:false},{new:true})
+      await categoryService.blockAndUnblockCategory(id,false)
       return res.status(STATUS.OK).json({success:true,message:"Category Unblocked"})
     }
     else{
@@ -36,45 +37,17 @@ async function unblockCategory(req,res) {
 async function dataForCategory(req,res) {
   try {
     const page= parseInt(req.query.page) || 1
-    const limit=4
-    const skip= (page-1)*limit
     const search= req.query.search || ""
-
-    const query={
-      name:{$regex:search,$options:"i"}
-    }
-
-    const CategoryData=await Category.find(query)
-    .sort({createdAt:-1})
-    .skip(skip)
-    .limit(limit)
-
-    const totalCategory= await Category.countDocuments(query)
-    const totalPages= Math.ceil(totalCategory/limit)
+    const result =await categoryService.getCategoryList(page,search)
 
     res.status(STATUS.OK).json({
       success:true,
-      data:CategoryData,
-      totalPages,
+      data:result.categoryData,
+      totalPages:result.totalPages,
       currentPage:page
     })
   } catch (error) {
     res.status(500).json({success:false,message:"Internal server error"})
-  }
-}
-
-async function deleteCategory(req, res) {
-  try {
-    const id = req.params.id;
-
-    if (!id) {
-      return res.status(400).json({ message: 'Category not found' });
-    }
-
-    await Category.findByIdAndUpdate(id, { isDeleted: true });
-    return res.status(STATUS.OK).json({ message: 'Category deleted successfully' });
-  } catch (error) {
-    return res.status(STATUS.INTERNAL_SERVER_ERROR).json({ message: 'Internal server error' });
   }
 }
 
@@ -149,19 +122,12 @@ async function addCategory(req, res) {
     const { name, description } = req.body;
     console.log(name,' ',description);
     
-    const categoryExist = await Category.findOne({ name: { $regex: new RegExp(`^${name}$`, "i") }});
+    const categoryExist = await categoryService.findCategory(name)
     
     if (categoryExist) {
       return res.status(400).json({success:false, message: 'Category already exist' });
     }
-
-    const newCategory = new Category({
-      name,
-      description
-    });
-
-    await newCategory.save();
-    console.log(name + ' ' + description);
+    await categoryService.createCategory(name,description)
     return res.status(200).json({success:true, message: 'Category added successfully' });
   } catch (error) {
     return res.status(500).json({success:false, message: 'Internal server error' });
@@ -180,7 +146,6 @@ export {
   categoryInfo,
   loadAddCategory,
   addCategory,
-  deleteCategory,
   loadEditCategory,
   editCategory,
   dataForCategory,

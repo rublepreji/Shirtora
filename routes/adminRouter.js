@@ -17,7 +17,6 @@ import {
     categoryInfo,
     loadAddCategory,
     addCategory,
-    deleteCategory,
     loadEditCategory,
     editCategory,
     dataForCategory,
@@ -80,7 +79,6 @@ router.get('/dataForuserpage',dataForUserPage)
 router.get('/category', adminAuth,categoryInfo);
 router.get('/addcategory',adminAuth, loadAddCategory);
 router.post('/addcategory',adminAuth ,addCategory);
-// router.post('/deleteCategory/:id',adminAuth, deleteCategory);
 router.get('/editcategory/:id', adminAuth,loadEditCategory);
 router.post('/postEditCategory',adminAuth, editCategory);
 router.get('/dataforcategory',dataForCategory)

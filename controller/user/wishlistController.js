@@ -2,24 +2,20 @@ import User from "../../model/userSchema.js";
 import Product from "../../model/productSchema.js";
 import {STATUS} from '../../utils/statusCode.js'
 import {logger} from '../../logger/logger.js'
-
+import wishListService from "../../services/userService/wishListService.js";
 
 
 async function removeFromWishlist(req,res) {
     try {
-        const productId= req.params.id
-        console.log(productId);
-        
-        const userId= req.session.user._id
-        if (!req.session.user || !req.session.user._id) {
-        return res.status(STATUS.UNAUTHORIZED).json({ success: false, message: "User not authenticated." });
+        const productId= req.params.id        
+        const userId= req.session.user?._id
+        const result=await wishListService.removeFromWishlistService(productId,userId)
+        if(!result.success){
+            return res.status(STATUS.BAD_REQUEST).json(result.message)
         }
-        const result= await User.updateOne({_id:userId},{$pull:{wishlist:productId}})
-        if(result.modifiedCount==0){
-            return res.status(STATUS.NOT_FOUND).json({ success: false, message: "Product not found in wishlist." });
-        }
-        return res.status(STATUS.OK).json({success:true,message:"Product removed from wishlist"})
+        return res.status(STATUS.OK).json(result.message)
     } catch (error) {
+        logger.error('Remove wishlist error',error)
         return res.status(STATUS.INTERNAL_SERVER_ERROR).json({success:false,message:"Internal server error"})
     }
 }
@@ -28,15 +24,20 @@ async function removeFromWishlist(req,res) {
 async function addToWishlist(req,res) {
     try {        
         const productId= req.params.id
-        const userId= req.session.user._id
-        const user= await User.findById(userId)
-        if(user.wishlist.includes(productId)){
-            return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Product already in wishlist"})
+        const userId= req.session.user?._id
+        if(!userId){
+            return res.status(STATUS.UNAUTHORIZED).json({success:false,message:"User not authenticated"})
         }
-        user.wishlist.push(productId)
-        await user.save()
-        return res.status(STATUS.OK).json({success:true,message:"Product added to wishlist"})
+        if(!productId){
+            return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Product is required"})
+        }
+        const result= await wishListService.addToWishlistService(productId,userId)
+        if(!result.success){
+            return res.status(STATUS.BAD_REQUEST).json({success:false,message:result.message})
+        }
+        return res.status(STATUS.OK).json({success:true,message:result.message})
     } catch (error) {
+        logger.error('Add wishlist error', error)
         return res.status(STATUS.INTERNAL_SERVER_ERROR).json({success:false,message:"Internal server error"})
     }
 }

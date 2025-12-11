@@ -4,49 +4,22 @@ import Brand from '../../model/brandSchema.js';
 import {STATUS} from '../../utils/statusCode.js'
 import { json } from 'stream/consumers';
 import {logger} from '../../logger/logger.js'
+import ProductService from '../../services/adminService/productService.js'
+import productService from '../../services/adminService/productService.js';
 
 
 async function dataForProductPage(req,res) {
   try {    
     const page= parseInt(req.query.page) || 1
-    const limit=3
-    const skip= (page-1)*limit
     const search= req.query.search ||""
-    let query={}
 
-    if(search){
-      const categories= await Category.find({
-        name:{$regex:search,$options:"i"}
-      }).select("_id")
-
-      const brands= await Brand.find({
-        brandName:{$regex:search,$options:"i"}
-      }).select("_id")
-
-      query={
-        $or:[
-          {productName:{$regex:search,$options:"i"}},
-          {category:{$in:categories.map(cat=>cat._id)}},
-          {brand:{$in:brands.map(brand=>brand._id)}}
-        ]
-      }
-    }
-    
-    const productData=await Product.find(query)
-    .populate("category","name")
-    .populate("brand","brandName")
-    .sort({createdAt:-1})
-    .skip(skip)
-    .limit(limit)
-
-    const totalProduct= await Product.countDocuments(query)
-    const totalpages= Math.ceil(totalProduct/limit)
+    const result=await ProductService.listProduct(page,search)
 
     res.status(STATUS.OK).json({
       success:true,
-      data:productData,
-      totalProduct,
-      totalpages,
+      data:result.productData,
+      totalProduct:result.totalProduct,
+      totalpages:result.totalpages,
       currentPage:page,
     })
   } catch (error) {
@@ -58,7 +31,7 @@ async function blockProduct(req,res) {
   try {
     const id=req.body.id
     if(id){
-      await Product.findByIdAndUpdate(id,{isBlocked:true},{new:true})
+      await productService.blockUnblockProduct(id,true)
       return res.status(STATUS.OK).json({success:true,message:"Product blocked successfully"})
     }
     else{
@@ -73,7 +46,7 @@ async function unblockProduct(req,res) {
   try {
     const id = req.body.id
     if(id){
-    await Product.findByIdAndUpdate(id,{isBlocked:false},{new:true})   
+    await productService.blockUnblockProduct(id,false)   
     return res.status(STATUS.OK).json({success:true,message:"Product unblocked successfully"})
     } 
     else{
@@ -93,14 +66,13 @@ async function imageChanges(req,res) {
     if(!productId || !imageIndex || !image){
       return res.status(STATUS.NOT_FOUND).json({success:true,message:"Missing datas"})
     }
-    const updateImage= await Product.findByIdAndUpdate(productId,{$set:{[`productImage.${imageIndex-1}`]:image.path}},{new:true})
+    const updateImage= await productService.productImageChange(productId,imageIndex,image)
     if(updateImage){
       return res.status(STATUS.OK).json({success:true,message:"Image updated!"})
     }
     else{
       return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Not able to update"})
     }
-    
   } catch (error) {
     return res.status(STATUS.INTERNAL_SERVER_ERROR).json({success:false,message:"Internal server error"})
   }
@@ -109,7 +81,7 @@ async function imageChanges(req,res) {
 async function removeImage(req,res) {
   try {
     const {imageid,productid}= req.query
-    const image= await Product.findByIdAndUpdate(productid,{$pull:{productImage:imageid }},{new:true})
+    const image= await productService.removeImage(imageid,productid)
     if(!imageid || !productid){
       return res.status(STATUS.NOT_FOUND).json({success:false,message:"No Image"})
     }
@@ -126,101 +98,71 @@ async function removeImage(req,res) {
 
 async function editproduct(req,res) {
   try {    
-    const {productId,productName,description,category,brand,colour,variants}= req.body
-    console.log('editproduct',req.body);
-    let vari= req.body.variants
-    console.log('type checking',typeof(vari));
-    
-    const existingProduct= await Product.findOne({productName:productName,_id:{$ne:productId}})
+    const {productId,productName,description,category,brand,colour,variants}= req.body    
+    const existingProduct= await productService.findExistingProduct(productName,productId)
     
     if(existingProduct){
       return res.status(STATUS.UNAUTHORIZED).json({success:false,message:"Product with this name already exists .Please try with another name"})
     }
-    const updateFields={
-      productName,
-      description,
-      category,
-      brand,
-      colour,
-      variants:variants
-    }
-    const updated=await Product.findByIdAndUpdate(productId,updateFields,{new:true})
+    const updated= await productService.updateProducts(productId,productName,description,category,brand,colour,variants)
     if(!updated){
-      res.status(STATUS.NOT_FOUND).json({success:false,message:"Product not found"})
+      return res.status(STATUS.NOT_FOUND).json({success:false,message:"Product not found"})
     }
-    res.status(STATUS.OK).json({success:true,message:"Product updated successfully"})
+    return res.status(STATUS.OK).json({success:true,message:"Product updated successfully"})
   } catch (error) {
-    console.log('Error on editProduct', error);
-    
-    res.status(STATUS.INTERNAL_SERVER_ERROR).json({success:false,message:"Internal server error"})
+    logger.error('Error on editProduct', error);
+    return res.status(STATUS.INTERNAL_SERVER_ERROR).json({success:false,message:"Internal server error"})
   }
 }
 
 async function loadeditproduct(req,res) {
   try {
     const id = req.params.id
-    const existProduct= await Product.findOne({_id:id})
-    .populate("category","name")
-    .populate("brand","brandName")
+    const existProduct= await productService.findByIdProduct(id)
     if(!existProduct){
       return res.status(STATUS.NOT_FOUND).json('Product not exist')
     }
-    const category = await Category.find({ isBlocked: false });
-    const brand = await Brand.find({ isBlocked: false });
-    res.render('editproduct',{brand:brand,category:category,product:existProduct})
+    const result= await productService.fetchAllCategoryAndBrand()
+    return res.render('editproduct',{brand:result.brand,category:result.category,product:existProduct})
   } catch (error) {
-    req.status(STATUS.INTERNAL_SERVER_ERROR).json({message:"Internal server error"})
+    return res.status(STATUS.INTERNAL_SERVER_ERROR).json({message:"Internal server error"})
   }
 }
 
 async function addProduct(req, res) {
   try {
     const product = req.body;
-    const parsedVariants = JSON.parse(product.variants);
-    const existProduct = await Product.findOne({ productName: { $regex: new RegExp(`^${product.name}$`, "i") } });
+    const existProduct = await productService.productExisting(product.name)
     if (existProduct) {
       return res.status(STATUS.BAD_REQUEST).json({ success: false, message: 'Product already exist' });
     }
-    
     const images = req.files.map((file) => file.path);
-
-    const category = await Category.findOne({  _id: product.category });
+    const category = await productService.findCategory(product.category)
     if (!category) {
       return res.status(STATUS.UNAUTHORIZED).json({ success: false  , message: 'Invalid category' });
     }
 
-    const brand = await Brand.findOne({ _id: product.brand });
+    const brand = productService.findBrand(product.brand)
     if (!brand) {
       return res.status(STATUS.UNAUTHORIZED).json({ success: false, message: 'Invalid brand' });
     }
-
-    const newProduct = new Product({
-      productName: product.name,
-      description: product.description,
-      brand: product.brand,
-      category: product.category,
-      variants: parsedVariants,
-      colour: product.color,
-      productImage: images
-    });
-    await newProduct.save();
+    await productService.createProduct(product,images)
     return res.status(STATUS.OK).json({ success: true, message: 'Product added successfully' });
   } catch (error) {
-    console.log('Error add product', error);
+    logger.error('Error add product', error);
     return res.status(STATUS.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Internal server error' });
   }
 }
 
 async function loadAddProduct(req, res) {
   try {
-    const category = await Category.find({ isBlocked: false });
-    const brand = await Brand.find({ isBlocked: false });
-    res.render('addproduct', {
-      category: category,
-      brand: brand
+    const result= await productService.fetchAllCategoryAndBrand()
+    return res.render('addproduct', {
+      category: result.category,
+      brand: result.brand
     });
   } catch (error) {
-    res.status(STATUS.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Internal server error' });
+    return res.status(STATUS.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Internal server error' });
   }
 }
 
