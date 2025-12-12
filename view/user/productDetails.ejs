@@ -123,9 +123,10 @@
 <!-- Update buttons to be disabled when out of stock -->
 <div class="flex items-center space-x-3 pt-2 pb-4 border-b">
     <div class="flex items-center border border-gray-300 rounded-md overflow-hidden">
-        <button id="qty-minus" class="quantity-button p-2 w-8 h-full text-lg font-semibold">-</button>
+       <button id="qty-minus" type="button" aria-label="decrease quantity" class="quantity-button p-2 w-8 h-full text-lg font-semibold">-</button>
         <input type="text" id="qty-input" value="1" class="w-10 text-center border-0 focus:ring-0" readonly>
-        <button id="qty-plus" class="quantity-button p-2 w-8 h-full text-lg font-semibold">+</button>
+        <button id="qty-plus" type="button" aria-label="increase quantity" class="quantity-button p-2 w-8 h-full text-lg font-semibold">+</button>
+
     </div>
     
     <button  

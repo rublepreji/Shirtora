@@ -1,11 +1,11 @@
 import mongoose from "mongoose";
 
 const orderSchema = new mongoose.Schema({
-    orderId:{
-        type:String,
-        required:true,
-        unique:true
-    },
+  orderId:{
+    type:String,
+    required:true,
+    unique:true
+  },
   userId: { 
     type: mongoose.Schema.Types.ObjectId, 
     ref: "User", 
@@ -34,10 +34,10 @@ const orderSchema = new mongoose.Schema({
   paymentMethod: String,
   address: Object,
   status:{
-        type:String,
-        enum:['Pending','Processing','Shipped','Delivered','Cancelled','Return Requested','Returned'],
-        default:'Pending'
-    },
+    type:String,
+    enum:['Pending','Processing','Shipped','Delivered','Cancelled','Return Requested','Returned'],
+    default:'Pending'
+  },
   createdAt: { 
     type: Date, 
     default: Date.now 

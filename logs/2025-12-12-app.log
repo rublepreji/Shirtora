@@ -1,0 +1,14 @@
+2025-12-12 09:26:09 [ERROR] Home page is not loading: Cannot read properties of null (reading 'items')
+2025-12-12 09:26:11 [ERROR] Home page is not loading: Cannot read properties of null (reading 'items')
+2025-12-12 09:27:20 [ERROR] Home page is not loading: Cannot read properties of null (reading 'items')
+2025-12-12 09:27:21 [ERROR] Home page is not loading: Cannot read properties of null (reading 'items')
+2025-12-12 09:27:29 [ERROR] Home page is not loading: Cannot read properties of null (reading 'items')
+2025-12-12 09:27:42 [ERROR] Home page is not loading: Cannot read properties of null (reading 'items')
+2025-12-12 09:27:57 [ERROR] Home page is not loading: Cannot read properties of null (reading 'items')
+2025-12-12 09:34:20 [ERROR] Home page is not loading: Cannot read properties of null (reading 'items')
+2025-12-12 09:34:21 [ERROR] Home page is not loading: Cannot read properties of null (reading 'items')
+2025-12-12 09:35:00 [ERROR] Home page is not loading: Cannot read properties of null (reading 'items')
+2025-12-12 09:35:00 [ERROR] Home page is not loading: Cannot read properties of null (reading 'items')
+2025-12-12 13:26:22 [ERROR] Error add product Product validation failed: variants.0.price: Cast to Number failed for value "hku" (type string) at path "price"
+2025-12-12 13:26:50 [ERROR] Error add product Product validation failed: variants.0.price: Cast to Number failed for value "hku" (type string) at path "price"
+2025-12-12 13:27:05 [ERROR] Error add product Product validation failed: variants.0.price: Cast to Number failed for value "89u0" (type string) at path "price"
