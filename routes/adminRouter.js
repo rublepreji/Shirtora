@@ -53,6 +53,12 @@ import {
     updateReturnStatus,
     updateItemStatus
 } from '../controller/admin/orderController.js'
+import {
+    loadOfferList,
+    loadAddOffer,
+    getOfferTargets,
+    addOffer
+} from "../controller/admin/offerController.js"
 import uploadTo from '../middlewares/multerCloudinary.js';
 import multer from 'multer';
 import {storage} from '../helpers/multer.js';
@@ -115,6 +121,12 @@ router.get('/orderdetails/:id',adminAuth,loadOrderDetails)
 router.put('/updateOrderStatus',adminAuth,updateOrderStatus)
 router.put('/updateReturnStatus',adminAuth,updateReturnStatus)
 router.put("/updateItemStatus", adminAuth, updateItemStatus);
+
+//Offer management
+router.get('/offerlist',adminAuth,loadOfferList)
+router.get('/addoffer',adminAuth,loadAddOffer)
+router.get('/getoffertargets',adminAuth,getOfferTargets)
+router.post('/addoffer',adminAuth,addOffer)
 
 
 

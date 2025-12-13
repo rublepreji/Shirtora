@@ -1,0 +1,2 @@
+2025-12-13 09:03:05 [ERROR] loadHomeService Operation `categories.find()` buffering timed out after 10000ms
+2025-12-13 09:03:05 [ERROR] Home page is not loading: Operation `categories.find()` buffering timed out after 10000ms
