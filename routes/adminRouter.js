@@ -57,7 +57,11 @@ import {
     loadOfferList,
     loadAddOffer,
     getOfferTargets,
-    addOffer
+    addOffer,
+    offerList,
+    loadEditOffer,
+    loadDeleteOffer,
+    editOffer
 } from "../controller/admin/offerController.js"
 import uploadTo from '../middlewares/multerCloudinary.js';
 import multer from 'multer';
@@ -127,7 +131,10 @@ router.get('/offerlist',adminAuth,loadOfferList)
 router.get('/addoffer',adminAuth,loadAddOffer)
 router.get('/getoffertargets',adminAuth,getOfferTargets)
 router.post('/addoffer',adminAuth,addOffer)
-
+router.get('/dataforofferlist',adminAuth,offerList)
+router.get('/editoffer/:id',adminAuth,loadEditOffer)
+router.put('/editoffer/:id',adminAuth,editOffer)
+router.get('/deleteoffer/:id',adminAuth,loadDeleteOffer)
 
 
 export default router;

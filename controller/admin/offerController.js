@@ -4,6 +4,133 @@ import {logger} from '../../logger/logger.js'
 import { STATUS } from '../../utils/statusCode.js'
 import Offer from '../../model/offerSchema.js'
 
+
+async function editOffer(req,res) {
+    try {
+        const data= req.body
+        const {id}= req.params
+        
+        if(!data.offerName || !data.offerType || !data.availableFor || !data.description || !data.offerPercentage || !data.startDate || !data.endDate){
+            return res.status(STATUS.BAD_REQUEST).json({success:false,message:"All fields are required!"})
+        }
+        const updateOffer={
+            title:data.offerName,
+            type:data.offerType,
+            description:data.description,
+            discountPercentage:Number(data.offerPercentage),
+            productId:null,
+            categoryId:null,
+            startDate:data.startDate,
+            endDate:data.endDate
+        }
+        if(data.offerType==='product'){
+            updateOffer.productId=data.availableFor
+        }
+        if(data.offerType==='category'){
+            updateOffer.categoryId=data.availableFor
+        }
+        const response=await Offer.findByIdAndUpdate(id,updateOffer,{new:true})
+        if(!response){
+            logger.info("Not able to update the offer")
+            return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Not able to update"})
+        }
+        return res.status(STATUS.OK).json({success:true,message:"Successfully updated"})
+    } catch (error) {
+        logger.error('Error from editOffer',error)
+        return res.status(STATUS.INTERNAL_SERVER_ERROR).json({success:false,message:"Internal server error"})
+    }
+}
+
+async function loadEditOffer(req,res) {
+    try {
+        const offerId= req.params.id
+        if(!offerId){
+            return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Cannot find offerId"})
+        }
+        const offerEdit= await Offer.findById(offerId)
+        .populate('productId','productName')
+        .populate('categoryId','name')
+        let selectedItem=null
+        if(offerEdit.productId){
+            selectedItem={
+                id:offerEdit.productId._id,
+                name:offerEdit.productId.productName
+            }
+        }
+        if(offerEdit.categoryId){
+            selectedItem={
+                id:offerEdit.categoryId._id,
+                name:offerEdit.categoryId.name
+            }
+        }                
+        if(!offerEdit){
+            return res.status(STATUS.NOT_FOUND).json({success:false,message:"Offer not found"})
+        }
+        return res.render('editOffer',{offerEdit,selectedItem})
+    } catch (error) {
+        logger.error('Error from offerController',error)
+        return res.status(STATUS.OK).json({success:false,message:"Internal server error"})
+    }
+}
+
+async function loadDeleteOffer(req,res) {
+    try {
+        const offerId= req.params.id
+        return res.status(STATUS.OK).json({success:true,message:"Offer deleted successfully"})
+    } catch (error) {
+        logger.error("Error form loadDeleteOffer",error)
+        return res.status(STATUS.INTERNAL_SERVER_ERROR).json({success:false,message:"Internal server error"})
+    }
+}
+
+async function offerList(req,res) {
+    try {
+        const page= parseInt(req.query.page) ||1
+        const search=req.query.search || ""        
+        const limit=6
+        const skip=(page-1)*limit
+
+        await Offer.updateMany(
+            {
+                endDate:{$lt:new Date()},
+                isActive:true
+            },
+            {$set:{isActive:false}}
+        )
+        let query={isActive:true}
+        if(search.trim()!==''){
+            query.title={$regex: search,$options:"i"}
+        }
+        const offerData=await Offer.find(query)
+        .populate('productId','productName') 
+        .populate('categoryId','name')
+        .sort({createdAt:-1})
+        .skip(skip)
+        .limit(limit)
+
+        const selectedItem= offerData.map(data=>{
+            return{
+                ...data.toObject(),
+                appliedOn:
+                    data.productId?.productName ||
+                    data.categoryId?.name || null
+            }
+        })        
+        const totalOffers= await Offer.countDocuments(query)
+        const totalPages= Math.ceil(totalOffers/limit)
+
+        return res.status(STATUS.OK).json({
+            success:true,
+            data:selectedItem,
+            totalPages:totalPages,
+            currentPage:page,
+        })
+
+    } catch (error) {
+        return res.status(STATUS.INTERNAL_SERVER_ERROR).json({success:false,message:"Internal server error"})
+    }
+}
+
 async function addOffer(req,res) {
     try {
         const {
@@ -85,5 +212,9 @@ export {
     loadOfferList,
     loadAddOffer,
     getOfferTargets,
-    addOffer
+    addOffer,
+    offerList,
+    loadEditOffer,
+    loadDeleteOffer,
+    editOffer
 }
