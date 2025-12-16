@@ -85,7 +85,7 @@ async function loadDeleteOffer(req,res) {
 
 async function offerList(req,res) {
     try {
-        const page= parseInt(req.query.page) ||1
+        const page= parseInt(req.query.page) || 1
         const search=req.query.search || ""        
         const limit=6
         const skip=(page-1)*limit

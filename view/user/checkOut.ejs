@@ -86,16 +86,6 @@
 
             <fieldset class="space-y-4">
               <label class="flex items-center gap-3 cursor-pointer">
-                <input type="radio" name="payment" value="Card" class="h-4 w-4 text-blue-600 focus:ring-blue-500" />
-                <span class="text-sm">Debit / Credit Card</span>
-              </label>
-
-              <label class="flex items-center gap-3 cursor-pointer">
-                <input type="radio" name="payment" value="Bank" class="h-4 w-4 text-blue-600 focus:ring-blue-500" />
-                <span class="text-sm">Bank</span>
-              </label>
-
-              <label class="flex items-center gap-3 cursor-pointer">
                 <input type="radio" name="payment" value="UPI" class="h-4 w-4 text-blue-600 focus:ring-blue-500" />
                 <span class="text-sm">UPI Method</span>
               </label>
@@ -139,7 +129,7 @@
                 <span>₹<%= grandTotal %></span>
               </div>
 
-              <button type="button" class="w-full bg-black text-white py-3 rounded place-order-btn hover:bg-gray-800 transition-colors">
+              <button type="button" class="place-order-btn w-full bg-black text-white py-3 rounded place-order-btn hover:bg-gray-800 transition-colors">
                 Place Order
               </button>
             </div>
@@ -150,7 +140,10 @@
   </body>
   <%- include("../../view/partials/user/footer") %>
 
-
+<script>
+  const RAZORPAY_KEY_ID = "<%= process.env.RAZORPAY_KEY_ID %>";
+</script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="/js/user/checkOut.js"></script>
 
 </html>
