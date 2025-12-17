@@ -80,6 +80,24 @@ const addressRadios = document.querySelectorAll('input[name="address"]');
     };
 
     const rzp = new Razorpay(options);
+    // In checkOut.js
+rzp.on('payment.failed', async function (response) {
+    try {
+      await fetch("/orderfailed");
+        
+      await Swal.fire({
+        icon: "error",
+        title: "Payment Failed",
+        text: response.error.description || "The transaction could not be completed.",
+      });
+        
+      window.location.href = "/orderfailed"; // Stay on checkout to retry
+        
+    } catch (error) {
+      console.error("Error handling payment failure:", error);
+      window.location.href = "/checkout";
+    }
+});
     rzp.open();
 
   } catch (error) {

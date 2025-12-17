@@ -1,3 +1,18 @@
+document.getElementById("checkoutBtn").addEventListener("click", function (e) {
+    const cartCount = parseInt(this.getAttribute("data-cart-count"));
+
+    if (cartCount === 0) {
+        e.preventDefault();
+
+        Swal.fire({
+            icon: "info",
+            title: "Empty Cart",
+            text: "Your cart is empty. Add some items before checking out!",
+            confirmButtonColor: "#000000"
+        });
+    }
+});
+
 function removeformcart(productId, variantIndex){
         Swal.fire({
         icon: "warning",

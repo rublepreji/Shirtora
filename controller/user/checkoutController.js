@@ -2,6 +2,18 @@ import {STATUS} from '../../utils/statusCode.js'
 import {updateStatus} from "../../helpers/updateOrderStatus.js"
 import {logger} from '../../logger/logger.js'
 import checkoutService from "../../services/userService/checkoutService.js";
+import {verifyRazorpaySignature} from '../../utils/razorpayVerification.js'
+
+async function handlePaymentFailed(req, res) {
+  try {
+    const { orderId, reason } = req.body;
+    console.error(`Payment failed for order ${orderId}: ${reason}`);
+    return res.json({ success: true, message: "Payment failure recorded" }); 
+  } catch (error) {
+    console.error("Payment failed handler error:", error);
+    return res.status(500).json({ success: false, message: "Error handling payment failure" });
+  }
+}
 
 async function returnRequest(req,res) {
   try {
@@ -112,23 +124,89 @@ async function orderSuccessPage(req,res) {
    }
 }
 
+
 async function placeOrder(req, res) {
-   try { 
+  try { 
     const userId = req.session.user._id;
-    const { selectedAddressIndex, paymentMethod } = req.body; 
+    const { 
+      selectedAddressIndex, 
+      paymentMethod,
+      razorpay_payment_id,
+      razorpay_order_id,
+      razorpay_signature
+    } = req.body; 
+    
     if (!selectedAddressIndex) { 
-      return res.status(STATUS.BAD_REQUEST).json({ success: false, message: "No address selected" });
-     } 
-     if (!paymentMethod) { 
-      return res .status(STATUS.BAD_REQUEST) .json({ success: false, message: "No payment method selected"}); 
+      return res.status(STATUS.BAD_REQUEST).json({ 
+        success: false, 
+        message: "No address selected" 
+      });
     } 
-    const result=await checkoutService.placeOrderService(userId,selectedAddressIndex,paymentMethod) 
-    if(!result.success){ 
-      return res.redirect('/orderfailed') 
+    
+    if (!paymentMethod) { 
+      return res.status(STATUS.BAD_REQUEST).json({ 
+        success: false, 
+        message: "No payment method selected"
+      }); 
+    }
+    
+    // UPI payment
+    if (paymentMethod === "UPI Method") {
+      if (!razorpay_payment_id || !razorpay_order_id || !razorpay_signature) {
+        return res.status(STATUS.BAD_REQUEST).json({
+          success: false,
+          message: "Invalid payment data"
+        });
+      }
+        
+        const isValid = verifyRazorpaySignature(
+          razorpay_order_id,
+          razorpay_payment_id,
+          razorpay_signature
+        );
+        
+        if (!isValid) {
+          return res.status(STATUS.BAD_REQUEST).json({
+            success: false,
+            message: "Payment verification failed"
+          });
+        }
+        
+        // Payment verified
+        const razorpayData = {
+          razorpay_payment_id,
+          razorpay_order_id,
+          razorpay_signature
+        };
+        
+        const result = await checkoutService.placeOrderService(
+          userId,
+          selectedAddressIndex,
+          paymentMethod,
+          razorpayData
+        );
+        
+        if (!result.success) { 
+          return res.redirect('/orderfailed');
+        } 
+        
+      return res.redirect(`/ordersuccess/${result.order.orderId}`);
+    }
+    
+    // cod flow
+    const result = await checkoutService.placeOrderService(
+      userId,
+      selectedAddressIndex,
+      paymentMethod
+    ); 
+    
+    if (!result.success) { 
+      return res.redirect('/orderfailed');
     } 
+    
     return res.redirect(`/ordersuccess/${result.order.orderId}`); 
-  } 
-  catch (error) { 
+      
+  } catch (error) { 
     console.error("Place order error:", error.message); 
     return res.redirect("/pageNotFound"); 
   } 
@@ -155,4 +233,4 @@ async function loadCheckout(req, res) {
 }
 }
 
-export {loadCheckout, placeOrder, orderSuccessPage, loadOrderFailed, loadOrderDetails, loadOrderList, loadOrderListData, downloadInvoice, cancelOrder, returnRequest}
+export {loadCheckout, placeOrder, orderSuccessPage, loadOrderFailed, loadOrderDetails, loadOrderList, loadOrderListData, downloadInvoice, cancelOrder, returnRequest, handlePaymentFailed}

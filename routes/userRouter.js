@@ -8,7 +8,7 @@ import uploadTo from '../middlewares/multerCloudinary.js';
 import multer from 'multer';
 import {storage} from '../helpers/multer.js';
 import { loadWishlist , addToWishlist, removeFromWishlist} from '../controller/user/wishlistController.js';
-import {loadCheckout , placeOrder, loadOrderFailed ,orderSuccessPage, loadOrderDetails, loadOrderList, downloadInvoice, cancelOrder, returnRequest, loadOrderListData} from '../controller/user/checkoutController.js'
+import {loadCheckout , placeOrder, loadOrderFailed ,orderSuccessPage, loadOrderDetails, loadOrderList, downloadInvoice, cancelOrder, returnRequest, loadOrderListData, handlePaymentFailed} from '../controller/user/checkoutController.js'
 import { processPayment } from '../controller/user/paymentController.js';
 
 const router = express.Router();
@@ -101,6 +101,7 @@ router.put('/returnRequest',userAuth,returnRequest)
 
 //payment 
 router.post('/create_order',processPayment)
+router.post('/payment_failed',handlePaymentFailed)
 
 
 

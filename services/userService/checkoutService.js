@@ -251,46 +251,97 @@ async function getOrderDetailsService(orderId) {
 }
 
 
-async function placeOrderService(userId,selectedAddressIndex,paymentMethod) { 
+async function placeOrderService(userId, selectedAddressIndex, paymentMethod, razorpayData = null) { 
     const session = await mongoose.startSession();
-    try { let orderDocument = null;
-        
-    await session.withTransaction(async () => {
-    const cart = await Cart.findOne({ userId }) .populate("items.productId") .session(session); if (!cart || cart.items.length === 0) { throw new Error("Cart is empty"); }
-    const validItems=cart.items.filter((pro)=>{ return pro.productId.isBlocked==false })
+    try { 
+        let orderDocument = null;
+        await session.withTransaction(async () => {
+            const cart = await Cart.findOne({ userId })
+              .populate("items.productId")
+              .session(session); 
+            
+            if (!cart || cart.items.length === 0){ 
+              throw new Error("Cart is empty"); 
+            }
+            
+            const validItems = cart.items.filter((pro) => {
+              return pro.productId.isBlocked == false;
+            });
 
-    const addressDoc = await Address.findOne({ userId }).session(session);
-    const selectedAddress = addressDoc.address[selectedAddressIndex];
-    if (!selectedAddress) { 
-    throw new Error("Invalid address selected");
-    } 
-    let total = 0; for (const item of validItems) { 
-    total += item.totalPrice; 
-} 
-    for (const item of validItems) {
-        const product = item.productId;
-        const variantIndex = item.variantIndex;
-        const qty = item.quantity;
-    if (product.variants[variantIndex].stock < qty) {
-        throw new Error(`${product.productName} is out of stock`);
-        } 
-    }
-    for (const item of validItems) {
-        const product = item.productId;
-        const variantIndex = item.variantIndex;
-        const qty = item.quantity;
-        product.variants[variantIndex].stock -= qty;
-        await product.save({ session }); 
-    } 
-    const customOrderId =`ORD-${Date.now().toString(36).toUpperCase()}`;
-        const newOrder = await Order.create( [ { orderId: customOrderId, userId, items: cart.items, totalAmount: total, paymentMethod, address: selectedAddress, status: "Pending", }, ], { session } );
-        await Cart.updateOne( { userId }, { $set: { items: [] } }, { session } ); orderDocument= newOrder[0] });
-        await session.endSession()
-        return {success:true,order:orderDocument}
-        }catch (error) { 
-        await session.abortTransaction().catch(() => {});
+            const addressDoc = await Address.findOne({ userId }).session(session);
+            const selectedAddress = addressDoc.address[selectedAddressIndex];
+            if (!selectedAddress) { 
+              throw new Error("Invalid address selected");
+            } 
+            
+            let total = 0; 
+            for (const item of validItems) { 
+              total += item.totalPrice; 
+            } 
+            
+            // Stock validation
+            for (const item of validItems) {
+              const product = item.productId;
+              const variantIndex = item.variantIndex;
+              const qty = item.quantity;
+              if (product.variants[variantIndex].stock < qty) {
+                throw new Error(`${product.productName} is out of stock`);
+              } 
+            }
+            
+            // Deduct stock
+            for (const item of validItems) {
+              const product = item.productId;
+              const variantIndex = item.variantIndex;
+              const qty = item.quantity;
+              product.variants[variantIndex].stock -= qty;
+              await product.save({ session }); 
+            } 
+            
+            const customOrderId = `ORD-${Date.now().toString(36).toUpperCase()}`;
+            
+            // Determine order status based on payment method
+            let orderStatus = "Pending";
+            let paymentStatus = "Pending";
+            
+            if (paymentMethod === "Cash on Delivery") {
+              orderStatus = "Pending";
+              paymentStatus = "Pending";
+            } else if (paymentMethod === "UPI Method" && razorpayData) {
+              orderStatus = "Pending";
+              paymentStatus = "Paid";
+            }
+            
+            const newOrder = await Order.create([{
+              orderId: customOrderId,
+              userId,
+              items: cart.items,
+              totalAmount: total,
+              paymentMethod,
+              paymentStatus,
+              address: selectedAddress,
+              status: orderStatus,
+              razorpayOrderId: razorpayData?.razorpay_order_id || null,
+              razorpayPaymentId: razorpayData?.razorpay_payment_id || null,
+              razorpaySignature: razorpayData?.razorpay_signature || null,
+            }], { session });
+            
+            await Cart.updateOne(
+              { userId }, 
+              { $set: { items: [] } }, 
+              { session }
+            ); 
+            
+          orderDocument = newOrder[0];
+        });
+        
         await session.endSession();
-        return {success:false,message:error.message}
+        return { success: true, order: orderDocument };
+        
+    } catch (error) { 
+      await session.abortTransaction().catch(() => {});
+      await session.endSession();
+      return { success: false, message: error.message };
     } 
 }
 
