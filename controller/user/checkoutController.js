@@ -5,13 +5,18 @@ import checkoutService from "../../services/userService/checkoutService.js";
 import {verifyRazorpaySignature} from '../../utils/razorpayVerification.js'
 
 async function handlePaymentFailed(req, res) {
+  console.log('inside handlepayment failed');
+  
   try {
-    const { orderId, reason } = req.body;
-    console.error(`Payment failed for order ${orderId}: ${reason}`);
-    return res.json({ success: true, message: "Payment failure recorded" }); 
+    const { orderId, reason, selectedAddressIndex, paymentMethod } = req.body;
+    const userId = req.session.user._id
+    
+    const result= await checkoutService.createFailedPaymentOrder(userId,reason,orderId,selectedAddressIndex,paymentMethod)
+
+    return res.json({ success: result.success }); 
   } catch (error) {
     console.error("Payment failed handler error:", error);
-    return res.status(500).json({ success: false, message: "Error handling payment failure" });
+    return res.status(STATUS.INTERNAL_SERVER_ERROR).json({ success: false, message: "Error handling payment failure" });
   }
 }
 
@@ -21,7 +26,7 @@ async function returnRequest(req,res) {
     const result=await checkoutService.returnRequestService(orderId,productIndex,reason,newStatus)
     return res.json(result)
   } catch (error) {
-    res.json({ success: false });
+    return res.json({ success: false });
   }
 }
 
@@ -59,16 +64,16 @@ async function downloadInvoice(req, res) {
   } catch (error) {
    console.log("Invoice Error:", error);
     if (!res.headersSent) {
-      res.status(STATUS.INTERNAL_SERVER_ERROR).send("Server error");
+      return res.status(STATUS.INTERNAL_SERVER_ERROR).send("Server error");
     }
   }
 }
 
 async function loadOrderList(req, res) {
   try {
-    res.render("orderList", { user: req.session.user });
+    return res.render("orderList", { user: req.session.user });
   } catch (error) {
-    res.redirect("/pageNotFound");
+    return res.redirect("/pageNotFound");
   }
 }
 
@@ -109,24 +114,26 @@ async function loadOrderDetails(req,res) {
 
 async function loadOrderFailed(req,res) {
    try {
-      res.render('orderFailed')
+      return res.render('orderFailed')
    } catch (error) {
-      res.redirect('/pageNotFound')
+      return res.redirect('/pageNotFound')
    }
 }
 
 async function orderSuccessPage(req,res) {
    try {
       const orderId= req.params.id
-      res.render  ('orderSuccess',{orderId:orderId})
+      return res.render  ('orderSuccess',{orderId:orderId})
    } catch (error) {
-      res.redirect('/pageNotFound')
+      return res.redirect('/pageNotFound')
    }
 }
 
 
 async function placeOrder(req, res) {
   try { 
+    console.log('inside placeorder');
+    
     const userId = req.session.user._id;
     const { 
       selectedAddressIndex, 

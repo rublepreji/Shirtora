@@ -1,10 +1,58 @@
 import Cart from "../../model/cartSchema.js";
 import Order from "../../model/orderSchema.js";
 import Address from "../../model/addressSchema.js";
-import { STATUS } from "../../utils/statusCode.js";
 import PDFDocument from "pdfkit";
 import mongoose from "mongoose";
 
+
+async function createFailedPaymentOrder(userId, reason, razorpayOrderId, selectedAddressIndex, paymentMethod) {
+  const session =await mongoose.startSession();
+  try {
+    let orderDocument= null
+    await session.withTransaction(async ()=>{
+      const cart= await Cart.findOne({userId}).populate("items.productId").session(session);
+
+      if(!cart || cart.items.length==0){
+        throw new Error("Cart is empty")
+      }
+      const validItems= cart.items.filter((pro)=>{
+        return pro.productId.isBlocked==false
+      })
+      const addressDoc= await Address.findOne({userId}).session(session)
+      
+      const selectedAddress= addressDoc.address[selectedAddressIndex]
+
+      if(!selectedAddress){
+        throw new Error("Invalid address selected")
+      }
+      let total=0;
+      for(const item of validItems){
+        total += item.totalPrice
+      }
+      const customOrderId= `ORD-${Date.now().toString(36).toUpperCase()}`
+
+      const newOrder = await Order.create([{
+        orderId:customOrderId,
+        userId,
+        items:validItems,
+        totalAmount:total,
+        paymentMethod,
+        paymentStatus:"Failed",
+        status:"Payment Failed",
+        address:selectedAddress,
+        razorpayOrderId,
+        paymentFailureReason:reason
+      }],{session})
+      orderDocument= newOrder[0]
+    })
+    await session.endSession()
+    return {success:true,order:orderDocument}
+  } catch (error) {
+    await session.endSession()
+    console.log("create failed payment order service",error.message);
+    return {success:false,message:error.message}
+  }
+}
 
 async function returnRequestService(orderId,productIndex,reason,newStatus) {
     const order = await Order.findOne({ orderId });
@@ -315,7 +363,7 @@ async function placeOrderService(userId, selectedAddressIndex, paymentMethod, ra
             const newOrder = await Order.create([{
               orderId: customOrderId,
               userId,
-              items: cart.items,
+              items: validItems,
               totalAmount: total,
               paymentMethod,
               paymentStatus,
@@ -398,7 +446,7 @@ async function loadCheckoutService(userId) {
 }
 
 
-export default{placeOrderService,returnRequestService,cancelOrderStockUpdateService,downloadInvoiceService,loadOrderListService,getOrderDetailsService,loadCheckoutService}
+export default{placeOrderService,returnRequestService,cancelOrderStockUpdateService,downloadInvoiceService,loadOrderListService,getOrderDetailsService,loadCheckoutService,createFailedPaymentOrder}
 
 
 

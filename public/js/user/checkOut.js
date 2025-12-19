@@ -1,3 +1,5 @@
+let isPaymentInProgress = false;
+let paymentFailureHandled = false
 const addressRadios = document.querySelectorAll('input[name="address"]');
   const selectedAddressIndexInput = document.getElementById('selectedAddressIndex');
 
@@ -22,14 +24,23 @@ const addressRadios = document.querySelectorAll('input[name="address"]');
     });
   });
 
+  const placeOrderBtn = document.querySelector(".place-order-btn");
+
   document.querySelector('.place-order-btn').addEventListener('click', async () => {
+    if(isPaymentInProgress) return ;
+    isPaymentInProgress=true
+    placeOrderBtn.disabled=true;
 
   if (!selectedAddressIndexInput.value) {
+    isPaymentInProgress=false
+    placeOrderBtn.disabled=false
     Swal.fire("Warning!", "Please select a delivery address.", "warning");
     return;
-  }
+  } 
 
   if (!paymentMethodInput.value) {
+    isPaymentInProgress=false
+    placeOrderBtn.disabled=false 
     Swal.fire("Warning!", "Please select a payment method.", "warning");
     return;
   }
@@ -50,6 +61,7 @@ const addressRadios = document.querySelectorAll('input[name="address"]');
     const data = await res.json();
 
     if (!data.success) {
+      isPaymentInProgress=false
       Swal.fire("Error!","Unable to create payment order", "error");
       return;
     }
@@ -63,8 +75,7 @@ const addressRadios = document.querySelectorAll('input[name="address"]');
       order_id: data.orderId,
 
       handler: async function (response) {
-
-        // Add Razorpay data to form
+        paymentFailureHandled = true
         const form = document.getElementById("checkoutForm");
 
         form.insertAdjacentHTML("beforeend", `
@@ -75,29 +86,51 @@ const addressRadios = document.querySelectorAll('input[name="address"]');
 
         form.submit();
       },
+    modal:{
+      ondismiss: async ()=>{
+        if(paymentFailureHandled ) return
+        paymentFailureHandled =true
+        isPaymentInProgress=false
+      }
+    },
 
       theme: { color: "#000000" }
     };
 
-    const rzp = new Razorpay(options);
-    // In checkOut.js
+  const rzp = new Razorpay(options);
 rzp.on('payment.failed', async function (response) {
-    try {
-      await fetch("/orderfailed");
-        
-      await Swal.fire({
-        icon: "error",
-        title: "Payment Failed",
-        text: response.error.description || "The transaction could not be completed.",
-      });
-        
-      window.location.href = "/orderfailed"; // Stay on checkout to retry
-        
-    } catch (error) {
-      console.error("Error handling payment failure:", error);
-      window.location.href = "/checkout";
-    }
+  if(paymentFailureHandled ) return;
+  paymentFailureHandled =true
+  sendPaymentFailed(response?.error?.description || "Paymet failed")
 });
+
+  async function sendPaymentFailed(reason) {
+    try {
+    await fetch("/payment_failed",{
+      method:"post",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        orderId:data.orderId,
+        reason,
+        selectedAddressIndex:selectedAddressIndexInput.value,
+        paymentMethod: paymentMethodInput.value
+      })
+    });
+      
+    // await Swal.fire({
+    //   icon: "error",
+    //   title: "Payment Failed",
+    //   text: reason || "The transaction could not be completed.",
+    // });
+      
+    window.location.href = "/orderfailed"; 
+      
+  } catch (error) {
+    isPaymentInProgress=false
+    console.error("Error handling payment failure:", error);
+    window.location.href = "/orderfailed";
+  }
+  }
     rzp.open();
 
   } catch (error) {

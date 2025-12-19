@@ -35,7 +35,7 @@ const orderSchema = new mongoose.Schema({
   address: Object,
   status:{
     type:String,
-    enum:['Pending','Processing','Shipped','Delivered','Cancelled','Return Requested','Returned'],
+    enum:['Pending','Processing','Shipped','Delivered','Cancelled','Return Requested','Returned','Payment Failed'],
     default:'Pending'
   },
   paymentStatus:{
@@ -46,6 +46,7 @@ const orderSchema = new mongoose.Schema({
   razorpayOrderId:String,
   razorpayPaymentId:String,
   razorpaySignature:String,
+  paymentFailureReason:String,
   createdAt: { 
     type: Date, 
     default: Date.now 

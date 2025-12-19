@@ -9,7 +9,7 @@ import multer from 'multer';
 import {storage} from '../helpers/multer.js';
 import { loadWishlist , addToWishlist, removeFromWishlist} from '../controller/user/wishlistController.js';
 import {loadCheckout , placeOrder, loadOrderFailed ,orderSuccessPage, loadOrderDetails, loadOrderList, downloadInvoice, cancelOrder, returnRequest, loadOrderListData, handlePaymentFailed} from '../controller/user/checkoutController.js'
-import { processPayment } from '../controller/user/paymentController.js';
+import { processPayment, retryCreateOrder, retryVerifyPayment } from '../controller/user/paymentController.js';
 
 const router = express.Router();
 const uploads = multer({ storage: storage });
@@ -94,7 +94,6 @@ router.get('/orderfailed',userAuth,loadOrderFailed)
 router.get('/orderdetails/:id',userAuth,loadOrderDetails)
 router.get('/orderlist',userAuth,loadOrderList)
 router.get("/ordersData", userAuth, loadOrderListData);
-
 router.get('/downloadInvoice/:id',userAuth,downloadInvoice)
 router.put('/cancelorder',userAuth,cancelOrder)
 router.put('/returnRequest',userAuth,returnRequest)
@@ -102,6 +101,8 @@ router.put('/returnRequest',userAuth,returnRequest)
 //payment 
 router.post('/create_order',processPayment)
 router.post('/payment_failed',handlePaymentFailed)
+router.post('/retry_create_order',userAuth,retryCreateOrder)
+router.post('/retry_create_payment',userAuth,retryVerifyPayment)
 
 
 
