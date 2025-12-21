@@ -70,7 +70,13 @@
                 </div>
 <!-- Update the price section -->
 <div class="flex items-baseline space-x-3 border-b pb-4">
-    <span id="product-price" class="text-3xl font-bold text-gray-800">₹<%= selectedVariant.price %>/-</span>
+    <span 
+  id="product-price"
+  data-offer="<%= offer %>"
+  class="text-3xl font-bold text-gray-800">
+  ₹<%= selectedVariant.price - (selectedVariant.price * offer) / 100 %>/-
+</span>
+    <span class="strike-through text-xl text-gray-400">₹<%=selectedVariant.price%></span>
     <span class="text-red-600 text-lg font-semibold">
         <% if(!totalOffer) { %>
             No Offers

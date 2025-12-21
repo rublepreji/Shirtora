@@ -3,20 +3,21 @@ import Cart from "../../model/cartSchema.js";
 import User from "../../model/userSchema.js";
 import { STATUS } from "../../utils/statusCode.js";
 
-async function addToCartService(userId, productId, variantIndex, quantity) {
+async function addToCartService(userId, productId, variantIndex, quantity, finalPrice) {
+  console.log("Inside the service");
   
   const product = await Product.findById(productId);
   if (!product) {
-    return { success: false, status: 404, message: "Product not found" };
+    return { success: false, status: STATUS.NOT_FOUND, message: "Product not found" };
   }
 
   if (product.isBlocked) {
-    return { success: false, status: 400, message: "This product is currently unavailable" };
+    return { success: false, status: STATUS.NOT_FOUND, message: "This product is currently unavailable" };
   }
 
   const variant = product.variants[variantIndex];
   if (!variant) {
-    return { success: false, status: 400, message: "Invalid variant" };
+    return { success: false, status: STATUS.NOT_FOUND, message: "Invalid variant" };
   }
 
   const stock = variant.stock;
@@ -48,9 +49,9 @@ async function addToCartService(userId, productId, variantIndex, quantity) {
     }
 
     existing.quantity += quantity;
-    existing.totalPrice = existing.quantity * variant.price;
+    existing.pricePerUnit= finalPrice
+    existing.totalPrice = existing.quantity * finalPrice;
   } else {
-    // New item
     if (quantity > stock) {
       return { success: false, status: 400, message: `Only ${stock} available` };
     }
@@ -59,7 +60,8 @@ async function addToCartService(userId, productId, variantIndex, quantity) {
       productId,
       variantIndex: vIndex,
       quantity,
-      totalPrice: quantity * variant.price
+      pricePerUnit:finalPrice,
+      totalPrice: quantity * finalPrice
     });
   }
 
@@ -110,7 +112,7 @@ async function addToCartService(userId, productId, variantIndex, quantity) {
 
   // Update quantity
   item.quantity = qty;
-  item.totalPrice = qty * product.variants[variantIndex].price;
+  item.totalPrice = qty * item.pricePerUnit;
 
   await cart.save();
 
@@ -173,7 +175,7 @@ async function loadCartService(userId) {
 
       if (isBlocked) continue;  
 
-      const totalPrice = variant.price * item.quantity;
+      const totalPrice = item.totalPrice;
 
       products.push({
         _id: item._id,
@@ -183,6 +185,7 @@ async function loadCartService(userId) {
         variantIndex: item.variantIndex,
         variant,
         quantity: item.quantity,
+        pricePerUnit:item.pricePerUnit,
         totalPrice
       });
     }

@@ -95,7 +95,7 @@ async function processPayment(req,res) {
         for(let item of cart.items){
             const product= item.productId
             const variant= product?.variants?.[item.variantIndex]
-            grandTotal += variant.price * item.quantity
+            grandTotal += item.pricePerUnit * item.quantity
 
             if(!variant){
                 return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Invalid product in cart"})

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Account - Wallet</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #ffffff;
+        }
+        .main-content {
+            min-height: 100vh;
+        }
+        .status-credit {
+            background-color: #DEF7EC;
+            color: #03543F;
+        }
+        .status-debit {
+            background-color: #FDE8E8;
+            color: #9B1C1C;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+    <div class="flex flex-col md:flex-row">
+        
+        <!-- Sidebar Placeholder (Representing your partial) -->
+        <%-include("../../view/partials/user/sideBar")%>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 p-4 sm:p-8 lg:p-12 main-content">
+            
+            <!-- Breadcrumbs -->
+            <div class="mb-8 text-sm text-gray-500">
+                <a href="#" class="hover:text-black">Home</a> / <span class="text-black font-medium">My Wallet</span>
+            </div>
+
+            <div class="max-w-5xl mx-auto">
+                
+                <!-- Wallet Overview Cards -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
+                    
+                    <!-- Balance Card -->
+                    <div class="lg:col-span-2 bg-black rounded-2xl p-8 text-white flex flex-col justify-between shadow-xl relative overflow-hidden">
+                        <div class="relative z-10">
+                            <p class="text-gray-400 text-sm font-medium mb-1 uppercase tracking-wider">Current Balance</p>
+                            <h2 class="text-4xl sm:text-5xl font-bold mb-8">₹12,450.00</h2>
+                            
+                            <div class="flex space-x-4">
+                                <button class="bg-white text-black px-6 py-2.5 rounded-lg text-sm font-bold hover:bg-gray-100 transition shadow-lg">
+                                    <i class="fas fa-plus mr-2"></i> Add Money
+                                </button>
+                                <button class="bg-transparent border border-white/30 text-white px-6 py-2.5 rounded-lg text-sm font-bold hover:bg-white/10 transition">
+                                    Withdraw
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Abstract Design Element -->
+                        <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-white/5 rounded-full blur-3xl"></div>
+                        <div class="absolute right-10 top-10 text-white/20 text-6xl">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                    </div>
+
+                    <!-- Quick Stats Card -->
+                    <div class="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm flex flex-col justify-center">
+                        <div class="mb-6">
+                            <p class="text-gray-500 text-sm font-medium mb-1">Total Spent</p>
+                            <p class="text-2xl font-bold text-black">₹45,200</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-500 text-sm font-medium mb-1">Last Transaction</p>
+                            <p class="text-lg font-semibold text-red-600">- ₹4,949.00</p>
+                            <p class="text-xs text-gray-400">Oct 12, 2025</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transaction History Section -->
+                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                    <div class="p-6 sm:p-8 border-b border-gray-50">
+                        <h3 class="text-xl font-bold text-black">Transaction History</h3>
+                        <p class="text-sm text-gray-500 mt-1">Monitor your credits and debits</p>
+                    </div>
+
+                    <div class="overflow-x-auto custom-scrollbar">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50/50">
+                                    <th class="py-4 px-6 text-xs font-bold text-gray-400 uppercase tracking-widest">Description</th>
+                                    <th class="py-4 px-6 text-xs font-bold text-gray-400 uppercase tracking-widest">Date</th>
+                                    <th class="py-4 px-6 text-xs font-bold text-gray-400 uppercase tracking-widest">Type</th>
+                                    <th class="py-4 px-6 text-xs font-bold text-gray-400 uppercase tracking-widest text-right">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-50">
+                                <!-- Transaction 1 -->
+                                <tr class="hover:bg-gray-50/80 transition-colors">
+                                    <td class="py-5 px-6">
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mr-4">
+                                                <i class="fas fa-shopping-bag text-gray-500"></i>
+                                            </div>
+                                            <div>
+                                                <p class="font-bold text-gray-900">Order #ORD-94210</p>
+                                                <p class="text-xs text-gray-500">Polo Brown Shirt</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-5 px-6 text-sm text-gray-600">Oct 12, 2025</td>
+                                    <td class="py-5 px-6">
+                                        <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider status-debit">Debit</span>
+                                    </td>
+                                    <td class="py-5 px-6 text-right font-bold text-red-600">- ₹4,949.00</td>
+                                </tr>
+
+                                <!-- Transaction 2 -->
+                                <tr class="hover:bg-gray-50/80 transition-colors">
+                                    <td class="py-5 px-6">
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center mr-4">
+                                                <i class="fas fa-arrow-down text-green-600"></i>
+                                            </div>
+                                            <div>
+                                                <p class="font-bold text-gray-900">Added to Wallet</p>
+                                                <p class="text-xs text-gray-500">Bank Transfer</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-5 px-6 text-sm text-gray-600">Oct 05, 2025</td>
+                                    <td class="py-5 px-6">
+                                        <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider status-credit">Credit</span>
+                                    </td>
+                                    <td class="py-5 px-6 text-right font-bold text-green-600">+ ₹10,000.00</td>
+                                </tr>
+
+                                <!-- Transaction 3 -->
+                                <tr class="hover:bg-gray-50/80 transition-colors">
+                                    <td class="py-5 px-6">
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mr-4">
+                                                <i class="fas fa-undo text-gray-500"></i>
+                                            </div>
+                                            <div>
+                                                <p class="font-bold text-gray-900">Refund for Order #ORD-83109</p>
+                                                <p class="text-xs text-gray-500">Canceled Order</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-5 px-6 text-sm text-gray-600">Sep 28, 2025</td>
+                                    <td class="py-5 px-6">
+                                        <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider status-credit">Credit</span>
+                                    </td>
+                                    <td class="py-5 px-6 text-right font-bold text-green-600">+ ₹2,400.00</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Empty State Footer (Optional) -->
+                    <div class="p-6 text-center border-t border-gray-50">
+                        <button class="text-sm font-bold text-gray-400 hover:text-black transition">View All Transactions</button>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+</body>
+</html>

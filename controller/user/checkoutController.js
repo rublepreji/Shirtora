@@ -131,9 +131,7 @@ async function orderSuccessPage(req,res) {
 
 
 async function placeOrder(req, res) {
-  try { 
-    console.log('inside placeorder');
-    
+  try {     
     const userId = req.session.user._id;
     const { 
       selectedAddressIndex, 
@@ -184,7 +182,7 @@ async function placeOrder(req, res) {
           razorpay_payment_id,
           razorpay_order_id,
           razorpay_signature
-        };
+        };  
         
         const result = await checkoutService.placeOrderService(
           userId,

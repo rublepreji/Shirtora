@@ -2,175 +2,73 @@
 document.addEventListener("DOMContentLoaded", () => {
   console.log("[productDetails] script loaded");
 
-  // tiny helper
-  const $ = id => document.getElementById(id);
-
-  // --- Elements (may be null if EJS changed) ---
-  const descTab = $('desc-tab');
-  const reviewsTab = $('reviews-tab');
-  const descContent = $('description-content');
-  const reviewsContent = $('reviews-content');
-
-  const mainImage = $('mainImage');
-  const zoomLens = $('zoomLens');
-  const zoomResult = $('zoomResult');
-
-  const sizeSelect = $('size-select');
-  const priceElement = $('product-price');
-  const stockMessage = $('stock-message');
-  const selectedSizeLabel = $('selected-size-label');
-  let qtyInput = $('qty-input'); // may be recreated if missing
-  const qtyMinus = $('qty-minus');
-  const qtyPlus = $('qty-plus');
-  const addToCartBtn = $('add-to-cart-btn');
-  const buyNowBtn = $('buy-now-btn'); // optional
-  const headerStock = $('header-stock');
-
-  console.log("[productDetails] elements present:", {
-    descTab: !!descTab, reviewsTab: !!reviewsTab,
-    mainImage: !!mainImage, zoomLens: !!zoomLens, zoomResult: !!zoomResult,
-    sizeSelect: !!sizeSelect, priceElement: !!priceElement,
-    stockMessage: !!stockMessage, selectedSizeLabel: !!selectedSizeLabel,
-    qtyInput: !!qtyInput, qtyMinus: !!qtyMinus, qtyPlus: !!qtyPlus,
-    addToCartBtn: !!addToCartBtn, buyNowBtn: !!buyNowBtn, headerStock: !!headerStock
-  });
+  const $ = (id) => document.getElementById(id);
 
   // -------------------------
-  // Tabs
+  // Elements
   // -------------------------
-  function showTab(tabName) {
-    if (!descTab || !reviewsTab || !descContent || !reviewsContent) return;
-    if (tabName === 'description') {
-      descTab.classList.add('tab-active');
-      reviewsTab.classList.remove('tab-active');
-      reviewsTab.classList.add('hover:text-black');
+  const sizeSelect = $("size-select");
+  const priceElement = $("product-price");            // discounted price
+  const originalPriceEl = document.querySelector(".strike-through"); // original price
+  const stockMessage = $("stock-message");
+  const selectedSizeLabel = $("selected-size-label");
 
-      descContent.classList.remove('hidden');
-      reviewsContent.classList.add('hidden');
-    } else {
-      reviewsTab.classList.add('tab-active');
-      descTab.classList.remove('tab-active');
-      descTab.classList.add('hover:text-black');
+  const qtyInput = $("qty-input");
+  const qtyMinus = $("qty-minus");
+  const qtyPlus = $("qty-plus");
 
-      reviewsContent.classList.remove('hidden');
-      descContent.classList.add('hidden');
-    }
-  }
-  window.showTab = showTab;
+  const addToCartBtn = $("add-to-cart-btn");
+  const buyNowBtn = $("buy-now-btn");
+  const headerStock = $("header-stock");
 
   // -------------------------
-  // Image change
+  // OFFER
   // -------------------------
-  window.changeImage = function (src) {
-    const mi = $('mainImage');
-    if (mi) mi.src = src;
-  };
+  const offerPercent = priceElement
+    ? Number(priceElement.dataset.offer || 0)
+    : 0;
 
-  // -------------------------
-  // Zoom (guarded)
-  // -------------------------
-  if (mainImage && zoomLens && zoomResult) {
-    mainImage.parentElement.addEventListener("mouseenter", () => {
-      // create zoomed image element
-      zoomResult.innerHTML = `<img id="zoomedImg" src="${mainImage.src}" style="position:relative; left:0; top:0;"/>`;
-    });
+  console.log("[productDetails] offer percent:", offerPercent);
 
-    mainImage.parentElement.addEventListener("mousemove", function (e) {
-      const zoomedImg = $('zoomedImg');
-      if (!zoomedImg) return;
-
-      zoomLens.classList.remove("hidden");
-      zoomResult.classList.remove("hidden");
-
-      const bounds = this.getBoundingClientRect();
-      const X = e.clientX - bounds.left;
-      const Y = e.clientY - bounds.top;
-
-      let lensX = X - zoomLens.offsetWidth / 2;
-      let lensY = Y - zoomLens.offsetHeight / 2;
-
-      lensX = Math.max(0, Math.min(lensX, bounds.width - zoomLens.offsetWidth));
-      lensY = Math.max(0, Math.min(lensY, bounds.height - zoomLens.offsetHeight));
-
-      zoomLens.style.left = `${lensX}px`;
-      zoomLens.style.top = `${lensY}px`;
-
-      // compute ratio (guard zero/NaN)
-      const ratioX = (zoomedImg.offsetWidth && mainImage.offsetWidth) ? (zoomedImg.offsetWidth / mainImage.offsetWidth) : 1;
-      const ratioY = (zoomedImg.offsetHeight && mainImage.offsetHeight) ? (zoomedImg.offsetHeight / mainImage.offsetHeight) : 1;
-
-      zoomedImg.style.left = `${-lensX * ratioX}px`;
-      zoomedImg.style.top = `${-lensY * ratioY}px`;
-    });
-
-    mainImage.parentElement.addEventListener("mouseleave", () => {
-      zoomLens.classList.add("hidden");
-      zoomResult.classList.add("hidden");
-    });
+  function calculateFinalPrice(price, offer) {
+    const p = Number(price) || 0;
+    const o = Number(offer) || 0;
+    return Math.round(p - (p * o) / 100);
   }
 
   // -------------------------
-  // Ensure qtyInput exists (fallback)
+  // STOCK UI HELPERS
   // -------------------------
-  if (!qtyInput) {
-    console.warn("[productDetails] qty-input not found; creating fallback input.");
-    const fallback = document.createElement('input');
-    fallback.type = 'text';
-    fallback.id = 'qty-input';
-    fallback.value = '1';
-    fallback.readOnly = true;
-    fallback.style.position = 'absolute';
-    fallback.style.left = '-9999px';
-    document.body.appendChild(fallback);
-    qtyInput = $('qty-input');
-  }
-
-  // Ensure plus/minus are safe buttons
-  if (qtyMinus) qtyMinus.setAttribute('type', 'button');
-  if (qtyPlus) qtyPlus.setAttribute('type', 'button');
-
-  // -------------------------
-  // Stock / UI helpers
-  // -------------------------
-  let currentStock = 0;
-  try {
-    if (sizeSelect && sizeSelect.options && sizeSelect.selectedIndex >= 0) {
-      currentStock = parseInt(sizeSelect.options[sizeSelect.selectedIndex].dataset.stock || '0', 10) || 0;
-    }
-  } catch (err) {
-    console.error("[productDetails] reading initial stock failed:", err);
-    currentStock = 0;
-  }
-  console.log("[productDetails] initial stock:", currentStock);
-
   function updateStockDisplay(stock) {
     if (!stockMessage) return;
+
     if (stock === 0) {
-      stockMessage.className = 'text-red-600 font-semibold';
-      stockMessage.textContent = 'OUT OF STOCK';
+      stockMessage.className = "text-red-600 font-semibold";
+      stockMessage.textContent = "OUT OF STOCK";
     } else if (stock < 5) {
-      stockMessage.className = 'text-red-600';
-      stockMessage.innerHTML = `Remaining only <span id="stock-count">${stock}</span> products`;
+      stockMessage.className = "text-red-600";
+      stockMessage.innerHTML = `Remaining only <span>${stock}</span> products`;
     } else if (stock < 10) {
-      stockMessage.className = 'text-orange-600';
-      stockMessage.innerHTML = `Stock: <span id="stock-count">${stock}</span>`;
+      stockMessage.className = "text-orange-600";
+      stockMessage.innerHTML = `Stock: <span>${stock}</span>`;
     } else {
-      stockMessage.className = 'text-green-600';
-      stockMessage.innerHTML = `Stock: <span id="stock-count">${stock}</span>`;
+      stockMessage.className = "text-green-600";
+      stockMessage.innerHTML = `Stock: <span>${stock}</span>`;
     }
   }
 
   function updateHeaderStock(stock) {
     if (!headerStock) return;
+
     if (stock === 0) {
-      headerStock.className = 'text-red-600 font-semibold';
-      headerStock.textContent = '| OUT OF STOCK';
+      headerStock.textContent = "| OUT OF STOCK";
+      headerStock.className = "text-red-600 font-semibold";
     } else if (stock < 5) {
-      headerStock.className = 'text-orange-600 font-semibold';
-      headerStock.textContent = '| LIMITED PRODUCT';
+      headerStock.textContent = "| LIMITED PRODUCT";
+      headerStock.className = "text-orange-600 font-semibold";
     } else {
-      headerStock.className = 'text-green-600 font-semibold';
-      headerStock.textContent = '| In Stock';
+      headerStock.textContent = "| In Stock";
+      headerStock.className = "text-green-600 font-semibold";
     }
   }
 
@@ -182,135 +80,122 @@ document.addEventListener("DOMContentLoaded", () => {
     if (qtyPlus) qtyPlus.disabled = disabled;
   }
 
-  // initialize UI
+  // -------------------------
+  // INITIAL LOAD
+  // -------------------------
+  let currentStock = 0;
+
+  if (sizeSelect && sizeSelect.selectedIndex >= 0) {
+    const opt = sizeSelect.options[sizeSelect.selectedIndex];
+    currentStock = Number(opt.dataset.stock || 0);
+
+    const basePrice = Number(opt.dataset.price || 0);
+    const finalPrice = calculateFinalPrice(basePrice, offerPercent);
+
+    if (priceElement) priceElement.textContent = `₹${finalPrice}/-`;
+    if (originalPriceEl) originalPriceEl.textContent = `₹${basePrice}`;
+  }
+
   updateStockDisplay(currentStock);
   updateHeaderStock(currentStock);
   updateButtonStates(currentStock);
 
   // -------------------------
-  // Size select change
+  // SIZE CHANGE (THIS IS WHAT YOU WANTED)
   // -------------------------
   if (sizeSelect) {
-    sizeSelect.addEventListener('change', function () {
-      try {
-        const opt = this.options[this.selectedIndex];
-        const price = opt.dataset.price;
-        const stock = parseInt(opt.dataset.stock || '0', 10) || 0;
-        const size = opt.dataset.size || '';
+    sizeSelect.addEventListener("change", function () {
+      const opt = this.options[this.selectedIndex];
 
-        currentStock = stock;
+      const basePrice = Number(opt.dataset.price || 0);
+      const stock = Number(opt.dataset.stock || 0);
+      const size = opt.dataset.size || "";
 
-        if (priceElement) priceElement.textContent = `₹${price}/-`;
-        if (selectedSizeLabel) selectedSizeLabel.textContent = size;
-        if (qtyInput) qtyInput.value = '1';
+      currentStock = stock;
 
-        updateStockDisplay(stock);
-        updateHeaderStock(stock);
-        updateButtonStates(stock);
+      // 🔥 Apply offer
+      const finalPrice = calculateFinalPrice(basePrice, offerPercent);
 
-        console.log("[productDetails] size changed — stock:", stock);
-      } catch (err) {
-        console.error("[productDetails] size change handler error:", err);
+      // 🔥 Update UI
+      if (priceElement) {
+        priceElement.textContent = `₹${finalPrice}/-`;
       }
+
+      if (originalPriceEl) {
+        originalPriceEl.textContent = `₹${basePrice}`;
+      }
+
+      if (selectedSizeLabel) {
+        selectedSizeLabel.textContent = size;
+      }
+
+      if (qtyInput) qtyInput.value = "1";
+
+      updateStockDisplay(stock);
+      updateHeaderStock(stock);
+      updateButtonStates(stock);
+
+      console.log("[productDetails] size changed", {
+        size,
+        basePrice,
+        offerPercent,
+        finalPrice,
+        stock,
+      });
     });
   }
 
   // -------------------------
-  // Quantity controls
+  // QUANTITY
   // -------------------------
   if (qtyMinus) {
-    qtyMinus.addEventListener('click', (e) => {
-      e.preventDefault();
-      try {
-        const input = $('qty-input');
-        let qty = parseInt(input.value || '1', 10) || 1;
-        if (qty > 1) {
-          input.value = (qty - 1).toString();
-          console.log("[productDetails] qty decreased to", input.value);
-        } else {
-          console.log("[productDetails] qty already at minimum 1");
-        }
-      } catch (err) {
-        console.error("[productDetails] qty-minus click error:", err);
-      }
+    qtyMinus.addEventListener("click", () => {
+      let qty = Number(qtyInput.value || 1);
+      if (qty > 1) qtyInput.value = qty - 1;
     });
-  } else {
-    console.warn("[productDetails] qty-minus button not found");
   }
 
   if (qtyPlus) {
-    qtyPlus.addEventListener('click', (e) => {
-      e.preventDefault();
-      try {
-        const input = $('qty-input');
-        let qty = parseInt(input.value || '1', 10) || 1;
-        const max = (Number.isFinite(currentStock) && currentStock > 0) ? currentStock : 9999;
-        if (qty < max) {
-          input.value = (qty + 1).toString();
-          console.log("[productDetails] qty increased to", input.value);
-        } else {
-          console.log("[productDetails] reached max stock", max);
-        }
-      } catch (err) {
-        console.error("[productDetails] qty-plus click error:", err);
-      }
+    qtyPlus.addEventListener("click", () => {
+      let qty = Number(qtyInput.value || 1);
+      if (qty < currentStock) qtyInput.value = qty + 1;
     });
-  } else {
-    console.warn("[productDetails] qty-plus button not found");
   }
 
   // -------------------------
-  // Add to cart (guarded)
+  // ADD TO CART
   // -------------------------
   if (addToCartBtn) {
-    addToCartBtn.addEventListener('click', async () => {
-      const productId = $('product-id')?.value || null;
-      const variantIndex = sizeSelect ? sizeSelect.value : 0;
-      const qty = $('qty-input')?.value || '1';
+    addToCartBtn.addEventListener("click", async () => {
+      const productId = $("product-id")?.value;
+      const variantIndex = sizeSelect?.value || 0;
+      const qty = qtyInput?.value || 1;
 
       try {
-        const response = await fetch("/addToCart", {
+        const res = await fetch("/addToCart", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ productId, variantIndex, qty })
+          body: JSON.stringify({ productId, variantIndex, qty }),
         });
 
-        const data = await response.json();
+        const data = await res.json();
 
         if (data.success) {
-          if (typeof Swal !== "undefined") {
-            Swal.fire({
-              icon: "success",
-              title: "Added!",
-              text: "Product added to cart successfully",
-              showConfirmButton: false,
-              timer: 1400
-            });
-          } else {
-            console.log("[productDetails] added to cart:", data);
-          }
+          Swal.fire({
+            icon: "success",
+            title: "Added to cart",
+            timer: 1200,
+            showConfirmButton: false,
+          });
         } else {
-          if (typeof Swal !== "undefined") {
-            Swal.fire({
-              icon: "error",
-              title: "Oops!",
-              text: data.message || "Could not add to cart"
-            });
-          } else {
-            console.error("[productDetails] addToCart failed:", data);
-          }
+          Swal.fire("Error", data.message || "Failed", "error");
         }
-
       } catch (err) {
-        console.error("[productDetails] addToCart error:", err);
-        if (typeof Swal !== "undefined") {
-          Swal.fire({ icon: "error", title: "Error", text: "Something went wrong. Try again!" });
-        }
+        console.error(err);
+        Swal.fire("Error", "Something went wrong", "error");
       }
     });
-  } else {
-    console.warn("[productDetails] add-to-cart button not found");
   }
 
-  console.log("[productDetails] initialized");
+  console.log("[productDetails] initialized successfully");
 });

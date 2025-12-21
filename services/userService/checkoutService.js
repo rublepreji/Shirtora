@@ -94,12 +94,12 @@ return true;
   const taxAndOthers = 0.00;
   const grandTotal = itemTotal + shippingCharge + taxAndOthers;
 
-  // ---------- PAGE DIMENSIONS ----------
+  // Page dimension
   const pageMargin = 50;
   const pageWidth = 612;
   const contentWidth = pageWidth - (2 * pageMargin);
 
-  // ---------- HEADER ----------
+  // Header
   doc.fontSize(28)
     .fillColor("#333333")
     .text("SHIRTORA", pageMargin, 60, { align: "left" });
@@ -109,7 +109,7 @@ return true;
 
   doc.moveDown(3);
 
-  // ---------- SHIPPING DETAILS ----------
+  // shipping details
   let currentY = doc.y;
 
   doc.fontSize(14)
@@ -128,7 +128,7 @@ return true;
     doc.text("Address not available");
   }
 
-  // ---------- ORDER INFO (Right Side) ----------
+  //Order info
   const orderDetailsX = pageMargin + contentWidth / 2;
   doc.y = currentY;
 
@@ -144,7 +144,7 @@ return true;
 
   doc.moveDown(4);
 
-  // ---------- TABLE HEADER ----------
+  // Table header
   const tableTop = doc.y;
   const col1X = pageMargin;
   const col2X = pageMargin + 300;
@@ -173,7 +173,7 @@ return true;
   let itemY = itemsStart + 10;
   doc.font("Helvetica");
 
-  // ---------- TABLE BODY ----------
+  // Table body
   order.items.forEach((item, i) => {
     if (itemY + 30 > doc.page.height - pageMargin) {
       doc.addPage();
@@ -185,7 +185,7 @@ return true;
         .text(`${i + 1}. PRODUCT REMOVED`, col1X, itemY);
     } else {
       const variant = item.productId.variants[item.variantIndex];
-      const price = variant ? parseFloat(variant.price) : 0;
+      const price =item.pricePerUnit
       const variantName = variant?.name || `Index: ${item.variantIndex}`;
 
       doc.fontSize(10)
@@ -203,7 +203,7 @@ return true;
     doc.y = itemY;
   });
 
-  // ---------- SUMMARY ----------
+  // Summary
   doc.moveDown(2);
   let summaryY = doc.y;
 
@@ -246,7 +246,7 @@ return true;
 
   doc.moveDown(3);
 
-  // ---------- FOOTER ----------
+  // Footer
   doc.fontSize(10)
     .fillColor("#555555")
     .text("Thank you for your order!", pageMargin, doc.y, { align: "center" });
@@ -360,10 +360,18 @@ async function placeOrderService(userId, selectedAddressIndex, paymentMethod, ra
               paymentStatus = "Paid";
             }
             
+            const orderItems= validItems.map(item=>({
+              productId:item.productId._id,
+              variantIndex:item.variantIndex,
+              quantity:item.quantity,
+              pricePerUnit:item.pricePerUnit,
+              totalPrice:item.totalPrice
+            }))
+
             const newOrder = await Order.create([{
               orderId: customOrderId,
               userId,
-              items: validItems,
+              items: orderItems,
               totalAmount: total,
               paymentMethod,
               paymentStatus,
@@ -432,7 +440,7 @@ async function loadCheckoutService(userId) {
 
   let subtotal = 0;
   filteredProducts.forEach(item => {
-    subtotal += item.productId.variants[item.variantIndex].price * item.quantity;
+    subtotal += item.pricePerUnit * item.quantity;
   });
 
   const grandTotal = subtotal;

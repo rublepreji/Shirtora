@@ -108,7 +108,7 @@
                   </div>
 
                   <div class="text-sm font-semibold ml-4">
-                    ₹<%= item.productId.variants[item.variantIndex].price * item.quantity %>
+                    ₹<%= item.pricePerUnit * item.quantity %>
                   </div>
                 </li>
               <% }) %>

@@ -8,28 +8,46 @@ import Offer from '../../model/offerSchema.js'
 async function editOffer(req,res) {
     try {
         const data= req.body
+        console.log(data)
         const {id}= req.params
         
-        if(!data.offerName || !data.offerType || !data.availableFor || !data.description || !data.offerPercentage || !data.startDate || !data.endDate){
+        if(!data.offerName || !data.offerType || !data.availableFor || !data.description || data.offerPercentage===undefined || !data.startDate || !data.endDate){
             return res.status(STATUS.BAD_REQUEST).json({success:false,message:"All fields are required!"})
         }
+        const duplicateQuery={
+            _id:{$ne:id},
+            isActive:true,
+            type:data.offerType
+        }
+        if(data.offerType==="product"){
+            duplicateQuery.productId=Number(data.availableFor)
+        }
+        if(data.offerType==="category"){
+            duplicateQuery.categoryId=Number(data.availableFor)
+        }
+        const existingOffer= await Offer.findOne(duplicateQuery)
+        if(existingOffer){
+            return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Offer already exist for selected item"})
+        }
+
         const updateOffer={
             title:data.offerName,
             type:data.offerType,
             description:data.description,
-            discountPercentage:Number(data.offerPercentage),
-            productId:null,
-            categoryId:null,
             startDate:data.startDate,
             endDate:data.endDate
         }
+        
         if(data.offerType==='product'){
             updateOffer.productId=data.availableFor
+            updateOffer.productOffer= data.offerPercentage
         }
         if(data.offerType==='category'){
             updateOffer.categoryId=data.availableFor
+            updateOffer.categoryOffer= data.offerPercentage
         }
-        const response=await Offer.findByIdAndUpdate(id,updateOffer,{new:true})
+        
+        const response=await Offer.findByIdAndUpdate(id,updateOffer,{new:true,runValidators:true})
         if(!response){
             logger.info("Not able to update the offer")
             return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Not able to update"})
@@ -76,7 +94,8 @@ async function loadEditOffer(req,res) {
 async function loadDeleteOffer(req,res) {
     try {
         const offerId= req.params.id
-        return res.status(STATUS.OK).json({success:true,message:"Offer deleted successfully"})
+        await Offer.findByIdAndDelete(offerId)
+        return res.redirect('/admin/offerlist')
     } catch (error) {
         logger.error("Error form loadDeleteOffer",error)
         return res.status(STATUS.INTERNAL_SERVER_ERROR).json({success:false,message:"Internal server error"})
@@ -97,7 +116,7 @@ async function offerList(req,res) {
             },
             {$set:{isActive:false}}
         )
-        let query={isActive:true}
+        let query={}
         if(search.trim()!==''){
             query.title={$regex: search,$options:"i"}
         }
@@ -157,17 +176,24 @@ async function addOffer(req,res) {
         if(existingOffer){
             return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Active offer already exists"})
         }
-         const newOffer=new Offer({
+         const newOfferData={
             title:offerName,
             description:description,
             type:offerType,
-            productId:offerType=='product'?availableFor :null,
-            categoryId:offerType=='category'?availableFor:null,
-            discountPercentage:Number(offerPercentage),
             startDate:startDate,
             endDate:endDate
-         })
+         }
+         if(offerType=="product"){
+            newOfferData.productId=availableFor
+            newOfferData.productOffer=Number(offerPercentage)
+         }
+         if(offerType=="category"){
+            newOfferData.categoryId=availableFor
+            newOfferData.categoryOffer= Number(offerPercentage)
+         }
+         const newOffer= new Offer(newOfferData)
         await newOffer.save()
+        
         return res.status(STATUS.OK).json({success:true,message:"Offer added successfully"})
     } catch (error) {
         logger.error('Error from addOffer',error)

@@ -67,6 +67,7 @@
                             <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Offer</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Selected (Product/Category)</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Expiry Date</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Status</th>
                             <th class="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
@@ -106,13 +107,23 @@
             const tbody= document.getElementById('offerTable')
             tbody.innerHTML=''
             data.forEach((item,i)=>{
+                let status=item.isActive? `<p
+                class="px-2 py-1 text-sm font-semibold rounded-full 
+                    bg-green-100 text-green-700">
+                Active
+                </p>`:`<p
+                class="px-4 py-1.5 text-sm font-semibold rounded-full 
+                    bg-red-100 text-red-700">
+                Inactive
+                </p>`
                 tbody.innerHTML+=`
                 <tr>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.title}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"> ${item.type}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.discountPercentage}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.productOffer || item.categoryOffer}%</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.appliedOn}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${new Date(item.endDate).toDateString()}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${status}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium flex justify-center space-x-2">
                     <button class="text-indigo-600 hover:text-indigo-900 p-1">
                        <a href="/admin/editoffer/${item._id}"> <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg></a>

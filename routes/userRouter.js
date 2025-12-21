@@ -10,6 +10,9 @@ import {storage} from '../helpers/multer.js';
 import { loadWishlist , addToWishlist, removeFromWishlist} from '../controller/user/wishlistController.js';
 import {loadCheckout , placeOrder, loadOrderFailed ,orderSuccessPage, loadOrderDetails, loadOrderList, downloadInvoice, cancelOrder, returnRequest, loadOrderListData, handlePaymentFailed} from '../controller/user/checkoutController.js'
 import { processPayment, retryCreateOrder, retryVerifyPayment } from '../controller/user/paymentController.js';
+import {
+  loadWallet
+} from "../controller/user/walletController.js"
 
 const router = express.Router();
 const uploads = multer({ storage: storage });
@@ -103,6 +106,9 @@ router.post('/create_order',processPayment)
 router.post('/payment_failed',handlePaymentFailed)
 router.post('/retry_create_order',userAuth,retryCreateOrder)
 router.post('/retry_create_payment',userAuth,retryVerifyPayment)
+
+//Wallet
+router.get('/wallet',userAuth,loadWallet)
 
 
 

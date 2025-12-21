@@ -17,6 +17,14 @@ const orderSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId, 
         ref: "Product" 
       },
+      totalPrice: {
+        type: Number,
+        required: true
+      },
+      pricePerUnit: { 
+          type: Number,
+          required: true
+      },
       quantity: Number,
       variantIndex: Number,
       itemStatus: {

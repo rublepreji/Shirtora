@@ -9,9 +9,17 @@ dotenv.config();
 
 async function productDetails(req,res) {
   try {
+    console.log('Inside product details');
+    
     const user=req.session.user ?req.session.user :""
     const productId= req.params.id  
     const {userData,product,defaultVariant,totalOffer,categoryOffer,relatedProduct}=await userService.productDetailsService(user,productId)
+    
+    if(!product || !defaultVariant){      
+      return res.redirect('/pageNotFound')
+    }
+    
+    const {offer,offerSource}= await userService.offerCalculation(product)
     
     res.render('productDetails',{
       user:userData,
@@ -21,7 +29,9 @@ async function productDetails(req,res) {
       quantity:defaultVariant.stock,
       totalOffer:totalOffer,
       category:categoryOffer,
-      relatedProduct
+      relatedProduct,
+      offer,
+      offerSource
     })
   } catch (error) {
     return res.redirect('/pageNotFound')

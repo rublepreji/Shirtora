@@ -27,13 +27,24 @@ const offerSchema = new mongoose.Schema({
     default: null
   },
 
-  discountPercentage: {
-    type: Number,
-    required: true,
-    min: 1,
-    max: 90
+  // discountPercentage: {
+  //   type: Number,
+  //   required: true,
+  //   min: 1,
+  //   max: 90
+  // },
+  productOffer:{
+    type:Number,
+    min:0,
+    max:90,
+    default:0
   },
-
+  categoryOffer:{
+    type:Number,
+    min:0,
+    max:90,
+    default:0
+  },
   isActive: {
     type: Boolean,
     default: true
