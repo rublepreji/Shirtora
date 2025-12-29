@@ -114,8 +114,6 @@ async function addBrand(req, res) {
       return res.status(STATUS.BAD_REQUEST).json({ message: 'No image is uploaded' });
     }
 
-    console.log(req.file);
-
     const brand = await BrandService.findBrand(name)
     if (brand) {
       return res.status(STATUS.BAD_REQUEST).json({ message: 'Brand already exist' });

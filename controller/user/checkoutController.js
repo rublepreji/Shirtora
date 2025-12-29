@@ -3,12 +3,14 @@ import {updateStatus} from "../../helpers/updateOrderStatus.js"
 import {logger} from '../../logger/logger.js'
 import checkoutService from "../../services/userService/checkoutService.js";
 import {verifyRazorpaySignature} from '../../utils/razorpayVerification.js'
+import Order from '../../model/orderSchema.js';
+import mongoose from 'mongoose';
+import {creditWallet} from "../../services/userService/walletService.js"
 
 async function handlePaymentFailed(req, res) {
-  console.log('inside handlepayment failed');
   
   try {
-    const { orderId, reason, selectedAddressIndex, paymentMethod } = req.body;
+    const { orderId, reason, selectedAddressIndex,  } = req.body;
     const userId = req.session.user._id
     
     const result= await checkoutService.createFailedPaymentOrder(userId,reason,orderId,selectedAddressIndex,paymentMethod)
@@ -30,18 +32,64 @@ async function returnRequest(req,res) {
   }
 }
 
-async function cancelOrder(req,res) {
+async function cancelOrder(req,res) {  
+  const session= await mongoose.startSession()
   try {
+    session.startTransaction()
     const {orderId,newStatus}= req.body
-    const result= await updateStatus(orderId,newStatus)
-    if(result){
-      await checkoutService.cancelOrderStockUpdateService(orderId)
-      return res.status(STATUS.OK).json({success:true,message:"Updated successfully"})
+    
+    const order= await Order.findOne({orderId}).session(session)
+
+    if(!order){
+      await session.abortTransaction()
+      session.endSession()
+      return res.status(STATUS.BAD_REQUEST) .json({success:false,message:"Order not found"})
     }
-    else{
-      return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Failed to update status"})
+
+    if(newStatus!=="Cancelled"){
+      await session.abortTransaction()
+      session.endSession()
+      return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Invalid status update"})
     }
+
+    if (order.status === "Cancelled") {
+      await session.abortTransaction()
+      session.endSession()
+      return res.status(STATUS.BAD_REQUEST).json({
+        success: false,
+        message: "Order already cancelled"
+      });
+    }
+    order.status= newStatus
+    await order.save({session})
+
+    
+    await checkoutService.cancelOrderStockUpdateService(orderId,session)
+
+    const paymentMethod= order.paymentMethod?.trim()
+    const paymentStatus= order.paymentStatus?.trim()
+
+    console.log(paymentMethod,paymentStatus);
+    
+
+    if(paymentMethod!=="COD" && paymentStatus==="Paid"){
+      await creditWallet({
+        userId:order.userId,
+        amount:order.totalAmount,
+        orderId:order._id,
+        source:"ORDER_REFUND",
+        reason:"Refund for cancelled order",
+        session
+      })
+    }
+    await session.commitTransaction()
+    session.endSession()
+
+    return res.status(STATUS.OK).json({success:true,message:"Order cancelled and refund processed"})
   } catch (error) {
+    logger.error("Error on cancel order controller",error)
+    await session.abortTransaction()
+    session.endSession()
     return res.status(STATUS.INTERNAL_SERVER_ERROR).json({success:false,message:"Internal server error"})
   }
 }
@@ -139,8 +187,18 @@ async function placeOrder(req, res) {
       razorpay_payment_id,
       razorpay_order_id,
       razorpay_signature
-    } = req.body; 
-    
+    } = req.body;     
+
+    let normalizedPaymentMethod;
+
+    if (paymentMethod === "UPI Method") {
+      normalizedPaymentMethod = "UPI";
+    } else if (paymentMethod === "Cash On Delivery") {
+      normalizedPaymentMethod = "COD";
+    } else {
+      normalizedPaymentMethod = paymentMethod?.trim();
+    }
+
     if (!selectedAddressIndex) { 
       return res.status(STATUS.BAD_REQUEST).json({ 
         success: false, 
@@ -148,7 +206,7 @@ async function placeOrder(req, res) {
       });
     } 
     
-    if (!paymentMethod) { 
+    if (!normalizedPaymentMethod) { 
       return res.status(STATUS.BAD_REQUEST).json({ 
         success: false, 
         message: "No payment method selected"
@@ -156,7 +214,7 @@ async function placeOrder(req, res) {
     }
     
     // UPI payment
-    if (paymentMethod === "UPI Method") {
+    if (normalizedPaymentMethod === "UPI") {
       if (!razorpay_payment_id || !razorpay_order_id || !razorpay_signature) {
         return res.status(STATUS.BAD_REQUEST).json({
           success: false,
@@ -187,7 +245,7 @@ async function placeOrder(req, res) {
         const result = await checkoutService.placeOrderService(
           userId,
           selectedAddressIndex,
-          paymentMethod,
+          normalizedPaymentMethod,
           razorpayData
         );
         
@@ -202,7 +260,7 @@ async function placeOrder(req, res) {
     const result = await checkoutService.placeOrderService(
       userId,
       selectedAddressIndex,
-      paymentMethod
+      normalizedPaymentMethod
     ); 
     
     if (!result.success) { 
@@ -231,7 +289,8 @@ async function loadCheckout(req, res) {
     addresses:result.addresses,
     subtotal: result.subtotal,
     grandTotal: result.grandTotal,
-    defaultAddress: result.defaultAddress
+    defaultAddress: result.defaultAddress,
+    availableCoupons:result.coupons
   });
 } catch (error) {
   return res.redirect("/pageNotFound");

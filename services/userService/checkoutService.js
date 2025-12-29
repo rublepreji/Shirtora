@@ -1,6 +1,8 @@
 import Cart from "../../model/cartSchema.js";
 import Order from "../../model/orderSchema.js";
 import Address from "../../model/addressSchema.js";
+import Usercoupon from "../../model/userCouponSchema.js"
+import Coupon from "../../model/couponSchema.js";
 import PDFDocument from "pdfkit";
 import mongoose from "mongoose";
 
@@ -66,14 +68,19 @@ async function returnRequestService(orderId,productIndex,reason,newStatus) {
     return({ success: true });
 }
 
-async function cancelOrderStockUpdateService(orderId) {
-    const order= await Order.findOne({orderId}).populate("items.productId")
+async function cancelOrderStockUpdateService(orderId, session) {
+  console.log("cancel order stockupdate service");
+  
+    const order= await Order.findOne({orderId}).populate("items.productId").session(session)
+    if(order.isStockRestored) return 
     for(const item of order.items){
     const product= item.productId
     const variantIndex= item.variantIndex
     product.variants[variantIndex].stock+=item.quantity
-    await product.save()
-}
+    await product.save({session})
+  }
+order.isStockRestored=true
+await order.save({session})
 return true;
 }
 
@@ -352,10 +359,10 @@ async function placeOrderService(userId, selectedAddressIndex, paymentMethod, ra
             let orderStatus = "Pending";
             let paymentStatus = "Pending";
             
-            if (paymentMethod === "Cash on Delivery") {
+            if (paymentMethod === "COD") {
               orderStatus = "Pending";
               paymentStatus = "Pending";
-            } else if (paymentMethod === "UPI Method" && razorpayData) {
+            } else if (paymentMethod === "UPI" && razorpayData) {
               orderStatus = "Pending";
               paymentStatus = "Paid";
             }
@@ -402,54 +409,78 @@ async function placeOrderService(userId, selectedAddressIndex, paymentMethod, ra
 }
 
 async function loadCheckoutService(userId) {
+  try {
     const cart = await Cart.findOne({ userId })
-      .populate({
-        path: "items.productId",
-        populate: [{ path: "category" }, { path: "brand" }]
-      })
-      .lean();
+    .populate({
+      path: "items.productId",
+      populate: [{ path: "category" }, { path: "brand" }]
+    })
+    .lean();
 
-    const addressDoc = await Address.findOne({ userId }).lean();
-    const addresses = addressDoc ? addressDoc.address : [];
-    const defaultAddress = addresses.find(a => a.isDefault === true);
+  const addressDoc = await Address.findOne({ userId }).lean();
+  const addresses = addressDoc ? addressDoc.address : [];
+  const defaultAddress = addresses.find(a => a.isDefault === true);
 
-    if (!cart || cart.items.length === 0) {
-      return {
-        cartItems: [],
-        addresses,
-        subtotal: 0,
-        grandTotal: 0,
-        defaultAddress
-    };
-  }
-
-  const filteredProducts = cart.items.filter((product) => {
-    return product.productId.isBlocked === false;
-  });
-
-  if (filteredProducts.length === 0) {
-  return {
-    cartItems: [],
-    addresses,
-    subtotal: 0,
-    grandTotal: 0,
-    defaultAddress,
-    message: "Some products were unavailable and removed from your cart."
+  if (!cart || cart.items.length === 0) {
+    return {
+      cartItems: [],
+      addresses,
+      subtotal: 0,
+      grandTotal: 0,
+      defaultAddress
   };
 }
 
-  let subtotal = 0;
-  filteredProducts.forEach(item => {
-    subtotal += item.pricePerUnit * item.quantity;
-  });
+const filteredProducts = cart.items.filter((product) => {
+  return product.productId.isBlocked === false;
+});
 
-  const grandTotal = subtotal;
-  return {
-    cartItems:filteredProducts,
-    addresses,
-    subtotal,
-    grandTotal,
-    defaultAddress
+if (filteredProducts.length === 0) {
+return {
+  cartItems: [],
+  addresses,
+  subtotal: 0,
+  grandTotal: 0,
+  defaultAddress,
+  message: "Some products were unavailable and removed from your cart."
+};
+}
+
+let subtotal = 0;
+filteredProducts.forEach(item => {
+  subtotal += item.pricePerUnit * item.quantity;
+});
+
+const grandTotal = subtotal;
+
+const today= new Date()
+
+const coupons= await Coupon.find({
+  isActive:true,
+  expireOn:{$gte:today},
+  minimumPrice:{$lte:grandTotal},
+  $expr:{
+    $lt:["$usedCount","$totalUsageLimit"]
+  }
+})
+
+const usedCoupons= await Usercoupon.find({userId})
+
+const applicable= coupons.filter((item)=>{
+  const user= usedCoupons.find(items=>String(items.couponId)===String(item._id))
+  return !user || user.usedCount<item.usageLimitPerUser
+})
+
+return {
+  cartItems:filteredProducts,
+  addresses,
+  subtotal,
+  grandTotal,
+  defaultAddress,
+  coupons:applicable
+}
+} catch (error) {
+    return error
   }
 }
 

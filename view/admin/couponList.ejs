@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <title>Shirtora Admin - Coupons</title>
+</head>
+<body class="bg-gray-50 font-sans">
+
+    <div class="flex">
+        <aside class="w-64 bg-white h-screen shadow-md fixed top-0 left-0 flex flex-col justify-between z-10">
+            <%-include("../../view/partials/admin/sideBar")%>
+        </aside>
+
+        <main class="flex-1 ml-64 p-8">
+            
+            <div class="flex justify-center mb-8">
+                <div class="relative w-1/3">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                        <i class="fa-solid fa-search text-gray-400"></i>
+                    </span>
+                    <input id="searchInput" type="text" placeholder="Search" class="w-full py-2 pl-10 pr-4 bg-gray-100 border border-transparent rounded-full focus:bg-white focus:ring-2 focus:ring-indigo-200 outline-none transition-all">
+
+                    <button
+                        id="clearSearchBtn"
+                        type="button"
+                        class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700"
+                        onclick="clearSearch()">
+                        ✕
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end mb-6">
+                <!-- <div class="flex items-center space-x-6 text-sm font-medium text-gray-600">
+                    <div class="flex items-center space-x-2">
+                        <span>Sort</span>
+                        <select class="bg-gray-200 border-none rounded px-3 py-1 outline-none">
+                            <option>Coupon Amt</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span>By</span>
+                        <select class="bg-gray-200 border-none rounded px-3 py-1 outline-none">
+                            <option>Ascending</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span>Filter</span>
+                        <select class="bg-gray-200 border-none rounded px-3 py-1 outline-none w-20">
+                            <option></option>
+                        </select>
+                    </div>
+                </div> -->
+                
+                <a href="/admin/addcoupon"><button class="bg-indigo-500 hover:bg-indigo-600 text-white px-10 py-2 rounded-lg shadow-md transition-all">
+                    Add
+                </button></a>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="text-gray-500 text-sm font-semibold">
+                            <th class="px-6 py-5">Coupon</th>
+                            <th class="px-6 py-5">Discount</th>
+                            <th class="px-6 py-5">Limit</th>
+                            <th class="px-6 py-5">Expiry Date</th>
+                            <th class="px-6 py-5 text-center">Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody id="couponTable" class="divide-y divide-gray-50">
+                        
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+     <div id="paginationWrapper" class="flex justify-center mt-8 gap-2"></div>
+<script>
+const searchInput= document.getElementById('searchInput')
+const clearBtn= document.getElementById('clearSearchBtn')
+
+document.addEventListener('DOMContentLoaded',()=>loadCoupon());
+
+let searchTimer=null
+searchInput.addEventListener('input',(e)=>{
+    const value= e.target.value
+    if(value.length>0){
+        clearBtn.classList.remove('hidden')
+    }else{
+        clearBtn.classList.add('hidden')
+    }
+    
+    searchTimer= setTimeout(()=>{
+        loadCoupon(1,value)
+    },500)
+})
+
+function clearSearch() {
+    searchInput.value=''
+    clearBtn.classList.add('hidden')
+    loadCoupon(1,'')
+}
+
+async function loadCoupon(page=1,search='') {
+
+    try {
+        const result= await fetch(`/admin/dataforcouponlist?page=${page}&search=${encodeURIComponent(searchInput.value)}`)
+
+        const data= await result.json()
+        if(data.success){
+            renderTable(data.data)
+            renderPagination(data.currentPage,data.totalPages,searchInput.value)
+        }
+    } catch (error) {
+        console.log("Error from coupon list",error);
+        return error
+    }
+}
+function renderTable(data) {
+    const table= document.getElementById('couponTable')
+    table.innerHTML=''
+    data.forEach((item,i)=>{
+        table.innerHTML+=`
+            <tr id="couponTable" class="text-gray-700 text-sm hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 font-medium">${item.couponCode}</td>
+                <td class="px-6 py-4">${item.discountPercent}</td>
+                <td class="px-6 py-4 font-mono text-xs">${item.totalUsageLimit}</td>
+                <td class="px-6 py-4">${new Date(item.expireOn).toLocaleDateString()}</td>
+                <td class="px-6 py-4">
+                    <div class="flex items-center justify-center space-x-3">
+                        <button onclick="deleteCoupon('${item._id}')" class="text-red-600 hover:text-red-900 p-1">
+                        <a><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></a>
+                    </button>
+                    </div>
+                </td>
+            </tr>
+        `
+    })
+}
+
+function renderPagination(currentPage, total, search) {
+    const wrapper= document.getElementById("paginationWrapper")
+    wrapper.innerHTML=""
+    if(currentPage>1){
+        wrapper.innerHTML+=`<button class="px-4 py-2 bg-gray-200 rounded" onclick="loadCoupon(${currentPage - 1},'${search}')">Prev</button>`;
+    }
+
+    for(let i=1;i<=total;i++){
+         wrapper.innerHTML += `
+            <button class="px-4 py-2 rounded ${currentPage === i ? 'bg-black text-white' : 'bg-gray-200'}"
+                onclick="loadCoupon(${i},'${search}')">${i}</button>
+        `;
+    }
+    if(currentPage<total){
+        wrapper.innerHTML += `<button class="px-4 py-2 bg-gray-200 rounded" onclick="loadCoupon(${currentPage + 1},'${search}')">Next</button>`;
+    }
+}
+async function deleteCoupon(id) {
+    const confirm = await Swal.fire({
+        title: 'Are you sure?',
+        text: "This coupon will be deleted permanently",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Yes, delete it!'
+    });
+    if(!confirm.isConfirmed) return 
+    const result=await fetch(`/admin/deletecoupon?id=${id}`,{
+        method:"delete"
+    })
+    const data= await result.json()
+    if(data.success){
+        Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: data.message||'Your action was completed successfully.',
+        showConfirmButton:false
+        });
+        loadCoupon()
+        return;
+    }
+    Swal.fire({
+    icon: 'error',
+    title: 'Oops...',
+    text: data.message||'Something went wrong. Please try again.',
+    showConfirmButton:false
+    });
+
+    
+}
+</script>
+</body>
+</html>

@@ -20,31 +20,36 @@ async function editOffer(req,res) {
             type:data.offerType
         }
         if(data.offerType==="product"){
-            duplicateQuery.productId=Number(data.availableFor)
+            duplicateQuery.productId=data.availableFor
         }
         if(data.offerType==="category"){
-            duplicateQuery.categoryId=Number(data.availableFor)
+            duplicateQuery.categoryId=data.availableFor
         }
         const existingOffer= await Offer.findOne(duplicateQuery)
         if(existingOffer){
             return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Offer already exist for selected item"})
         }
 
+        const newEndDate= new Date(data.endDate)
+        const now= new Date()
+        const isActiveStatus= newEndDate>now
+
         const updateOffer={
             title:data.offerName,
             type:data.offerType,
             description:data.description,
-            startDate:data.startDate,
-            endDate:data.endDate
+            startDate:new Date(data.startDate),
+            endDate:new Date(data.endDate),
+            isActive:isActiveStatus
         }
         
         if(data.offerType==='product'){
             updateOffer.productId=data.availableFor
-            updateOffer.productOffer= data.offerPercentage
+            updateOffer.productOffer= Number(data.offerPercentage)
         }
         if(data.offerType==='category'){
             updateOffer.categoryId=data.availableFor
-            updateOffer.categoryOffer= data.offerPercentage
+            updateOffer.categoryOffer=Number(data.offerPercentage)
         }
         
         const response=await Offer.findByIdAndUpdate(id,updateOffer,{new:true,runValidators:true})

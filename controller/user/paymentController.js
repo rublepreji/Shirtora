@@ -83,11 +83,9 @@ async function retryCreateOrder(req,res) {
 }
 
 async function processPayment(req,res) {
-    try {
-        console.log("inside payment controller");
-        
+    try {        
         const userId= req.session.user._id
-        const cart=await Cart.findOne({userId}).populate('items.productId')
+        const cart=await Cart.findOne({userId}).populate('items.productId')        
         if(!cart || cart.items.length==0){
             return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Cart is empty"})
         }        
@@ -115,6 +113,7 @@ async function processPayment(req,res) {
             currency:order.currency
         })
     } catch (error) {
+        logger.error("Error form process payment",error)
         return res.status(STATUS.INTERNAL_SERVER_ERROR).json({success:false,message:"Internal server error"})
     }
 }

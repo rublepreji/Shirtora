@@ -63,6 +63,13 @@ import {
     loadDeleteOffer,
     editOffer
 } from "../controller/admin/offerController.js"
+import {
+    loadCoupon,
+    getAddCoupon,
+    addCoupon,
+    dataForCouponPage,
+    deleteCoupon
+} from "../controller/admin/couponController.js"
 import uploadTo from '../middlewares/multerCloudinary.js';
 import multer from 'multer';
 import {storage} from '../helpers/multer.js';
@@ -136,5 +143,11 @@ router.get('/editoffer/:id',adminAuth,loadEditOffer)
 router.put('/editoffer/:id',adminAuth,editOffer)
 router.get('/deleteoffer/:id',adminAuth,loadDeleteOffer)
 
+//Coupon management
+router.get('/coupon',adminAuth,loadCoupon)
+router.get('/addcoupon',adminAuth,getAddCoupon)
+router.post('/addcoupon',adminAuth,addCoupon)
+router.get('/dataforcouponlist',adminAuth,dataForCouponPage)
+router.delete('/deletecoupon',adminAuth,deleteCoupon)
 
 export default router;

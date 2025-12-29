@@ -1,3 +1,5 @@
+import mongoose from "mongoose";
+
 const walletTransactionSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -28,7 +30,11 @@ const walletTransactionSchema = new mongoose.Schema({
     ref: "Order",
     default: null
   },
-  description: String
+  reason: String,
+  // createdAt:{
+  //   type:Date,
+  //   default:Date.now()
+  // }
 }, { timestamps: true });
 
 export default mongoose.model("WalletTransaction", walletTransactionSchema);

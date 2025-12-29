@@ -1,48 +1,14 @@
-import {createWalletIfNotExists} from "../../services/userService/walletService.js"
-import Wallet from "../../model/walletSchema.js";
+import Wallet from "../../model/walletSchema.js"
+import Transaction from "../../model/transactionSchema.js"
 
-
-async function debitWallet({ userId, amount, orderId }) {
-
-  const wallet = await Wallet.findOne({ userId });
-  if (!wallet || wallet.balance < amount) {
-    throw new Error("Insufficient wallet balance");
-  }
-
-  wallet.balance -= amount;
-  await wallet.save();
-
-  await WalletTransaction.create({
-    userId,
-    amount,
-    type: "DEBIT",
-    source: "WALLET_USAGE",
-    orderId,
-    description: "Used wallet balance for order"
-  });
-}
-
-
-async function creditWallet({ userId, amount, source, orderId, description }) {
-
-  const wallet = await createWalletIfNotExists(userId);
-
-  wallet.balance += amount;
-  await wallet.save();
-
-  await WalletTransaction.create({
-    userId,
-    amount,
-    type: "CREDIT",
-    source,
-    orderId,
-    description
-  });
-}
 
 async function loadWallet(req,res) {
     try {
-        res.render('wallet')
+        let userId= req.session.user._id
+        const wallet=await Wallet.findOne({userId})
+        const transaction= await Transaction.findOne({userId})
+
+        res.render('wallet',{balance:wallet.balance,transaction})
     } catch (error) {
         return res.redirect('/pageNotFound')
     }
@@ -50,6 +16,4 @@ async function loadWallet(req,res) {
 
 export {
     loadWallet,
-    creditWallet,
-    debitWallet
 }
