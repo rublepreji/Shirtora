@@ -21,12 +21,13 @@ const walletTransactionSchema = new mongoose.Schema({
       "ORDER_REFUND",
       "PAYMENT_FAILED",
       "CASHBACK",
-      "WALLET_USAGE"
+      "WALLET_USAGE",
+      "REFERRAL_SIGNUP"
     ],
     required: true
   },
   orderId: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: String,
     ref: "Order",
     default: null
   },

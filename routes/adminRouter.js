@@ -51,7 +51,8 @@ import {
     dataForOrderList,
     updateOrderStatus,
     updateReturnStatus,
-    updateItemStatus
+    updateItemStatus,
+    adminCancelOrder
 } from '../controller/admin/orderController.js'
 import {
     loadOfferList,
@@ -74,6 +75,7 @@ import uploadTo from '../middlewares/multerCloudinary.js';
 import multer from 'multer';
 import {storage} from '../helpers/multer.js';
 import {adminAuth ,adminLogged} from '../middlewares/auth.js'
+import { loadSalesReport } from '../controller/admin/salesReportController.js';
 
 
 const router = express.Router();
@@ -112,7 +114,6 @@ router.get('/editBrand/:id',adminAuth,loadEditBrand);
 router.put('/editBrand',adminAuth, uploadTo('brands').single('image'), editBrand);
 router.get('/brand/data', adminAuth,dataForBrandPage);
 
-
 // Product management
 router.get('/product',adminAuth, loadProductpage);
 router.get('/addproduct',adminAuth, loadAddProduct);
@@ -132,6 +133,7 @@ router.get('/orderdetails/:id',adminAuth,loadOrderDetails)
 router.put('/updateOrderStatus',adminAuth,updateOrderStatus)
 router.put('/updateReturnStatus',adminAuth,updateReturnStatus)
 router.put("/updateItemStatus", adminAuth, updateItemStatus);
+router.put('/admincancelorder',adminAuth,adminCancelOrder)
 
 //Offer management
 router.get('/offerlist',adminAuth,loadOfferList)
@@ -149,5 +151,8 @@ router.get('/addcoupon',adminAuth,getAddCoupon)
 router.post('/addcoupon',adminAuth,addCoupon)
 router.get('/dataforcouponlist',adminAuth,dataForCouponPage)
 router.delete('/deletecoupon',adminAuth,deleteCoupon)
+
+//sales report
+router.get('/salesreport',adminAuth,loadSalesReport)
 
 export default router;

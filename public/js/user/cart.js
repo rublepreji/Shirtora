@@ -56,7 +56,7 @@ function removeformcart(productId, variantIndex){
 
 document.addEventListener("click", async function (e) {
 
-   // MINUS BUTTON
+   // minus button
 if (e.target.classList.contains("qty-minus")) {
     const productId = e.target.dataset.product;
     const variantIndex = e.target.dataset.variant;
@@ -64,7 +64,6 @@ if (e.target.classList.contains("qty-minus")) {
     const input = e.target.parentElement.querySelector(".quantity-input");
     let qty = parseInt(input.value);
 
-    // Prevent below 1
     if (qty <= 1) return;
 
     const newQty = qty - 1;
@@ -78,7 +77,7 @@ if (e.target.classList.contains("qty-minus")) {
     const data = await res.json();
 
     if (data.success) {
-        input.value = newQty;  // Only update UI if backend approved
+        input.value = newQty; 
         window.location.reload();
     } else {
         Swal.fire({
@@ -89,7 +88,7 @@ if (e.target.classList.contains("qty-minus")) {
     }
 }
 
-    // PLUS BUTTON
+    // Plus button
    if (e.target.classList.contains("qty-plus")) {
     const productId = e.target.dataset.product;
     const variantIndex = e.target.dataset.variant;
@@ -106,8 +105,6 @@ if (e.target.classList.contains("qty-minus")) {
         return;
     }
 
-    // DO NOT increase qty yet ❌
-    // First send request to backend with (qty + 1)
 
     const newQty = qty + 1;
 
@@ -120,7 +117,7 @@ if (e.target.classList.contains("qty-minus")) {
     const data = await res.json();
 
     if (data.success) {
-        input.value = newQty;   // ✔ only increase when backend says OK
+        input.value = newQty;  
         window.location.reload();
     } else {
         Swal.fire({

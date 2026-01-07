@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shirtora - My Orders</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { height: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #d1d1d1; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-white text-gray-800">
+
+    <!-- Parent Flex Container as per your layout preference -->
+    <div class="flex min-h-screen">
+        
+        <!-- Sidebar Partial Placeholder -->
+        <!-- In your project: <%-include("../../view/partials/user/sideBar")%> -->
+        <aside class="w-64 bg-white shadow-xl fixed md:sticky top-0 h-screen p-6 z-20 hidden md:block border-r border-gray-100">
+            <%-include("../../view/partials/admin/sideBar")%>
+        </aside>
+
+        <!-- Main Content Area (flex-1) -->
+        <main class="flex-1 bg-white">
+            
+            <!-- Top Navigation / Breadcrumbs -->
+            <div class="max-w-7xl mx-auto px-6 py-8">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
+                    <!-- <nav class="text-sm text-gray-400">
+                        <a href="/" class="hover:text-black">Home</a> / 
+                        <span class="text-black font-medium">My Orders</span>
+                    </nav> -->
+                    
+                </div>
+
+                <!-- Page Header & Search -->
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+                    <h2 class="text-2xl font-bold text-black tracking-tight">My Orders History</h2>
+                    
+                    <div class="relative w-full sm:w-80">
+                        <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" placeholder="Search by Order ID..." 
+                               class="w-full pl-12 pr-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-black focus:bg-white outline-none transition-all text-sm">
+                    </div>
+                </div>
+
+                <!-- Orders Table Container -->
+                <div class="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto custom-scrollbar">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="border-b border-gray-50 bg-gray-50/50">
+                                    <th class="px-6 py-5 text-xs font-bold text-gray-400 uppercase tracking-widest">Order ID</th>
+                                    <th class="px-6 py-5 text-xs font-bold text-gray-400 uppercase tracking-widest">Date</th>
+                                    <th class="px-6 py-5 text-xs font-bold text-gray-400 uppercase tracking-widest text-center">Status</th>
+                                    <th class="px-6 py-5 text-xs font-bold text-gray-400 uppercase tracking-widest">Amount</th>
+                                    <th class="px-6 py-5 text-xs font-bold text-gray-400 uppercase tracking-widest text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-50">
+
+<% if(orders && orders.length > 0){ %>
+
+  <% orders.forEach(order => { %>
+
+    <tr class="hover:bg-gray-50/80 transition-colors">
+
+      <td class="px-6 py-6 text-sm font-bold text-black">
+        <%= order.orderId %>
+      </td>
+
+      <td class="px-6 py-6 text-sm text-gray-500">
+        <%= new Date(order.createdAt).toDateString() %>
+      </td>
+
+      <td class="px-6 py-6 text-center">
+
+        <% 
+          let statusClass = "";
+          if(order.status === "Delivered") statusClass = "bg-emerald-100 text-emerald-700";
+          else if(order.status === "Processing") statusClass = "bg-amber-100 text-amber-700";
+          else if(order.status === "Cancelled") statusClass = "bg-rose-100 text-rose-700";
+          else statusClass = "bg-gray-100 text-gray-600";
+        %>
+
+        <span class="inline-block px-3 py-1 text-[10px] font-black uppercase tracking-wider rounded-full <%= statusClass %>">
+          <%= order.status %>
+        </span>
+
+      </td>
+
+      <td class="px-6 py-6 text-sm font-bold text-black">
+        ₹<%= (order.offerAmount || order.totalAmount).toLocaleString("en-IN") %>
+      </td>
+
+      <td class="px-6 py-6 text-right">
+        <a href="/orderDetails/<%= order.orderId %>" 
+           class="inline-block px-5 py-2 text-xs font-bold bg-black text-white rounded-lg hover:bg-gray-800 transition shadow-sm">
+           View Details
+        </a>
+      </td>
+
+    </tr>
+
+  <% }) %>
+
+<% } else { %>
+
+  <tr>
+    <td colspan="5" class="text-center py-10 text-gray-400">
+      No orders found.
+    </td>
+  </tr>
+
+<% } %>
+
+</tbody>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Pagination Section -->
+                <div class="mt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <!-- <p class="text-xs text-gray-400 font-medium">Showing 4 of 24 total orders</p> -->
+                    <div class="flex space-x-2">
+                        <button class="px-4 py-2 border border-gray-100 rounded-lg text-xs font-bold text-gray-300 cursor-not-allowed" disabled>Prev</button>
+                        <button class="px-4 py-2 bg-black text-white rounded-lg text-xs font-bold hover:bg-gray-800 transition shadow-md">Next</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+</body>
+</html>

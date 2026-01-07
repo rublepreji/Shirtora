@@ -17,16 +17,16 @@ const addressRadios = document.querySelectorAll('input[name="address"]');
 
   paymentRadios.forEach(radio => {
     if (radio.checked) {
-      paymentMethodInput.value = radio.nextElementSibling.innerText.trim();
+      paymentMethodInput.value = radio.value;
     }
     radio.addEventListener('change', () => {
-      paymentMethodInput.value = radio.nextElementSibling.innerText.trim();
+      paymentMethodInput.value = radio.value;
     });
   });
 
-  const placeOrderBtn = document.querySelector(".place-order-btn");
+  const placeOrderBtn = document.getElementById("placeOrderTrigger");
 
-  document.querySelector('.place-order-btn').addEventListener('click', async () => {
+  placeOrderBtn.addEventListener('click', async () => {
     if(isPaymentInProgress) return ;
     isPaymentInProgress=true
     placeOrderBtn.disabled=true;
@@ -46,12 +46,16 @@ const addressRadios = document.querySelectorAll('input[name="address"]');
   }
 
   // COD → Normal submit
-  if (paymentMethodInput.value === "Cash on Delivery") {
+  if (paymentMethodInput.value === "COD") {
     document.getElementById('checkoutForm').submit();
     return;
   }
 
-  // Razorpay Flow
+  if(paymentMethodInput.value === "WALLET"){
+    return payUsingWallet()
+  }
+
+  // Razorpay Flow  
   try {
     const res = await fetch("/create_order", {
       method: "POST",
@@ -137,5 +141,236 @@ rzp.on('payment.failed', async function (response) {
     Swal.fire("Error!", data.message||"Payment failed", "error");
   }
 });
+
+const applyBtn = document.getElementById("applyCouponBtn");
+const couponInput = document.getElementById("couponCode");
+const couponMsg = document.getElementById("couponMessage");
+const grandTotalDisplay = document.getElementById("grandTotalDisplay");
+const removeBtn = document.getElementById("removeCouponBtn");
+
+applyBtn.addEventListener("click", async () => {
+
+  const couponCode = couponInput.value.trim();
+
+  if (!couponCode) {
+    Swal.fire("Warning!", "Please enter a coupon code.", "warning");
+    return;
+  }
+
+  try {
+
+    const res = await fetch("/applycoupon", {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({ couponCode })
+    });
+
+    const data = await res.json();
+
+    couponMsg.classList.remove("hidden");
+
+    if (!data.success) {
+      couponMsg.innerHTML = `<span class="text-red-500">${data.message}</span>`;
+      return;
+    }
+
+    couponMsg.innerHTML = `<span class="text-green-600">${data.message}</span>`;
+
+    grandTotalDisplay.innerText = "₹" + data.grandTotal.toLocaleString();
+
+
+  } catch (err) {
+    Swal.fire("Error!", "Something went wrong.", "error");
+  }
+});
+
+async function payUsingWallet(){
+
+  try{
+
+    const res = await fetch("/wallet/pay",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body: JSON.stringify({
+        selectedAddressIndex: selectedAddressIndexInput.value
+      })
+    });
+
+    const data = await res.json();
+
+    if(!data.success){
+
+      isPaymentInProgress=false
+      placeOrderBtn.disabled=false
+
+      return Swal.fire({
+        icon:"error",
+        title:"Wallet Payment Failed",
+        text:data.message || "Insufficient Wallet Balance"
+      });
+    }
+
+    // SUCCESS 
+    Swal.fire({
+      icon:"success",
+      title:"Order Placed Successfully",
+      timer:2000,
+      showConfirmButton:false
+    }).then(()=>{
+      window.location.href = `/ordersuccess/${data.message.orderId}`;
+    });
+
+  }catch(err){
+
+    isPaymentInProgress=false
+    placeOrderBtn.disabled=false
+
+    Swal.fire("Error!","Something went wrong with wallet payment.","error");
+  }
+}
+
+
+
+
+applyBtn.addEventListener("click", async () => {
+
+  const couponCode = couponInput.value.trim();
+
+  if (!couponCode) {
+    Swal.fire("Warning!", "Please enter a coupon code.", "warning");
+    return;
+  }
+
+  try {
+
+    const res = await fetch("/applycoupon", {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({ couponCode })
+    });
+
+    const data = await res.json();
+
+    couponMsg.classList.remove("hidden");
+
+    if (!data.success) {
+      couponMsg.innerHTML = `<span class="text-red-500">${data.message}</span>`;
+      removeBtn.classList.add("hidden");
+      return;
+    }
+
+    couponMsg.innerHTML = `<span class="text-green-600">${data.message}</span>`;
+    grandTotalDisplay.innerText = "₹" + data.grandTotal.toLocaleString();
+
+    // 👉 Show Remove button
+    removeBtn.classList.remove("hidden");
+
+  } catch (err) {
+    Swal.fire("Error!", "Something went wrong.", "error");
+  }
+});
+
+
+  
+
+
+
+  // DOM Elements for Coupon
+  const clearCouponBtn = document.getElementById('clearCouponBtn');
+
+  // Toggle Clear Button visibility on input
+  couponInput.addEventListener('input', function() {
+    if (this.value.trim().length > 0) {
+      clearCouponBtn.classList.remove('hidden');
+    } else {
+      clearCouponBtn.classList.add('hidden');
+    }
+  });
+
+  // Clear Coupon functionality with Fetch
+  clearCouponBtn.addEventListener('click', async function() {
+    try {
+        const response = await fetch('/removeCoupon', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(couponCode)
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            couponInput.value = '';
+            this.classList.add('hidden');
+
+            if (result.grandTotal) {
+                document.getElementById('grandTotalDisplay').innerText = `₹${result.grandTotal.toLocaleString()}`;
+            }
+
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'info',
+                title: 'Coupon Removed',
+                showConfirmButton: false,
+                timer: 1500
+            });
+        } else {
+            console.error('Failed to remove coupon:', result.message);
+        }
+    } catch (error) {
+        console.error('Error removing coupon:', error);
+    }
+  });
+
+  function toggleCouponDrawer() {
+    const drawer = document.getElementById('couponDrawer');
+    const chevron = document.getElementById('couponChevron');
+    
+    drawer.classList.toggle('open');
+    
+    if (drawer.classList.contains('open')) {
+      chevron.style.transform = 'rotate(180deg)';
+    } else {
+      chevron.style.transform = 'rotate(0deg)';
+    }
+  }
+
+  function copyAndFill(code) {    
+    couponInput.value=code
+    couponInput.dispatchEvent(new Event('input'));
+    applyBtn.click()
+    
+    Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: 'Code Copied!',
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true
+    });
+  }
+
+  // SweetAlert Confirmation before placing order
+  document.getElementById('placeOrderTrigger').addEventListener('click', function() {
+    // Swal.fire({
+    //   title: 'Confirm Order?',
+    //   text: "Proceed with the selected items and address?",
+    //   icon: 'question',
+    //   showCancelButton: true,
+    //   confirmButtonColor: '#000000',
+    //   cancelButtonColor: '#d33',
+    //   confirmButtonText: 'Yes, Place Order',
+    //   cancelButtonText: 'Wait, go back'
+    // }).then((result) => {
+    //   if (result.isConfirmed) {
+    //     handleOrderSubmission();
+    //   }
+    // });
+  });
+
+
 
   

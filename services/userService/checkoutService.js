@@ -5,6 +5,7 @@ import Usercoupon from "../../model/userCouponSchema.js"
 import Coupon from "../../model/couponSchema.js";
 import PDFDocument from "pdfkit";
 import mongoose from "mongoose";
+import { logger } from "../../logger/logger.js";
 
 
 async function createFailedPaymentOrder(userId, reason, razorpayOrderId, selectedAddressIndex, paymentMethod) {
@@ -97,9 +98,9 @@ return true;
   const doc = new PDFDocument({ margin: 50 });
 
   const itemTotal = parseFloat(order.totalAmount) || 0;
-  const shippingCharge = 0.00;
+  const Discount = order.discountAmount;
   const taxAndOthers = 0.00;
-  const grandTotal = itemTotal + shippingCharge + taxAndOthers;
+  const grandTotal = itemTotal - order.discountAmount;
 
   // Page dimension
   const pageMargin = 50;
@@ -229,8 +230,8 @@ return true;
 
   summaryY += 15;
 
-  doc.text("Shipping Charge:", summaryLabelX, summaryY)
-    .text(`₹${shippingCharge.toFixed(2)}`, summaryValueX, summaryY);
+  doc.text("Discount:", summaryLabelX, summaryY)
+    .text(`₹${Discount.toFixed(2)}`, summaryValueX, summaryY);
 
   summaryY += 15;
 
@@ -311,6 +312,7 @@ async function placeOrderService(userId, selectedAddressIndex, paymentMethod, ra
     try { 
         let orderDocument = null;
         await session.withTransaction(async () => {
+
             const cart = await Cart.findOne({ userId })
               .populate("items.productId")
               .session(session); 
@@ -320,8 +322,20 @@ async function placeOrderService(userId, selectedAddressIndex, paymentMethod, ra
             }
             
             const validItems = cart.items.filter((pro) => {
-              return pro.productId.isBlocked == false;
+              const p= pro.productId
+              if(!p) return false
+              const variant = p.variants[pro.variantIndex]
+
+              const isBlocked= p.isBlocked === true || p?.brand?.isBlocked===true || p?.category?.isBlocked===true;
+              const stockAvailable= !variant.stock || variant.stock<=0
+              const sufficientStock= variant.stock < pro.quantity
+
+              return !isBlocked && !stockAvailable && !sufficientStock
             });
+
+            if(validItems.length==0){
+              throw new Error("No valid items avaliable to order")
+            }
 
             const addressDoc = await Address.findOne({ userId }).session(session);
             const selectedAddress = addressDoc.address[selectedAddressIndex];
@@ -332,7 +346,13 @@ async function placeOrderService(userId, selectedAddressIndex, paymentMethod, ra
             let total = 0; 
             for (const item of validItems) { 
               total += item.totalPrice; 
-            } 
+            }
+
+            let offerAmount=total
+            if(cart.discountAmount>0){
+              offerAmount-=cart.discountAmount
+            }
+
             
             // Stock validation
             for (const item of validItems) {
@@ -355,7 +375,6 @@ async function placeOrderService(userId, selectedAddressIndex, paymentMethod, ra
             
             const customOrderId = `ORD-${Date.now().toString(36).toUpperCase()}`;
             
-            // Determine order status based on payment method
             let orderStatus = "Pending";
             let paymentStatus = "Pending";
             
@@ -380,6 +399,8 @@ async function placeOrderService(userId, selectedAddressIndex, paymentMethod, ra
               userId,
               items: orderItems,
               totalAmount: total,
+              offerAmount,
+              discountAmount:cart.discountAmount,
               paymentMethod,
               paymentStatus,
               address: selectedAddress,
@@ -432,7 +453,14 @@ async function loadCheckoutService(userId) {
 }
 
 const filteredProducts = cart.items.filter((product) => {
-  return product.productId.isBlocked === false;
+  const p= product.productId
+  if(!p) return false
+  const variant=p.variants[product.variantIndex]
+
+  const isBlocked= p?.isBlocked===true || p?.brand?.isBlocked===true || p?.category?.isBlocked===true
+  const isOutOfStock= !variant.stock || variant.stock<=0
+  const sufficientStock= product.quantity < p.variants[product.variantIndex].stock
+  return !isBlocked && !isOutOfStock && sufficientStock
 });
 
 if (filteredProducts.length === 0) {

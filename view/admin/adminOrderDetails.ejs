@@ -12,224 +12,223 @@
     <!-- MAIN CONTENT (shifted right for sidebar) -->
 <div class="ml-64 p-6 md:p-10">
 
-    <!-- Page Title -->
-    <h2 class="text-2xl font-semibold mb-6">Order Details</h2>
+    <!-- PAGE TITLE -->
+    <h2 class="text-2xl font-semibold mb-6">
+        Order Details – <span class="font-bold"><%=order.orderId%></span>
+    </h2>
 
-    <!-- Order ID + Status -->
-    <div class="flex items-center gap-3 mb-4">
-        <p class="text-xl font-semibold">Orders ID: <%=order.orderId%></p>
 
-        <span class="px-3 py-1 rounded-md bg-red-100 text-red-600 text-sm font-medium">
-            <%=order.status%>
-        </span>
+    <!-- TOP GRID -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <!-- ORDER INFORMATION CARD -->
+        <div class="border rounded-lg p-5 bg-white shadow-sm">
+
+            <h3 class="text-lg font-semibold mb-3">Order Information</h3>
+
+            <div class="text-sm space-y-2 text-gray-700">
+
+                <p><span class="font-medium">Customer:</span> 
+                    <%=order.address.firstName%> <%=order.address.lastName%>
+                </p>
+
+                <p><span class="font-medium">Payment Method:</span> 
+                    <%=order.paymentMethod%>
+                </p>
+
+                <p><span class="font-medium">Payment Status:</span> 
+                    <span class="font-semibold text-red-600"><%=order.paymentStatus%></span>
+                </p>
+
+                <p><span class="font-medium">Order Status:</span> 
+                    <span class="font-semibold"><%=order.status%></span>
+                </p>
+
+                <p><span class="font-medium">Order Date:</span> 
+                    <%=new Date(order.createdAt).toLocaleString() %>
+                </p>
+
+                <p><span class="font-medium">Total Amount:</span> 
+                    ₹<%=order.offerAmount%>
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- DELIVERY ADDRESS CARD -->
+        <div class="border rounded-lg p-5 bg-white shadow-sm">
+
+            <h3 class="text-lg font-semibold mb-3">Delivery Address</h3>
+
+            <div class="text-sm text-gray-700 space-y-1">
+                <p><%=order.address.addressLine%></p>
+                <p><%=order.address.city%>, <%=order.address.state%></p>
+                <p><%=order.address.pincode%></p>
+                <p><%=order.address.phone%></p>
+            </div>
+
+        </div>
+
     </div>
 
-    <!-- Date Range -->
-    <div class="flex items-center text-gray-700 gap-2 mb-8">
-        <svg class="w-5 h-5 text-black" fill="none" stroke="currentColor" stroke-width="2"
-             viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round"
-                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 
-                     0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        </svg>
-        <p class="text-gray-800">
-            <%=new Date(order.createdAt).toDateString()%>
-        </p>
-    </div>
 
-    <!-- Details Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6 text-gray-700 text-sm">
+      <!-- ORDER STATUS UPDATE -->
+    <!-- <div class="mt-10">
 
-        <!-- Left Column -->
-        <div>
-            <p class="font-medium">Coupon :</p>
-            <input 
-                type="text"
-                value="AB-CD-123"
-                class="w-full mt-1 px-4 py-2 border rounded-md bg-gray-100"
-                readonly
-            />
-        </div>
+        <p class="font-medium mb-2">Change Status :</p>
 
-        <div>
-            <p class="font-medium">Payment Method :</p>
-            <input 
-                type="text"
-                value="<%=order.paymentMethod%>"
-                class="w-full mt-1 px-4 py-2 border rounded-md bg-gray-100"
-                readonly
-            />
-        </div>
-
-        <div>
-            <p class="font-medium">Customer Name :</p>
-            <input 
-                type="text"
-                value="<%=order.address.firstName%>  <%=order.address.lastName%>"
-                class="w-full mt-1 px-4 py-2 border rounded-md bg-gray-100"
-                readonly
-            />
-        </div>
-
-        <div>
-            <p class="font-medium">Mobile Number :</p>
-            <input 
-                type="text"
-                value="<%=order.address.phone%>"
-                class="w-full mt-1 px-4 py-2 border rounded-md bg-gray-100"
-                readonly
-            />
-        </div>
-
-        <div>
-            <p class="font-medium">Shipping Address :</p>
-            <input 
-                type="text"
-                value="<%=order.address.addressLine%>"
-                class="w-full mt-1 px-4 py-2 border rounded-md bg-gray-100"
-                readonly
-            />
-        </div>
-
-        <div>
-            <p class="font-medium">Delivery Date :</p>
-            <input 
-                type="text"
-                value="21-09-2024"
-                class="w-full mt-1 px-4 py-2 border rounded-md bg-gray-100"
-                readonly
-            />
-        </div>
-
-        
-            
-<% order.items.forEach((item, i) => { %>
-
-<div class="w-full mt-3">
-    <div class="flex justify-between">
-    <p class="font-medium">Product : <%= item.productId.productName %> </p>
-    <p class="font-medium">Size : <%= item.productId.variants[item.variantIndex].size %> </p>
-    <p class="font-medium">Quantity : <%= item.quantity %> </p>
-    </div>
-    <div class="relative mt-1">
-
-        <!-- Dropdown -->
-        <select 
-            id="productStatus-<%= i %>"
-            class="w-full px-4 py-2 pr-20 border rounded-md bg-white text-gray-800"
+        <select
+            name="status"
+            class="w-full md:w-1/3 px-4 py-2 border rounded-md"
         >
-            <% ["Ordered","Cancelled","Returned","Delivered","Return-Approved","Return-Rejected","Return Requested"].forEach(status => { %>
+            <% ['Pending','Processing','Shipped','Delivered','Cancelled','Return Requested','Returned'].forEach((status) => { %>
                 <option value="<%= status %>" 
-                    <%= item.itemStatus === status ? 'selected' : '' %>>
+                    <%= order.status === status ? "selected" : "" %>>
                     <%= status %>
                 </option>
             <% }) %>
         </select>
 
-        <!-- Save Button -->
-        <button
-            onclick="saveProductStatus('<%= order._id %>', '<%= i %>')"
-            class="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-500 
-                   text-white text-xs px-3 py-1 rounded hover:bg-blue-600">
-            Save
-        </button>
+    </div> -->
+         <div class="flex gap-4 mt-6 justify-end">
 
-    </div>
+            <button onclick="cancelOrder('<%= order.orderId %>')"    class="px-8 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                Cancel Order
+            </button>
 
-</div>
+            <!-- <button class="px-8 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 update-status-btn">
+                Update Status
+            </button> -->
 
-
-
-<% if (item.itemStatus === "Return Requested") { %>
-
-<div class="mt-3 border border-yellow-300 bg-yellow-50 rounded-md p-4">
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-        <!-- LEFT COLUMN : PRODUCT NAME -->
-        <div>
-            <p class="text-sm font-semibold text-gray-800 mb-1">Product</p>
-            <p class="text-sm bg-white border rounded p-2 font-medium">
-                <%= item.productId.productName %>
-            </p>
         </div>
 
-        <!-- RIGHT COLUMN : REASON + BUTTONS -->
-        <div>
-            <p class="text-sm font-semibold text-yellow-700 mb-1">Return Reason</p>
+    <!-- ITEMS TABLE -->
+    <div class="mt-10 border rounded-lg bg-white shadow-sm">
 
-            <p class="text-xs bg-white border rounded p-2 mb-3 text-gray-800">
-                <%= item.returnReason || "No reason provided" %>
-            </p>
+        <h3 class="text-lg font-semibold p-4 border-b">Items in Order</h3>
 
-            <div class="flex gap-3">
-                <button 
-                    onclick="approveReturn('<%= order._id %>', '<%= i %>')"
-                    class="px-4 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700">
-                    Approve
-                </button>
+        <div class="overflow-x-auto">
 
-                <button 
-                    onclick="rejectReturn('<%= order._id %>', '<%= i %>')"
-                    class="px-4 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">
-                    Reject
-                </button>
-            </div>
-        </div>
+            <table class="w-full text-sm text-gray-700">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="p-3 text-left">Product</th>
+                        <th class="p-3 text-center">Qty</th>
+                        <th class="p-3 text-right">Unit Price</th>
+                        <th class="p-3 text-right">Total</th>
+                        <th class="p-3 text-center">Status</th>
+                        <th class="p-3 text-center">Actions</th>
+                    </tr>
+                </thead>
 
-    </div>
+                <tbody>
 
-</div>
+                <% order.items.forEach((item, i) => { %>
 
-<% } %>
+                    <tr class="border-b">
+
+                        <td class="p-3">
+                            <%= item.productId.productName %> — 
+                            (<%= item.productId.variants[item.variantIndex].size %>)
+                        </td>
+
+                        <td class="p-3 text-center"><%= item.quantity %></td>
+
+                        <td class="p-3 text-right">₹<%= item.pricePerUnit %></td>
+
+                        <td class="p-3 text-right">
+                            ₹<%= item.quantity * item.totalPrice %>
+                        </td>
+
+                        <td class="p-3 text-center font-medium">
+                            <%= item.itemStatus %>
+                        </td>
+
+                        <td class="p-3 text-center">
+
+                            <div class="flex items-center gap-2 justify-center">
+                                <%if(item.itemStatus!=="Cancelled"){%>
+                                <select 
+                                    id="productStatus-<%= i %>"
+                                    class="border rounded px-2 py-1"
+                                >
+                                    <% ["Ordered","Shipped","Processing","Tracking","Delivered"].forEach(status => { %>
+                                        <option value="<%= status %>"
+                                            <%= item.itemStatus === status ? 'selected' : '' %>>
+                                            <%= status %>
+                                        </option>
+                                    <% }) %>
+                                </select>
+                               
+
+                                <button
+                                    onclick="saveProductStatus('<%= order._id %>', '<%= i %>')"
+                                    class="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600">
+                                    Update
+                                </button>
+                                 <%}else{%>
+                                    <span class="font-bold text-red-600">Cancelled</span>
+                                    <%}%>
+                            </div>
+
+                        </td>
+
+                    </tr>
 
 
-<% }) %>
+                    <% if (item.itemStatus === "Return Requested") { %>
 
-        <div class="md:col-span-2">
-            <p class="font-medium">Total Amount :</p>
-            <input 
-                type="text"
-                value="<%=order.totalAmount%>/-"
-                class="w-full mt-1 px-4 py-2 border rounded-md bg-gray-100"
-                readonly
-            />
-        </div>
+                        <tr class="bg-yellow-50">
+                            <td colspan="6" class="p-4">
 
-        <div class="md:col-span-2">
-            <p class="font-medium">Change Status :</p>
+                                <div class="flex flex-col md:flex-row justify-between items-start gap-4">
 
-            <% const statusOptions = ['Pending','Processing','Shipped','Delivered','Cancelled','Return Requested','Returned']; %>
+                                    <div>
+                                        <p class="font-semibold text-sm">Return Reason</p>
+                                        <p class="text-xs mt-1">
+                                            <%= item.returnReason || "No reason provided" %>
+                                        </p>
+                                    </div>
 
-            <select
-                name="status"
-                class="w-full mt-1 px-4 py-2 border rounded-md border-gray-400 bg-white text-gray-700"
-            >
-                <% statusOptions.forEach((status) => { %>
-                    <option value="<%= status %>" 
-                        <%= order.status === status ? "selected" : "" %>>
-                        <%= status %>
-                    </option>
+                                    <div class="flex gap-3">
+                                        <button 
+                                            onclick="approveReturn('<%= order._id %>', '<%= i %>')"
+                                            class="px-4 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700">
+                                            Approve
+                                        </button>
+
+                                        <button 
+                                            onclick="rejectReturn('<%= order._id %>', '<%= i %>')"
+                                            class="px-4 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">
+                                            Reject
+                                        </button>
+                                    </div>
+
+                                </div>
+
+                            </td>
+                        </tr>
+
+                    <% } %>
+
                 <% }) %>
-            </select>
+
+                </tbody>
+
+            </table>
+
         </div>
 
     </div>
 
-    <!-- Buttons -->
-    <div class="flex flex-col sm:flex-row gap-4 justify-center mt-10">
 
-        <button class="px-8 py-3 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700">
-            Cancel Order
-        </button>
 
-        <button class="px-8 py-3 bg-blue-500 text-white font-medium rounded-lg hover:bg-blue-600 update-status-btn">
-            Update Status
-        </button>
-
-    </div>
+  
 
 </div>
+
 
 <script>
     document.querySelector(".update-status-btn").addEventListener("click", async () => {
@@ -245,9 +244,9 @@
     const data = await res.json();
 
     if (data.success) {
-        Swal.fire("Updated!", "Order status changed successfully", "success");
+        Swal.fire("Updated!", data.message || "Order status changed successfully", "success");
     } else {
-        Swal.fire("Error", "Failed to update", "error");
+        Swal.fire("Error", data.message || "Failed to update", "error");
     }
 });
 </script>

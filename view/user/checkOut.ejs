@@ -121,8 +121,8 @@
                 <label class="flex items-center gap-4 p-4 border border-gray-100 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
                   <input type="radio" name="payment" value="UPI" class="h-4 w-4 text-black focus:ring-black border-gray-300" />
                   <div class="flex flex-col">
-                    <span class="text-sm font-semibold">UPI Method</span>
-                    <span class="text-xs text-gray-400">Pay using GPay, PhonePe, or BHIM</span>
+                    <span class="text-sm font-semibold">Razorpay</span>
+                    <!-- <span class="text-xs text-gray-400">Pay using GPay, PhonePe, or BHIM</span> -->
                   </div>
                 </label>
 
@@ -130,7 +130,15 @@
                   <input type="radio" name="payment" value="COD" class="h-4 w-4 text-black focus:ring-black border-gray-300" />
                   <div class="flex flex-col">
                     <span class="text-sm font-semibold text-gray-800">Cash on Delivery</span>
-                    <span class="text-xs text-gray-400">Pay when your order is delivered</span>
+                    <!-- <span class="text-xs text-gray-400">Pay when your order is delivered</span> -->
+                  </div>
+                </label>
+
+                <label class="flex items-center gap-4 p-4 border border-gray-100 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                  <input type="radio" name="payment" value="WALLET" class="h-4 w-4 text-black focus:ring-black border-gray-300" />
+                  <div class="flex flex-col">
+                    <span class="text-sm font-semibold text-gray-800">Wallet</span>
+                    <!-- <span class="text-xs text-gray-400">Pay when your order is delivered</span> -->
                   </div>
                 </label>
               </fieldset>
@@ -172,7 +180,13 @@
               <div class="py-4 border-y border-gray-50 bg-gray-50/50 -mx-6 px-6">
                 <label for="couponCode" class="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Apply Coupon</label>
                 <div class="flex gap-2">
-                    <input type="text" id="couponCode" placeholder="Enter code" class="flex-1 bg-white border border-gray-200 rounded-md px-3 py-2 text-sm font-medium focus:ring-1 focus:ring-black focus:border-black outline-none transition-all uppercase placeholder:normal-case">
+                    <div class="relative flex-1">
+                        <input type="text" id="couponCode" placeholder="Enter code" class="w-full bg-white border border-gray-200 rounded-md pl-3 pr-8 py-2 text-sm font-medium focus:ring-1 focus:ring-black focus:border-black outline-none transition-all uppercase placeholder:normal-case">
+                        <!-- Clear Button inside the input -->
+                        <button type="button" id="clearCouponBtn" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black transition-colors focus:outline-none">
+                            ✕
+                        </button>
+                    </div>
                     <button type="button" id="applyCouponBtn" class="bg-black text-white px-4 py-2 rounded-md text-xs font-bold uppercase hover:bg-gray-800 transition-colors">
                         Apply
                     </button>
@@ -195,7 +209,7 @@
                                     <div class="coupon-card p-3 rounded-lg bg-white shadow-sm flex justify-between items-center group">
                                         <div>
                                             <p class="text-xs font-black text-black tracking-widest uppercase"><%= coupon.couponCode %></p>
-                                            <p class="text-[10px] text-gray-500 mt-0.5">Save <%= coupon.discountPercent %>% on your purchase</p>
+                                            <p class="text-[10px] text-gray-500 mt-0.5">Save <%= coupon.discountPercent %>% / upto <%=coupon.upto%> on your purchase </p>
                                         </div>
                                         <button type="button" onclick="copyAndFill('<%= coupon.couponCode %>')" class="text-[10px] font-bold bg-gray-100 group-hover:bg-black group-hover:text-white px-3 py-1.5 rounded transition-all">
                                             COPY
@@ -236,67 +250,4 @@
 
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="/js/user/checkOut.js"></script>
-
-<script>
-  // Toggle functionality for the coupon drawer with smooth height transition
-  function toggleCouponDrawer() {
-    const drawer = document.getElementById('couponDrawer');
-    const chevron = document.getElementById('couponChevron');
-    
-    drawer.classList.toggle('open');
-    
-    // Rotate Chevron
-    if (drawer.classList.contains('open')) {
-      chevron.style.transform = 'rotate(180deg)';
-    } else {
-      chevron.style.transform = 'rotate(0deg)';
-    }
-  }
-
-  // Copy coupon code to input field and provide feedback
-  function copyAndFill(code) {
-    const input = document.getElementById('couponCode');
-    input.value = code;
-    
-    // Success Toast Notification
-    Swal.fire({
-        toast: true,
-        position: 'top-end',
-        icon: 'success',
-        title: 'Code Copied!',
-        showConfirmButton: false,
-        timer: 1500,
-        timerProgressBar: true
-    });
-  }
-
-  // SweetAlert Confirmation before placing order
-  document.getElementById('placeOrderTrigger').addEventListener('click', function() {
-    Swal.fire({
-      title: 'Confirm Order?',
-      text: "Proceed with the selected items and address?",
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#000000',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, Place Order',
-      cancelButtonText: 'Wait, go back'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // Execute the placement function
-        handleOrderSubmission();
-      }
-    });
-  });
-
-  function handleOrderSubmission() {
-    console.log("Submitting order...");
-    // You can submit the form directly:
-    // document.getElementById('checkoutForm').submit();
-    
-    // Or call your specific logic from checkOut.js:
-    // if(typeof window.initiateOrder === 'function') window.initiateOrder();
-  }
-</script>
-
 </html>

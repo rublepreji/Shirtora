@@ -106,13 +106,20 @@
             <a href="/wishlist"
               class="fa-regular fa-heart text-xl text-gray-700 hover:text-black cursor-pointer transition"
             ></a>
-            <a href="/cart">
-            <button
-              class="text-xl text-gray-700 hover:text-black cursor-pointer transition"
-            >
-              🛒
-            </button>
-            </a>
+           <a href="/cart" class="relative inline-block">
+          <span class="text-xl text-gray-700 hover:text-black transition">
+            🛒
+          </span>
+
+          <% if(cartCount > 0){ %>
+            <span 
+              class="absolute -top-2 -right-3 bg-red-600 text-white text-xs font-semibold
+                    rounded-full px-2 py-0.5">
+              <%= cartCount %>
+            </span>
+          <% } %>
+        </a>
+
           </div>
 
           <!-- Mobile Menu Button -->

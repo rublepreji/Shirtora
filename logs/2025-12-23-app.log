@@ -1,4 +1,0 @@
-2025-12-23 13:10:52 [ERROR] Error on cancel order controller walletService is not defined
-2025-12-23 13:14:27 [ERROR] Error on cancel order controller Wallet validation failed: balance: Cast to Number failed for value "NaN" (type number) at path "balance"
-2025-12-23 13:35:55 [ERROR] Error on cancel order controller Wallet validation failed: balance: Cast to Number failed for value "NaN" (type number) at path "balance"
-2025-12-23 13:42:59 [ERROR] Error on cancel order controller Wallet validation failed: balance: Cast to Number failed for value "NaN" (type number) at path "balance"

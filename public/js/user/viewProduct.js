@@ -104,6 +104,8 @@
 
 
         function renderProduct(product){
+            console.log('product',product);
+            
   productContainer.innerHTML = product.map(data => `
     <div class="product-card bg-white rounded-lg overflow-hidden shadow-md flex flex-col h-full">
       <div class="w-full h-48 overflow-hidden">
@@ -123,11 +125,24 @@
             Add to cart
           </button>
 
-          <button onclick="addtowishlist('${data._id}')" class="w-10 h-10 border border-gray-300 rounded-md flex items-center justify-center hover:bg-gray-100">
-            <svg class="w-5 h-5 text-gray-500 hover:text-red-500 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 21l-7.682-7.682a4.5 4.5 0 010-6.364z"/>
-            </svg>
-          </button>
+          <button onclick="addtowishlist('${data._id}')"
+  class="w-10 h-10 border border-gray-300 rounded-md flex items-center justify-center hover:bg-gray-100">
+
+  <svg 
+    class="w-5 h-5 transition
+      ${data.isWishlist ? 'text-red-500 fill-red-500' : 'text-gray-400'}"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    stroke-width="2">
+
+    <path stroke-linecap="round" stroke-linejoin="round"
+     d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636
+        l1.318-1.318a4.5 4.5 0 116.364 6.364
+        L12 21l-7.682-7.682a4.5 4.5 0 010-6.364z"/>
+  </svg>
+
+</button>
+
         </div>
       </div>
     </div>

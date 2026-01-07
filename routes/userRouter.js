@@ -2,16 +2,20 @@ import express from 'express';
 import {loadHomePage,pageNotFound,loadSignin,signin,signup,verifyOtp,loadVerifyOtp,logout,loadSignup, resendOtp, viewProducts, filterProduct, productDetails} from '../controller/user/userController.js';
 import { loadForgotPassword, verifyEmail, verifyPassOtp, loadOTPpage, loadPasswordReset, resendOtps, resetPassword, loadAbout, loadContact, loadUserDetails, loadAddressBook, loadNewAddress, addNewAddress, loadEditAddress, editAddress, deleteAddress, loadChangeEmailOtp, verifyChangeEmailOtp, newEmail, setNewEmail, resetPass, loadResetPass, updateDetails, updateUserProfile} from '../controller/user/profileController.js';
 import {loadCart, addToCart, removeFromCart ,updateCartQty} from '../controller/user/cartController.js'
+import {applyCoupon, removeCoupon} from "../controller/user/couponController.js"
 import passport from '../config/passport.js';
 import { adminAuth, userAuth,userIsLogged } from '../middlewares/auth.js';
 import uploadTo from '../middlewares/multerCloudinary.js';
 import multer from 'multer';
 import {storage} from '../helpers/multer.js';
 import { loadWishlist , addToWishlist, removeFromWishlist} from '../controller/user/wishlistController.js';
-import {loadCheckout , placeOrder, loadOrderFailed ,orderSuccessPage, loadOrderDetails, loadOrderList, downloadInvoice, cancelOrder, returnRequest, loadOrderListData, handlePaymentFailed} from '../controller/user/checkoutController.js'
+import {loadCheckout , placeOrder, loadOrderFailed ,orderSuccessPage, loadOrderDetails, loadOrderList, downloadInvoice, cancelItem, returnRequest, loadOrderListData, handlePaymentFailed} from '../controller/user/checkoutController.js'
 import { processPayment, retryCreateOrder, retryVerifyPayment } from '../controller/user/paymentController.js';
 import {
-  loadWallet
+  loadWallet,
+  walletAddMoney,
+  walletPaymentVerify,
+  walletPay
 } from "../controller/user/walletController.js"
 
 const router = express.Router();
@@ -98,8 +102,8 @@ router.get('/orderdetails/:id',userAuth,loadOrderDetails)
 router.get('/orderlist',userAuth,loadOrderList)
 router.get("/ordersData", userAuth, loadOrderListData);
 router.get('/downloadInvoice/:id',userAuth,downloadInvoice)
-router.put('/cancelorder',userAuth,cancelOrder)
 router.put('/returnRequest',userAuth,returnRequest)
+router.put('/cancelItem',userAuth,cancelItem)
 
 //payment 
 router.post('/create_order',processPayment)
@@ -109,7 +113,13 @@ router.post('/retry_create_payment',userAuth,retryVerifyPayment)
 
 //Wallet
 router.get('/wallet',userAuth,loadWallet)
+router.post('/wallet/create-order',userAuth,walletAddMoney)
+router.post('/wallet/payment-success',userAuth,walletPaymentVerify)
+router.post('/wallet/pay',userAuth,walletPay)
 
+//coupon management
+router.post('/applycoupon',applyCoupon)
+router.post('/removeCoupon',userAuth,removeCoupon)
 
 
 export default router;

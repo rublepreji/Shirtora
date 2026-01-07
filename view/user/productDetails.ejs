@@ -66,6 +66,9 @@
                         <% } else { %>
                             <span id="header-stock" class="text-green-600 font-semibold ml-auto lg:ml-0">| In Stock</span>
                         <% } %>
+                        <% if(isBlocked){ %>
+                            <span id="header-stock" class="text-red-600 font-semibold ml-auto lg:ml-0">| BLOCKED</span>
+                        <% } %>
                     </div>
                 </div>
 <!-- Update the price section -->
@@ -76,13 +79,13 @@
   class="text-3xl font-bold text-gray-800">
   ₹<%= selectedVariant.price - (selectedVariant.price * offer) / 100 %>/-
 </span>
-    <span class="strike-through text-xl text-gray-400">₹<%=selectedVariant.price%></span>
+    
     <span class="text-red-600 text-lg font-semibold">
-        <% if(!totalOffer) { %>
-            No Offers
+        <% if(offer) { %>
+            <span class="strike-through text-xl text-gray-400">₹<%=selectedVariant.price%></span>
+            <%=offer%>%off
         <% } else { %>
-            <span class="strike-through text-xl text-gray-400"><%= selectedVariant.price %></span>
-            <%= totalOffer %>
+            NO OFFER
         <% } %>
     </span>
 </div>

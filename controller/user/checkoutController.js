@@ -6,6 +6,59 @@ import {verifyRazorpaySignature} from '../../utils/razorpayVerification.js'
 import Order from '../../model/orderSchema.js';
 import mongoose from 'mongoose';
 import {creditWallet} from "../../services/userService/walletService.js"
+import Product from '../../model/productSchema.js';
+import orderService from '../../services/adminService/orderService.js';
+
+
+async function cancelItem(req,res) {
+  try {
+    const {orderId,itemIndex}= req.body
+    console.log("Hit the cancel item",orderId, itemIndex);
+    
+    if(!orderId || itemIndex===undefined){
+      return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Invalid request"})
+    }
+    const order= await Order.findOne({orderId})
+    if(!order){
+      return res.status(STATUS.NOT_FOUND).json({success:false,message:"Order not found"})
+    }
+    if(order.status==="Cancelled"){
+      return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Order is already cancelled"})
+    }
+    const item = order.items[itemIndex]
+
+    if(!item){
+      return res.status(STATUS.NOT_FOUND).json({success:false,message:"Item not found"})
+    }
+    if(item.itemStatus==="Delivered"){
+      return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Delivered item cannot be cancelled"})
+    }
+    if(item.itemStatus==="Return-Approved"){
+      return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Returned item cannot be cancelled"})
+    }
+    if(item.itemStatus==="Cancelled"){
+      return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Item already cancelled"})
+    }
+    item.itemStatus="Cancelled"
+    console.log(item.productId);
+    
+    const product=await Product.findById(item.productId)
+    
+    product.variants[item.variantIndex].stock+=item.quantity
+    await product.save()
+
+    order.status= await orderService.determineOrderStatusFromItems(order.items)
+
+    // if(order.paymentStatus==="Paid"){
+    //   order.paymentStatus="Pending"
+    // }
+    await order.save()
+    return res.status(STATUS.OK).json({success:true,message:"Item cancelled successfully"})
+  } catch (error) {
+    logger.error("Error from cancel item",error)
+    return res.status(STATUS.INTERNAL_SERVER_ERROR).json({success:false,message:"Internal server error"})
+  }
+}
 
 async function handlePaymentFailed(req, res) {
   
@@ -75,7 +128,7 @@ async function cancelOrder(req,res) {
     if(paymentMethod!=="COD" && paymentStatus==="Paid"){
       await creditWallet({
         userId:order.userId,
-        amount:order.totalAmount,
+        amount:order.offerAmount,
         orderId:order._id,
         source:"ORDER_REFUND",
         reason:"Refund for cancelled order",
@@ -297,4 +350,4 @@ async function loadCheckout(req, res) {
 }
 }
 
-export {loadCheckout, placeOrder, orderSuccessPage, loadOrderFailed, loadOrderDetails, loadOrderList, loadOrderListData, downloadInvoice, cancelOrder, returnRequest, handlePaymentFailed}
+export {loadCheckout, placeOrder, orderSuccessPage, loadOrderFailed, loadOrderDetails, loadOrderList, loadOrderListData, downloadInvoice, returnRequest, handlePaymentFailed, cancelItem}

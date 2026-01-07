@@ -3,16 +3,95 @@ import {STATUS}  from "../../utils/statusCode.js"
 import {updateStatus} from "../../helpers/updateOrderStatus.js"
 import {logger} from '../../logger/logger.js'
 import orderService from '../../services/adminService/orderService.js'
+import mongoose from "mongoose"
+import { creditWallet } from "../../services/userService/walletService.js"
 
+async function adminCancelOrder(req,res) {
+  const session =await mongoose.startSession()
+  try {
+    const {orderId,reason}= req.body
+    console.log(orderId,' ',reason);
+    if(!orderId || !reason){
+      return res.json({success:false,message:"Missing data"})
+    }
+    const orderDoc= await Order.findOne({orderId}).session(session)
+    if(!orderDoc){
+      return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Order not found"})
+    }
+    if(orderDoc.status=="Delivered"){
+      return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Delivered order cannot be cancelled"})
+    }
+    if(orderDoc.status=="Cancelled"){
+      return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Order already cancelled"})
+    }
+    const hasDelivered= orderDoc.items.some(i=>i.itemStatus==="Delivered")
+    const hasReturnApproved= orderDoc.items.some(i=>i.itemStatus==="Return-Approved")
+
+    if(hasDelivered || hasReturnApproved){
+      return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Order contains delivered or returned items - full cancellation is not allowed"})
+    }
+    session.startTransaction()
+    const order= await Order.findOne({orderId}).session(session)
+    order.status="Cancelled"
+    order.cancelReason=reason
+
+    order.items.forEach((item)=>{
+      if(item.itemStatus !=="Delivered"){
+        item.itemStatus="Cancelled"
+      }
+    })
+    await orderService.restoreStokeForOrderItems(order,session)
+
+    if(order.paymentStatus==="Paid"){
+      await creditWallet({
+        userId:order.userId,
+        amount:order.offerAmount,
+        source:"ORDER_REFUND",
+        orderId:order.orderId,
+        reason:reason,
+        session
+      })
+      order.paymentStatus="Refunded"
+    }
+    await order.save({session})
+    await session.commitTransaction()
+    session.endSession()
+    return res.status(STATUS.OK).json({success:true,message:"Order cancelled successfully"})
+  } catch (error) {
+    await session.abortTransaction()
+    session.endSession()
+   logger.error("Error from adminCancelOrder",error)
+   return res.status(STATUS.INTERNAL_SERVER_ERROR).json({success:false,message:"Internal server error"}) 
+  }
+}
 
 async function updateItemStatus(req,res) {
   try {    
     const { orderId, itemIndex, newStatus } = req.body;
+    const orders= await Order.findById(orderId)
+    if(!orders){
+      return res.status(STATUS.NOT_FOUND).json({success:false,message:"Order not found"})
+    }
+    const findItem= orders.items[itemIndex]
+    if(!findItem){
+      return res.status(STATUS.NOT_FOUND).json({success:false,message:"Item not found"})
+    }
+    const currentStatus= findItem.itemStatus
 
+    if(!await orderService.isValidStatusTransition(currentStatus,newStatus)){
+      return res.status(STATUS.BAD_REQUEST).json({success:false,message:`Cannot change status from ${currentStatus} to ${newStatus}`})
+    }
+    
     const {item}= await orderService.updateItemStatus(orderId,itemIndex,newStatus)
 
     await orderService.updateStockIfRetured(item,newStatus)
 
+    const order=await Order.findOne({_id:orderId})
+    order.status= await orderService.determineOrderStatusFromItems(order.items)
+    if(order.status=="Delivered" && order.paymentMethod=="COD"){
+      order.paymentStatus="Paid"
+    }
+    await order.save()
     return res.status(STATUS.OK).json({ success: true });
   } catch (error) {
     logger.error("Update item status error:", error);
@@ -20,8 +99,7 @@ async function updateItemStatus(req,res) {
   }
 }
 
-
-  async function updateReturnStatus(req, res) {
+async function updateReturnStatus(req, res) {
   try {
     const { orderId, itemIndex, newStatus } = req.body;
 
@@ -39,6 +117,8 @@ async function updateItemStatus(req,res) {
     const item=order.items[itemIndex]
 
     await orderService.updateStockIfReturnApproved(item, newStatus)
+    order.status=await orderService.determineOrderStatusFromItems(order.items)
+    await order.save()
     return res.json({ success: true });
   } catch (err) {
     return res.json({ success: false, message: "Server error" });
@@ -49,13 +129,22 @@ async function updateItemStatus(req,res) {
 async function updateOrderStatus(req,res) {
  try {    
     const { orderId, newStatus } = req.body;
-    const result =await updateStatus(orderId, newStatus)
-    if(result){
-        return res.status(STATUS.OK).json({success:true,message:"Status updated successfully"})
+
+    const order= await Order.findOne({orderId})
+
+    if(!order){
+      return res.status(STATUS.NOT_FOUND).json({success:false,message:"Order not found"})
     }
-    else{
-        return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Failed to update status"})
+
+    if(order.status==="Delivered"){
+      return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Delivered order cannot be updated"})
     }
+    order.status=newStatus
+    if(newStatus==="Delivered" && order.paymentMethod==="COD"){
+      order.paymentStatus="Paid"
+    }
+    await order.save()
+    return res.status(STATUS.OK).json({success:true,message:"Status updated successfully"})
  } catch (error) {
     console.log(error);
     return res.status(STATUS.INTERNAL_SERVER_ERROR).json({ success: false, message: "Internal server error" });
@@ -100,5 +189,5 @@ async function dataForOrderList(req,res) {
     }
 }
 
-export {loadOrderList, loadOrderDetails, dataForOrderList, updateOrderStatus, updateReturnStatus, updateItemStatus}
+export {loadOrderList, loadOrderDetails, dataForOrderList, updateOrderStatus, updateReturnStatus, updateItemStatus, adminCancelOrder}
 

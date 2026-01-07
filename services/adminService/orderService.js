@@ -1,6 +1,96 @@
 import Order from "../../model/orderSchema.js";
 import Product from "../../model/productSchema.js";
 
+async function restoreStokeForOrderItems(order,session) {
+  try {
+    for(const item of order.items){
+      if(item.itemStatus=="Delivered") continue
+      const product= await Product.findById(item.productId).session(session)
+      if(!product)continue
+      const variant= product.variants[item.variantIndex]
+      if(!variant)continue
+      variant.stock+=item.quantity
+      await product.save({session})
+    }    
+  } catch (error) {
+    return error
+  }
+}
+
+async function isValidStatusTransition(currentStatus,newStatus) {
+  const statusFlow=[
+    "Ordered",
+    "Processing",
+    "Shipped",
+    "Tracking",
+    "Delivered",
+    "Return Requested",
+    "Cancelled",
+    "Return-Approved",
+    "Return-Rejected"
+  ]
+
+  const currentIndex= statusFlow.indexOf(currentStatus)
+  const nextIndex= statusFlow.indexOf(newStatus)
+  if(currentIndex==-1 || nextIndex==-1) return false
+  if(currentIndex===nextIndex)return true
+  return nextIndex>currentIndex
+}
+
+async function determineOrderStatusFromItems(items) {
+  try {
+    const statuses= items.map(item=>item.itemStatus)
+
+    const allDelivered= statuses.every(s=>s ==="Delivered")
+    const allCancelled= statuses.every(s=>s==="Cancelled")
+    const allProcessing= statuses.every(s=>s==="Processing")
+    const allTracking= statuses.every(s=>s==="Tracking")
+    const allShipped= statuses.every(s=>s==="Shipped")
+    const allRetured= statuses.every(s=>s==="Returned")
+    const allReturnReq = statuses.every(s=>s==="Return Requested")
+
+    const anyProcessing = statuses.includes("Processing")
+    const anyShipped = statuses.includes("Shipped")
+    const anyTracking= statuses.includes("Tracking")
+
+    if(allProcessing){
+      return "Processing"
+    }
+    if(allTracking){
+      return "Tracking"
+    }
+    if(allShipped){
+      return "Shipped"
+    }
+    if(allCancelled){
+      return "Cancelled"
+    }
+    if(allDelivered){
+      return "Delivered"
+    }
+    if(allRetured){
+      return "Returned"
+    }
+    if(allReturnReq){
+      return "Return Requested"
+    }
+    if(anyTracking){
+      return "Tracking"
+    }
+    if(anyShipped){
+      return "Shipped"
+    }
+    if(anyProcessing){
+      return "Processing"
+    }
+    return "Pending"
+
+  } catch (error) {
+    logger.error("Error in determine Order Status From Items",error)
+    return
+  }
+}
+
 async function updateItemStatus(orderId,itemIndex,newStatus) {
     await Order.updateOne(
         { _id: orderId },
@@ -81,5 +171,8 @@ export default {
     findOrderWithproductDetails,
     updateReturnStatus,
     updateStockIfReturnApproved,
-    listOrders
+    listOrders,
+    determineOrderStatusFromItems,
+    isValidStatusTransition,
+    restoreStokeForOrderItems
 }

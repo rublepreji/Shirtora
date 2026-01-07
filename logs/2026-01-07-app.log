@@ -1,0 +1,4 @@
+2026-01-07 09:28:49 [ERROR] Error on remove coupon findOne is not defined
+2026-01-07 09:30:17 [ERROR] Error on remove coupon findOne is not defined
+2026-01-07 09:33:59 [ERROR] Error on remove coupon Cart validation failed: grandTotal: Cast to Number failed for value "[]" (type Array) at path "grandTotal"
+2026-01-07 09:38:58 [ERROR] Error on remove coupon Cart validation failed: grandTotal: Cast to Number failed for value "[]" (type Array) at path "grandTotal"

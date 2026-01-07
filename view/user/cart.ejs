@@ -62,6 +62,11 @@
                                 <p class="font-semibold"><%= item.productName %></p>
                                <% if(item.variant.stock<1){%>
                                     <p class="text-red-600 text-sm">Out Of Stock</p>
+                                <%}else if(item.isBlocked){%>
+                                    <p class="text-red-600 text-sm">Blocked</p>
+
+                                <%}else if(item.stockNotAvailable){%>
+                                    <p class="text-red-600 text-sm">Insufficient stock</p>
                                 <%}else{%>
                                     <p class="text-green-600 text-sm">In Stock</p>
                                     <p class="text-600 text-sm">Size:<%=item.variant.size%></p>

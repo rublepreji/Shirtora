@@ -82,12 +82,14 @@ async function productDetailsService(user,productId) {
 }
 
 async function filterProductService(userQuery) {
-    const {category,brand,price,sort,page,limit,search}= userQuery
+    const {category,brand,price,sort,page,limit,search,userId}= userQuery
+    const userData=await User.findOne({_id:userId})
     let sortOption={}
     const skip= (page-1)*limit
     const query={
       isBlocked:{$eq:false}
     }
+    const wishlist = userData?.wishlist?.map(id => id.toString()) || [];
     if(search){
       query.productName={$regex:search,$options:"i"}
     }
@@ -137,6 +139,10 @@ async function filterProductService(userQuery) {
     .lean()
 
     findProducts=findProducts.filter(p=>p.category && p.brand)
+    .map(p=>({
+      ...p,
+      isWishlist:wishlist.includes((p._id.toString()))
+    }))
 
     const totalProduct= await Product.countDocuments(query )
     const totalPage= Math.ceil(totalProduct/limit)
@@ -159,6 +165,8 @@ async function viewProductService(userId,page) {
     const categoryIds= categories.map(category=>category._id)
     const brandIds= brand.map(b=>b._id)
     const limit=9
+
+    const wishlist= userData?.wishlist?.map(id=>id.toString()) || []
     
     const skip= (page-1)*limit
     const query={
@@ -182,6 +190,10 @@ async function viewProductService(userId,page) {
     .lean()
 
     product=product.filter(p=>p.category && p.brand)
+    .map(p=>({
+      ...p,
+      isWishlist:wishlist.includes(p._id.toString())
+    }))
 
     const unblockedProducts= await Product.find(query)
     .populate({
@@ -254,14 +266,20 @@ async function verifyOtpService(otp,sessionOtp,userData) {
   if(!userData){
     return {success:false,message:"User session expired, Try again"}
   }
+  let referrer=null
+  if(userData.referralCode){
+    referrer= await User.findOne({referralCode:data.referralCode.trim()});
+  }
       const newUser = new User({
       firstName: userData.firstName,
       lastName: userData.lastName,
       fullName: (userData.firstName + userData.lastName).toLowerCase(),
       phone: userData.phone,
       email: userData.email,
-      password: userData.hashedPassword
+      password: userData.hashedPassword,
+      referredBy:referrer?._id || null
   });
+  newUser.referralCode="REF" + newUser._id.toString().slice(-6).toUpperCase();
   await newUser.save();      
   return {success:true}
 } catch (error) {

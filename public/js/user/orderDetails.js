@@ -72,3 +72,43 @@ document.getElementById("submitReturnBtn").addEventListener("click", async () =>
 
     closeReturnModal();
 });
+
+async function cancelSingleItem(orderId, itemIndex) {
+
+  const result = await Swal.fire({
+    title: "Cancel this item?",
+    text: "Are you sure you want to cancel this item?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#DC2626",
+    cancelButtonColor: "#6B7280",
+    confirmButtonText: "Yes, cancel it",
+    cancelButtonText: "No"
+  });
+
+  if (!result.isConfirmed) return;
+
+  const res = await fetch("/cancelItem", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ orderId, itemIndex })
+  });
+
+  const data = await res.json();
+
+  if (data.success) {
+    Swal.fire({
+      icon: "success",
+      title: "Item Cancelled",
+      text: data.message||"The item has been successfully cancelled",
+      timer: 1200,
+      showConfirmButton: false
+    }).then(() => location.reload());
+  } else {
+    Swal.fire({
+      icon: "error",
+      title: "Failed",
+      text: data.message || "Unable to cancel item"
+    });
+  }
+}
