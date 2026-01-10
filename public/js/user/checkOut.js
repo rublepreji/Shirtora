@@ -268,7 +268,7 @@ applyBtn.addEventListener("click", async () => {
     removeBtn.classList.remove("hidden");
 
   } catch (err) {
-    Swal.fire("Error!", "Something went wrong.", "error");
+    Swal.fire("Error!", data.message||"Something went wrong.", "error");
   }
 });
 

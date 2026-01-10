@@ -119,13 +119,14 @@ async function debitWallet({ userId, amount, orderId }) {
   });
 }
 
-async function creditWallet({ userId, amount, source, orderId, reason, session }) {
+async function creditWallet({ userId, amount, source, orderId, reason, itemIndex,session }) {
   console.log("credit wallet");
   
   const existingTxn= await WalletTransaction.findOne({
     userId,
     orderId,  
-    source
+    source,
+    itemIndex
   }).session(session)
   if(existingTxn) return 
   const wallet = await createWalletIfNotExists(userId,session);
@@ -140,6 +141,7 @@ async function creditWallet({ userId, amount, source, orderId, reason, session }
     source,
     orderId,
     reason,
+    itemIndex
   }],{session});
 }
 

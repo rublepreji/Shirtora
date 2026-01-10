@@ -65,9 +65,6 @@
                                 <button onclick="openAddMoney()" class="bg-white text-black px-6 py-2.5 rounded-lg text-sm font-bold">
                                 <i class="fas fa-plus mr-2"></i>Add Money
                                 </button>
-                                <!-- <button class="bg-transparent border border-white/30 text-white px-6 py-2.5 rounded-lg text-sm font-bold hover:bg-white/10 transition">
-                                    Withdraw
-                                </button> -->
                             </div>
                         </div>
                         <!-- Abstract Design Element -->
@@ -76,19 +73,6 @@
                             <i class="fas fa-wallet"></i>
                         </div>
                     </div>
-
-                    <!-- Quick Stats Card -->
-                    <!-- <div class="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm flex flex-col justify-center">
-                        <div class="mb-6">
-                            <p class="text-gray-500 text-sm font-medium mb-1">Total Spent</p>
-                            <p class="text-2xl font-bold text-black">₹45,200</p>
-                        </div>
-                        <div>
-                            <p class="text-gray-500 text-sm font-medium mb-1">Last Transaction</p>
-                            <p class="text-lg font-semibold text-red-600">- ₹4,949.00</p>
-                            <p class="text-xs text-gray-400">Oct 12, 2025</p>
-                        </div>
-                    </div> -->
                 </div>
 
                 <!-- Transaction History Section -->
@@ -108,60 +92,17 @@
                                     <th class="py-4 px-6 text-xs font-bold text-gray-400 uppercase tracking-widest text-right">Amount</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-50">
-                                <!-- Transaction 1 -->
-                                <!-- <tr class="hover:bg-gray-50/80 transition-colors">
-                                    <td class="py-5 px-6">
-                                        <div class="flex items-center">
-                                            <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mr-4">
-                                                <i class="fas fa-shopping-bag text-gray-500"></i>
-                                            </div>
-                                            <div>
-                                                <p class="font-bold text-gray-900"><%=transaction.source%></p>
-                                                <p class="text-xs text-gray-500">Polo Brown Shirt</p>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="py-5 px-6 text-sm text-gray-600">Oct 12, 2025</td>
-                                    <td class="py-5 px-6">
-                                        <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider status-debit"><%=transaction.type%></span>
-                                    </td>
-                                    <td class="py-5 px-6 text-right font-bold text-red-600"> ₹<%=transaction.amount%></td>
-                                </tr> -->
-                                <%for(let i=0;i<transaction.length;i++){%>
-                                <tr class="hover:bg-gray-50/80 transition-colors">
-                                    <td class="py-5 px-6">
-                                        <div class="flex items-center">
-                                            <div class="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center mr-4">
-                                                <i class="fas fa-arrow-down text-green-600"></i>
-                                            </div>
-                                            <div>
-                                                <p class="font-bold text-gray-900"><%=transaction[i].source%></p>
-                                                <!-- <p class="text-xs text-gray-500">Bank Transfer</p> -->
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="py-5 px-6 text-sm text-gray-600"><%=new Date(transaction[i].createdAt).toLocaleDateString()%></td>
-                                    <td class="py-5 px-6">
-                                        <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider status-credit"><%=transaction[i].type%></span>
-                                    </td>
-                                    <td class="py-5 px-6 text-right font-bold text-green-600">+ ₹<%=transaction[i].amount%></td>
-                                </tr>
-                                <%}%>
+                            <tbody id="walletBody" class="divide-y divide-gray-50">
+                                
                             </tbody>
                         </table>
                     </div>
-                    
-                    <!-- Empty State Footer (Optional) -->
-                    <!-- <div class="p-6 text-center border-t border-gray-50">
-                        <button class="text-sm font-bold text-gray-400 hover:text-black transition">View All Transactions</button>
-                    </div> -->
+                    <div id="walletPagination" class="flex justify-center gap-2 mt-6"></div>
                 </div>
-
             </div>
         </main>
     </div>
-
+<script src="/js/user/wallet.js"></script>
     <script>
         let addMoneyAmount=0
 async function openAddMoney(){

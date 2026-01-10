@@ -161,6 +161,15 @@ async function addtocart(productId,variantIndex,qty) {
             })
         })
 
+if (!response.headers.get("content-type")?.includes("application/json")) {
+ await Swal.fire({
+    icon: "warning",
+    title: "Login required",
+    text: "Please login to add products to cart"
+  })
+  window.location.href='/signin'
+  return 
+}
     const data= await response.json()
     if(data.success){
         Swal.fire({

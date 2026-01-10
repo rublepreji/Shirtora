@@ -4,11 +4,16 @@ import cartService from "../../services/userService/cartService.js";
 import Product from "../../model/productSchema.js";
 import userService from '../../services/userService/userService.js'
 
-async function addToCart(req, res) {
+async function addToCart(req,res) {
   try {
     console.log("inside the controller");
     
     const userId = req.session.user._id;
+    console.log(userId);
+    
+    if(!userId){
+      return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Please login to add items in cart"})
+    }
     const { productId, variantIndex, qty } = req.body;
     const quantity = Number(qty);
     const product= await Product.findById(productId)

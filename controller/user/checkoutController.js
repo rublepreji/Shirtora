@@ -1,5 +1,4 @@
 import {STATUS} from '../../utils/statusCode.js'
-import {updateStatus} from "../../helpers/updateOrderStatus.js"
 import {logger} from '../../logger/logger.js'
 import checkoutService from "../../services/userService/checkoutService.js";
 import {verifyRazorpaySignature} from '../../utils/razorpayVerification.js'
@@ -11,14 +10,18 @@ import orderService from '../../services/adminService/orderService.js';
 
 
 async function cancelItem(req,res) {
+  const session= await mongoose.startSession()
   try {
+    session.startTransaction()
     const {orderId,itemIndex}= req.body
-    console.log("Hit the cancel item",orderId, itemIndex);
+    console.log(itemIndex);
+    
+    const userId = req.session.user._id
     
     if(!orderId || itemIndex===undefined){
       return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Invalid request"})
     }
-    const order= await Order.findOne({orderId})
+    const order= await Order.findOne({orderId}).session(session)
     if(!order){
       return res.status(STATUS.NOT_FOUND).json({success:false,message:"Order not found"})
     }
@@ -27,7 +30,7 @@ async function cancelItem(req,res) {
     }
     const item = order.items[itemIndex]
 
-    if(!item){
+    if(!item){ 
       return res.status(STATUS.NOT_FOUND).json({success:false,message:"Item not found"})
     }
     if(item.itemStatus==="Delivered"){
@@ -39,22 +42,47 @@ async function cancelItem(req,res) {
     if(item.itemStatus==="Cancelled"){
       return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Item already cancelled"})
     }
+    if(item.isRefunded){
+      return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Already Refunded"})
+    }
     item.itemStatus="Cancelled"
     console.log(item.productId);
     
-    const product=await Product.findById(item.productId)
+    const product=await Product.findById(item.productId).session(session)
     
     product.variants[item.variantIndex].stock+=item.quantity
-    await product.save()
+    await product.save({session})
 
     order.status= await orderService.determineOrderStatusFromItems(order.items)
+    if(order.paymentStatus==="Paid" && !item.isRefunded){
+      const itemShare= item.totalPrice / order.totalAmount
+      const discountShare= order.discountAmount * itemShare
 
-    // if(order.paymentStatus==="Paid"){
-    //   order.paymentStatus="Pending"
-    // }
-    await order.save()
+      const refundAmount= Math.round(item.totalPrice-discountShare)
+      await creditWallet({
+        userId,
+        amount:refundAmount,
+        source:"ORDER_CANCEL_REFUND",
+        orderId,
+        reason:"Cancel Item",
+        itemIndex,
+        session
+      })
+      item.isRefunded=true
+    }
+    const allItemsCancelledOrReturned= order.items.every(i=>
+      ["Cancelled","Return-Approved"].includes(i.itemStatus)
+    )
+    if(allItemsCancelledOrReturned){
+      order.paymentStatus="Refunded"
+    }
+    await order.save({session})
+    await session.commitTransaction()
+    session.endSession()
     return res.status(STATUS.OK).json({success:true,message:"Item cancelled successfully"})
   } catch (error) {
+    await session.abortTransaction()
+    session.endSession()
     logger.error("Error from cancel item",error)
     return res.status(STATUS.INTERNAL_SERVER_ERROR).json({success:false,message:"Internal server error"})
   }

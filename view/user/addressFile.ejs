@@ -22,7 +22,7 @@
         <div class="max-w-4xl mx-auto">
             <div class="flex flex-col md:flex-row justify-between text-sm text-gray-600 mb-6 border-b pb-4">
                 <p>Home / Account / <span class="font-bold text-gray-800">Address Book</span></p>
-                <p class="mt-2 md:mt-0">Welcome! <%=user.firstName%><%=user.lastName%></p>
+                <!-- <p class="mt-2 md:mt-0">Welcome! <%=user.firstName%><%=user.lastName%></p> -->
             </div>
     
 
@@ -30,7 +30,7 @@
     
                 <div class="flex justify-between items-center mb-6 border-b pb-4">
                     <h2 class="text-2xl font-bold text-gray-900">
-                        🏠 My Address Book
+                        My Address Book
                     </h2>
                     <a href="/addnewaddress"><button class="px-5 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition duration-150 text-sm font-semibold">
                         + Add New Address
@@ -38,62 +38,11 @@
                     </a>
                 </div>
     
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    
-                    <!-- <div class="border-2 border-green-500 bg-green-50 rounded-xl p-5 shadow-md hover:shadow-lg transition duration-150 relative">
-                        <span class="absolute top-0 right-0 bg-green-500 text-white text-xs font-semibold px-3 py-1 rounded-bl-lg rounded-tr-xl">
-                            PRIMARY
-                        </span>
-                        
-                        <div class="flex justify-between items-start mb-4">
-                            <div class="text-gray-800 leading-relaxed">
-                                <p class="text-lg font-semibold">John Doe, Rose Villa</p>
-                                <p class="text-gray-600">Near Main Market, Place, Kerala</p>
-                                <p class="text-gray-600">Pin Code: **689201**</p>
-                                <p class="mt-2 text-sm font-medium">Contact: **+91 98765 86265**</p>
-                            </div>
-                        </div> 
-    
-                        <div class="flex gap-3 mt-4 pt-3 border-t border-green-200">
-                            <button class="px-4 py-1.5 bg-gray-800 text-white rounded-lg text-sm font-medium hover:bg-black transition">
-                                Edit
-                            </button>
-                            <button class="px-4 py-1.5 bg-red-100 text-red-600 rounded-lg text-sm font-medium hover:bg-red-200 transition">
-                                Delete
-                            </button>
-                        </div>
-                    </div> -->
-                    <%addressDoc.address.forEach((val)=>{%>
-                    <div class="border border-gray-300 rounded-xl p-5 shadow-sm hover:shadow-md transition duration-150">
-                        <div class="flex justify-between items-start mb-4">
-                            <div class="text-gray-800 leading-relaxed">
-                                <p class="text-lg font-semibold"><%=val.firstName%></p>
-                                <p class="text-gray-600"><%=val.city%> <%=val.landMark%>, <%=val.state%></p>
-                                <p class="text-gray-600">Pin Code: <%=val.pincode%></p>
-                                <p class="mt-2 text-sm font-medium">Contact: +91<%=val.phone%></p>
-                            </div>
-                            <%if(val.isDefault){%>
-                            <button class="flex-none self-start inline-flex items-center text-xs font-semibold text-indigo-600 bg-indigo-100 px-2 py-0.5 rounded-full">
-                                Default
-                            </button>
-                            <%}%>
-                        </div>
-    
-                        <div class="flex gap-3 mt-4 pt-3 border-t">
-                            <a href="/editaddress/<%=val._id%>">
-                            <button  class="px-4 py-1.5 bg-gray-800 text-white rounded-lg text-sm font-medium hover:bg-black transition">
-                                Edit
-                            </button>
-                            </a>
-                            <button onclick="deleteAddress('<%=val._id%>')" class="px-4 py-1.5 bg-red-100 text-red-600 rounded-lg text-sm font-medium hover:bg-red-200 transition">
-                                Delete
-                            </button>
-                        </div>
-                    </div>
-                    <%})%>
-                   
+                <div id="addressDiv" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
                 </div>
             </div>
+            <div id="addressPagination" class="flex justify-center gap-2 mt-6"></div>
         </div>
     </div>
 
@@ -160,7 +109,7 @@ function deleteAddress(id) {
     });
 }
 </script>
-
+<script src="/js/user/addressfile.js"></script>
 </body>
 </html>
 

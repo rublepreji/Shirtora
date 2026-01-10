@@ -36,6 +36,10 @@ const orderSchema = new mongoose.Schema({
       type:String,
       default:null
     },
+    isRefunded:{
+      type:Boolean,
+      default:false
+    }
     }
   ],
   totalAmount: Number,

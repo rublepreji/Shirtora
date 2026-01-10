@@ -5,6 +5,9 @@ import { STATUS } from "../../utils/statusCode.js";
 
 async function addToCartService(userId, productId, variantIndex, quantity, finalPrice) {
   console.log("Inside the service");
+  if(!userId){
+    return {status:STATUS.BAD_REQUEST,success:false,message:"Please login!"}
+  }
   
   const product = await Product.findById(productId);
   if (!product) {

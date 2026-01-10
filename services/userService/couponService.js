@@ -8,14 +8,30 @@ async function applyCouponService(couponCode, userId) {
     if(!couponCode) return {success:false,message:"Enter a coupon code"}
 
     const cart=await Cart.findOne({userId})
-    .populate("items.productId")
+    .populate({
+      path: "items.productId",
+      populate: [{ path: "category" }, { path: "brand" }]
+    })
 
     if(!cart || cart.items.length==0){
       return {success:false,message:"Your cart is empty"}
     }
 
+    const filteredProduct= cart.items.filter(item=>{
+      const p= item.productId
+      if(!p) return false
+      const variant= p.variants[item.variantIndex]
+      const isBlocked= 
+      p.isBlocked===true || p?.brand?.isBlocked===true || p?.category?.isBlocked===true
+      
+      const isOutOfStock= !variant.stock || variant.stock<=0
+      const inSufficientStock= item.quantity < variant.stock 
+
+      return !isBlocked && !isOutOfStock && inSufficientStock
+    })
+
     let subtotal=0
-    cart.items.forEach((item)=>{
+    filteredProduct.forEach((item)=>{
       if(!item.productId?.isBlocked){
         subtotal+=item.pricePerUnit* item.quantity
       }

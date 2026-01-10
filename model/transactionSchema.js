@@ -22,7 +22,9 @@ const walletTransactionSchema = new mongoose.Schema({
       "PAYMENT_FAILED",
       "CASHBACK",
       "WALLET_USAGE",
-      "REFERRAL_SIGNUP"
+      "REFERRAL_SIGNUP",
+      "ORDER_RETURN_REFUND",
+      "ORDER_CANCEL_REFUND"
     ],
     required: true
   },

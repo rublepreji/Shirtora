@@ -1,6 +1,6 @@
 import express from 'express';
 import {loadHomePage,pageNotFound,loadSignin,signin,signup,verifyOtp,loadVerifyOtp,logout,loadSignup, resendOtp, viewProducts, filterProduct, productDetails} from '../controller/user/userController.js';
-import { loadForgotPassword, verifyEmail, verifyPassOtp, loadOTPpage, loadPasswordReset, resendOtps, resetPassword, loadAbout, loadContact, loadUserDetails, loadAddressBook, loadNewAddress, addNewAddress, loadEditAddress, editAddress, deleteAddress, loadChangeEmailOtp, verifyChangeEmailOtp, newEmail, setNewEmail, resetPass, loadResetPass, updateDetails, updateUserProfile} from '../controller/user/profileController.js';
+import { loadForgotPassword, verifyEmail, verifyPassOtp, loadOTPpage, loadPasswordReset, resendOtps, resetPassword, loadAbout, loadContact, loadUserDetails, loadAddressBook, loadNewAddress, addNewAddress, loadEditAddress, editAddress, deleteAddress, loadChangeEmailOtp, verifyChangeEmailOtp, newEmail, setNewEmail, resetPass, loadResetPass, updateDetails, updateUserProfile, fetchAddress} from '../controller/user/profileController.js';
 import {loadCart, addToCart, removeFromCart ,updateCartQty} from '../controller/user/cartController.js'
 import {applyCoupon, removeCoupon} from "../controller/user/couponController.js"
 import passport from '../config/passport.js';
@@ -15,7 +15,8 @@ import {
   loadWallet,
   walletAddMoney,
   walletPaymentVerify,
-  walletPay
+  walletPay,
+  fetchWalletTx
 } from "../controller/user/walletController.js"
 
 const router = express.Router();
@@ -65,7 +66,8 @@ router.get('/contact',loadContact)
 
 //userProfile
 router.get('/userProfile',userAuth,loadUserDetails)
-router.get('/addressbook',userAuth,loadAddressBook)
+router.get('/addressbook',loadAddressBook)
+router.get('/fetchaddress',fetchAddress)
 router.get('/addnewaddress',userAuth,loadNewAddress)
 router.post('/addnewaddress',userAuth,addNewAddress)
 router.get('/editaddress/:addressId',userAuth,loadEditAddress)
@@ -116,6 +118,7 @@ router.get('/wallet',userAuth,loadWallet)
 router.post('/wallet/create-order',userAuth,walletAddMoney)
 router.post('/wallet/payment-success',userAuth,walletPaymentVerify)
 router.post('/wallet/pay',userAuth,walletPay)
+router.get('/wallet/transaction',userAuth,fetchWalletTx)
 
 //coupon management
 router.post('/applycoupon',applyCoupon)

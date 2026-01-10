@@ -5,6 +5,7 @@ import {STATUS} from '../../utils/statusCode.js'
 dotenv.config();
 import {logger} from '../../logger/logger.js'
 import profileService from '../../services/userService/profileService.js'
+import Address from '../../model/addressSchema.js';
 
   async function updateUserProfile(req,res) {
     try {
@@ -236,18 +237,50 @@ async function loadNewAddress(req,res) {
   }
 }
 
-async function loadAddressBook(req,res) {
-  try {
-    const user= req.session.user
-    if(!user) {
-      return res.redirect('/signin')
+  async function loadAddressBook(req,res) {
+    try {
+      const user= req.session.user
+      if(!user) {
+        return res.redirect('/signin')
+      }
+      return res.render('addressFile',{user})
+    } catch (error) {
+      logger.error("Error from loadAddressBook",error)
+      return res.redirect('/pageNotFound')
     }
-    const addressDoc= await profileService.findAddressService(user._id)
-    return res.render('addressFile',{addressDoc:addressDoc ||{address:[]},user})
-  } catch (error) {
-    res.redirect('/pageNotFound')
   }
-}
+
+  async function fetchAddress(req,res) {
+    try {
+      console.log("hitted fetchaddress");
+      
+      const page= Number(req.query.page) || 1 
+      const userId= req.session.user._id
+      const limit =4
+      const skip= (page-1)*limit
+      const addressDoc= await Address.findOne({userId})
+      if(!addressDoc){
+        return res.status(STATUS.NOT_FOUND).json({
+        success:false,
+        addressDoc:[],
+        currentPage:1,
+        totalPages:1})
+      }
+      const sorted= addressDoc.address.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt))
+      const totalAddress=sorted.length
+      const totalPages= Math.ceil(totalAddress/limit)
+      const paginated= sorted.slice(skip,skip+limit)
+      return res.status(STATUS.OK).json({
+        success:true,
+        addressDoc:paginated,
+        currentPage:page,
+        totalPages
+      })
+    } catch (error) {
+      logger.error("Error from fetchAddress",error)
+      return res.status(STATUS.INTERNAL_SERVER_ERROR).json({success:false,message:"Internal server error"})
+    }
+  }
 
 async function loadUserDetails(req,res) {
   try {
@@ -398,4 +431,30 @@ async function loadForgotPassword(req, res) {
   }
 }
 
-export { loadForgotPassword, verifyEmail, verifyPassOtp, loadOTPpage, loadPasswordReset, resendOtps, resetPassword, loadAbout, loadContact, loadUserDetails, loadAddressBook, loadNewAddress, addNewAddress, loadEditAddress, editAddress, deleteAddress, loadChangeEmailOtp, verifyChangeEmailOtp, newEmail, setNewEmail, loadResetPass, resetPass, updateDetails, updateUserProfile};
+export { 
+  loadForgotPassword, 
+  verifyEmail, 
+  verifyPassOtp, 
+  loadOTPpage, 
+  loadPasswordReset, 
+  resendOtps, 
+  resetPassword, 
+  loadAbout, 
+  loadContact, 
+  loadUserDetails, 
+  loadAddressBook, 
+  fetchAddress,
+  loadNewAddress, 
+  addNewAddress, 
+  loadEditAddress, 
+  editAddress, 
+  deleteAddress, 
+  loadChangeEmailOtp, 
+  verifyChangeEmailOtp, 
+  newEmail, 
+  setNewEmail, 
+  loadResetPass, 
+  resetPass, 
+  updateDetails, 
+  updateUserProfile
+};

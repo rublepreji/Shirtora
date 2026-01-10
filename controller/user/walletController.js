@@ -83,9 +83,34 @@ async function loadWallet(req,res) {
     }
 }
 
+async function fetchWalletTx(req,res) {
+    try {
+        let userId= req.session.user._id
+        const page= req.query.page
+        const limit=8
+        const skip= (page-1)*limit
+
+        const totalTrans= await Transaction.countDocuments({userId})
+        const totalPages= Math.ceil(totalTrans/limit)
+        const transaction= await Transaction.find({userId})
+        .sort({createdAt:-1}).skip(skip).limit(limit)
+
+        return res.status(STATUS.OK).json({
+            success:true,
+            transaction,
+            currentPage:page,
+            totalPages
+        })
+    } catch (error) {
+        logger.error("Error from fetchWallet",error)
+        return res.json({success:false,message:"Internal server error"})
+    }
+}
+
 export {
     loadWallet,
     walletAddMoney,
     walletPaymentVerify,
-    walletPay
+    walletPay,
+    fetchWalletTx
 }

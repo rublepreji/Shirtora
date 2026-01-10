@@ -100,27 +100,58 @@ async function updateItemStatus(req,res) {
 }
 
 async function updateReturnStatus(req, res) {
+  const session=await mongoose.startSession()
   try {
+    session.startTransaction()
     const { orderId, itemIndex, newStatus } = req.body;
 
     if (!orderId || itemIndex === undefined || !newStatus) {
       return res.json({ success: false, message: "Invalid data" });
     }
 
-    const order = await orderService.findOrderWithproductDetails(orderId)
-
-    if (!order) {
-      return res.json({ success: false, message: "Order not found" });
+    const order = await Order.findById(orderId).populate("items.productId").session(session)
+    if(!order){
+      return res.status(STATUS.NOT_FOUND).json({success:false,message:"Order not found"})
     }
-    await orderService.updateReturnStatus(order,itemIndex,newStatus)
-    
-    const item=order.items[itemIndex]
 
-    await orderService.updateStockIfReturnApproved(item, newStatus)
+    const item = order.items[itemIndex]
+
+    if(!item){
+      return res.status(STATUS.NOT_FOUND).json({success:false,message:"Item not found"})
+    }
+
+    item.itemStatus=newStatus
+    if(newStatus==="Return-Approved"){
+      const product= item.productId
+
+      product.variants[item.variantIndex].stock += item.quantity
+      await product.save({session})
+
+      const itemShare= item.totalPrice / order.totalAmount
+      const discountShare= itemShare * order.discountAmount
+      const refundAmount= order.totalAmount- discountShare
+
+      if(order.paymentStatus ==="Paid" && !item.isRefunded){
+        await creditWallet({
+          userId:order.userId,
+          amount:refundAmount,
+          source:"ORDER_RETURN_REFUND",
+          orderId:order.orderId,
+          reason:"Return approved",
+          session
+        })
+        item.isRefunded=true
+      }
+    }
+    
     order.status=await orderService.determineOrderStatusFromItems(order.items)
-    await order.save()
+    await order.save({session})
+    await session.commitTransaction()
+    session.endSession()
     return res.json({ success: true });
   } catch (err) {
+    await session.abortTransaction()
+    session.endSession()
     return res.json({ success: false, message: "Server error" });
   }
 };
