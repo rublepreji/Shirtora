@@ -44,7 +44,7 @@ function renderTransactionTable(data){
 }
 
 function renderPagination(total, current){
-    const div=document.getElementById("walletPagination");
+ const div=document.getElementById("walletPagination");
  let html="";
 
  if(current>1)

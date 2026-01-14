@@ -220,5 +220,13 @@ async function dataForOrderList(req,res) {
     }
 }
 
-export {loadOrderList, loadOrderDetails, dataForOrderList, updateOrderStatus, updateReturnStatus, updateItemStatus, adminCancelOrder}
+export {
+  loadOrderList, 
+  loadOrderDetails, 
+  dataForOrderList, 
+  updateOrderStatus, 
+  updateReturnStatus, 
+  updateItemStatus, 
+  adminCancelOrder
+}
 

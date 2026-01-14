@@ -1,3 +1,0 @@
-2025-12-27 10:33:48 [ERROR] Error from addCoupon  Can't use $rejex with String.
-2025-12-27 11:51:49 [ERROR] Error from editOffer Cast to ObjectId failed for value "NaN" (type number) at path "categoryId" for model "Offer"
-2025-12-27 11:52:18 [ERROR] Error from editOffer Cast to ObjectId failed for value "NaN" (type number) at path "categoryId" for model "Offer"

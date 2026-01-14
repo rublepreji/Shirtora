@@ -99,7 +99,7 @@ router.post('/placeorder',userAuth,placeOrder)
 
 //Order Management
 router.get('/ordersuccess/:id',userAuth,orderSuccessPage)
-router.get('/orderfailed',userAuth,loadOrderFailed)
+router.get('/orderfailed/:id',userAuth,loadOrderFailed)
 router.get('/orderdetails/:id',userAuth,loadOrderDetails)
 router.get('/orderlist',userAuth,loadOrderList)
 router.get("/ordersData", userAuth, loadOrderListData);

@@ -18,6 +18,9 @@ async function retryVerifyPayment(req,res) {
             return res.json({success:false,message:"Payment verification failed"})
         }
         const order= await Order.findOne({orderId,paymentStatus:"Failed"})
+        if(!order){
+            return res.status(STATUS.NOT_FOUND).json({success:false,message:"Order not found"})
+        }
         order.paymentStatus="Paid"
         order.status="Pending"
         order.razorpayPaymentId= razorpay_payment_id
@@ -35,8 +38,8 @@ async function retryVerifyPayment(req,res) {
             await product.save()
         }       
 
-        //remove cart
-        await Cart.updateOne({userId:order.userId},{$set:{items:[]}})
+    //remove cart
+    await Cart.updateOne({userId:order.userId},{$set:{items:[]}})
     return res.status(STATUS.OK).json({success:true})
     } catch (error) {
         logger.error("RetryVerifyPayment error",error)
@@ -55,13 +58,13 @@ async function retryCreateOrder(req,res) {
             paymentStatus:"Failed"
         })
         if(!order){
-            return res.json({success:false,message:"Invalid order"})
+            return res.json({success:false,message:"Order not found"})
         }
         if(order.paymentStatus=="Paid"){
             return res.json({success:false,message:"Payment already completed"})
         }
         const razorpayOrder= await instance.orders.create({
-            amount:Math.round(order.totalAmount*100),
+            amount:Math.round(order.offerAmount*100),
             currency:"INR",
             receipt:order.orderId
         })

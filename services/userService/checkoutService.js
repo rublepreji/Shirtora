@@ -5,7 +5,9 @@ import Usercoupon from "../../model/userCouponSchema.js"
 import Coupon from "../../model/couponSchema.js";
 import PDFDocument from "pdfkit";
 import mongoose from "mongoose";
+import userService from "../../services/userService/userService.js"
 import { logger } from "../../logger/logger.js";
+import { populate } from "dotenv";
 
 
 async function createFailedPaymentOrder(userId, reason, razorpayOrderId, selectedAddressIndex, paymentMethod) {
@@ -13,13 +15,22 @@ async function createFailedPaymentOrder(userId, reason, razorpayOrderId, selecte
   try {
     let orderDocument= null
     await session.withTransaction(async ()=>{
-      const cart= await Cart.findOne({userId}).populate("items.productId").session(session);
+      const cart= await Cart.findOne({userId}).populate({
+        path:"items.productId",
+        populate:[{path:"category"},{path:"brand"}]
+      }).session(session);
 
       if(!cart || cart.items.length==0){
         throw new Error("Cart is empty")
       }
       const validItems= cart.items.filter((pro)=>{
-        return pro.productId.isBlocked==false
+        const p= pro.productId
+        if(!p) return 
+        const variant= p.variants[pro.variantIndex]
+        const isBlocked= p.isBlocked===true || p.brand.isBlocked === true || p.category.isBlocked === true
+        const isOutOfStock = !variant.stock || variant.stock<=0
+        const sufficientStock= pro.quantity <= variant.stock
+        return !isBlocked || !isOutOfStock || sufficientStock
       })
       const addressDoc= await Address.findOne({userId}).session(session)
       
@@ -32,6 +43,10 @@ async function createFailedPaymentOrder(userId, reason, razorpayOrderId, selecte
       for(const item of validItems){
         total += item.totalPrice
       }
+      let offerAmount=total
+      if(cart.discountAmount>0){
+        offerAmount -= cart.discountAmount
+      }
       const customOrderId= `ORD-${Date.now().toString(36).toUpperCase()}`
 
       const newOrder = await Order.create([{
@@ -40,6 +55,7 @@ async function createFailedPaymentOrder(userId, reason, razorpayOrderId, selecte
         items:validItems,
         totalAmount:total,
         paymentMethod,
+        offerAmount,
         paymentStatus:"Failed",
         status:"Payment Failed",
         address:selectedAddress,
@@ -323,14 +339,14 @@ async function placeOrderService(userId, selectedAddressIndex, paymentMethod, ra
             
             const validItems = cart.items.filter((pro) => {
               const p= pro.productId
-              if(!p) return false
+              if(!p) return false  
               const variant = p.variants[pro.variantIndex]
 
               const isBlocked= p.isBlocked === true || p?.brand?.isBlocked===true || p?.category?.isBlocked===true;
               const stockAvailable= !variant.stock || variant.stock<=0
-              const sufficientStock= variant.stock < pro.quantity
+              const sufficientStock= variant.stock >= pro.quantity
 
-              return !isBlocked && !stockAvailable && !sufficientStock
+              return !isBlocked && !stockAvailable && sufficientStock
             });
 
             if(validItems.length==0){
@@ -342,18 +358,7 @@ async function placeOrderService(userId, selectedAddressIndex, paymentMethod, ra
             if (!selectedAddress) { 
               throw new Error("Invalid address selected");
             } 
-            
-            let total = 0; 
-            for (const item of validItems) { 
-              total += item.totalPrice; 
-            }
-
-            let offerAmount=total
-            if(cart.discountAmount>0){
-              offerAmount-=cart.discountAmount
-            }
-
-            
+             
             // Stock validation
             for (const item of validItems) {
               const product = item.productId;
@@ -386,13 +391,46 @@ async function placeOrderService(userId, selectedAddressIndex, paymentMethod, ra
               paymentStatus = "Paid";
             }
             
-            const orderItems= validItems.map(item=>({
-              productId:item.productId._id,
-              variantIndex:item.variantIndex,
-              quantity:item.quantity,
-              pricePerUnit:item.pricePerUnit,
-              totalPrice:item.totalPrice
-            }))
+            const orderItems=[] 
+
+            for (const item of validItems) {
+
+              const product = item.productId
+
+              const offerData = await userService.offerCalculation(product, item.variantIndex)
+
+              const originalPrice = offerData.orginalPrice
+              const discountAmount = offerData.discountAmount
+              const finalPrice = offerData.finalPrice
+
+              orderItems.push({
+                productId: product._id,
+                variantIndex: item.variantIndex,
+                quantity: item.quantity,
+                pricePerUnit:finalPrice,
+                originalPrice,
+                discountAmount,
+                finalPrice,
+                offerSource: offerData.offerSource,
+                totalPrice: finalPrice * item.quantity
+              })
+            }
+
+             let total = 0; 
+             let totalDiscount=0
+            for (const item of orderItems) { 
+              total += item.totalPrice; 
+              totalDiscount+=item.discountAmount * item.quantity
+            }
+
+            let offerAmount=total
+            if(cart.discountAmount>0){
+              offerAmount-=cart.discountAmount
+            }
+
+            if(paymentMethod === "COD" && offerAmount > 1000){
+              throw new Error("COD not allowed for orders above ₹1000");
+            }
 
             const newOrder = await Order.create([{
               orderId: customOrderId,
@@ -401,6 +439,7 @@ async function placeOrderService(userId, selectedAddressIndex, paymentMethod, ra
               totalAmount: total,
               offerAmount,
               discountAmount:cart.discountAmount,
+              totalOffer:totalDiscount,
               paymentMethod,
               paymentStatus,
               address: selectedAddress,
@@ -459,7 +498,7 @@ const filteredProducts = cart.items.filter((product) => {
 
   const isBlocked= p?.isBlocked===true || p?.brand?.isBlocked===true || p?.category?.isBlocked===true
   const isOutOfStock= !variant.stock || variant.stock<=0
-  const sufficientStock= product.quantity < p.variants[product.variantIndex].stock
+  const sufficientStock= product.quantity <= p.variants[product.variantIndex].stock
   return !isBlocked && !isOutOfStock && sufficientStock
 });
 
@@ -498,6 +537,8 @@ const applicable= coupons.filter((item)=>{
   const user= usedCoupons.find(items=>String(items.couponId)===String(item._id))
   return !user || user.usedCount<item.usageLimitPerUser
 })
+
+await Cart.updateOne({userId},{$set:{discountAmount:0}})
 
 return {
   cartItems:filteredProducts,

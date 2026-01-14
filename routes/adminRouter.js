@@ -69,13 +69,19 @@ import {
     getAddCoupon,
     addCoupon,
     dataForCouponPage,
-    deleteCoupon
+    deleteCoupon,
+    loadEditCoupon,
+    editCoupon
 } from "../controller/admin/couponController.js"
 import uploadTo from '../middlewares/multerCloudinary.js';
 import multer from 'multer';
 import {storage} from '../helpers/multer.js';
 import {adminAuth ,adminLogged} from '../middlewares/auth.js'
-import { loadSalesReport } from '../controller/admin/salesReportController.js';
+import { 
+    loadSalesReport, 
+    salesReport,
+    downloadReport
+} from '../controller/admin/salesReportController.js';
 
 
 const router = express.Router();
@@ -84,7 +90,6 @@ const uploads = multer({ storage: storage });
 router.get('/pageError',pageError);
 router.get('/login',adminLogged, loadLogin);
 router.post('/login',login);
-
 router.get('/',adminAuth ,loadDashboard);
 router.get('/adminlogout',adminLogout);
 
@@ -151,8 +156,12 @@ router.get('/addcoupon',adminAuth,getAddCoupon)
 router.post('/addcoupon',adminAuth,addCoupon)
 router.get('/dataforcouponlist',adminAuth,dataForCouponPage)
 router.delete('/deletecoupon',adminAuth,deleteCoupon)
+router.get('/editcoupon/:id',adminAuth,loadEditCoupon)
+router.put('/editcoupon',adminAuth,editCoupon)
 
 //sales report
 router.get('/salesreport',adminAuth,loadSalesReport)
+router.get('/sales-report-data',adminAuth,salesReport)
+router.get("/download-report", downloadReport)
 
 export default router;

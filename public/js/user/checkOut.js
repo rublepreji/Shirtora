@@ -1,5 +1,6 @@
 let isPaymentInProgress = false;
 let paymentFailureHandled = false
+let paymentSuccess = false
 const addressRadios = document.querySelectorAll('input[name="address"]');
   const selectedAddressIndexInput = document.getElementById('selectedAddressIndex');
 
@@ -79,7 +80,7 @@ const addressRadios = document.querySelectorAll('input[name="address"]');
       order_id: data.orderId,
 
       handler: async function (response) {
-        paymentFailureHandled = true
+        paymentSuccess=true
         const form = document.getElementById("checkoutForm");
 
         form.insertAdjacentHTML("beforeend", `
@@ -92,9 +93,15 @@ const addressRadios = document.querySelectorAll('input[name="address"]');
       },
     modal:{
       ondismiss: async ()=>{
+        if(paymentSuccess) return 
         if(paymentFailureHandled ) return
         paymentFailureHandled =true
         isPaymentInProgress=false
+    Swal.fire({
+      icon:"info",
+      title:"Payment Cancelled",
+      text:"You closed the payment window",
+    })
       }
     },
 
@@ -110,7 +117,7 @@ rzp.on('payment.failed', async function (response) {
 
   async function sendPaymentFailed(reason) {
     try {
-    await fetch("/payment_failed",{
+    const res=await fetch("/payment_failed",{
       method:"post",
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify({
@@ -121,13 +128,14 @@ rzp.on('payment.failed', async function (response) {
       })
     });
       
+    const result= await res.json()
     // await Swal.fire({
     //   icon: "error",
     //   title: "Payment Failed",
     //   text: reason || "The transaction could not be completed.",
     // });
       
-    window.location.href = "/orderfailed"; 
+    window.location.href = `/orderfailed/${result.orderId}`; 
       
   } catch (error) {
     isPaymentInProgress=false
@@ -178,7 +186,7 @@ applyBtn.addEventListener("click", async () => {
 
     grandTotalDisplay.innerText = "₹" + data.grandTotal.toLocaleString();
 
-
+    toggleCOD(result.grandTotal);
   } catch (err) {
     Swal.fire("Error!", "Something went wrong.", "error");
   }
@@ -230,53 +238,6 @@ async function payUsingWallet(){
     Swal.fire("Error!","Something went wrong with wallet payment.","error");
   }
 }
-
-
-
-
-applyBtn.addEventListener("click", async () => {
-
-  const couponCode = couponInput.value.trim();
-
-  if (!couponCode) {
-    Swal.fire("Warning!", "Please enter a coupon code.", "warning");
-    return;
-  }
-
-  try {
-
-    const res = await fetch("/applycoupon", {
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({ couponCode })
-    });
-
-    const data = await res.json();
-
-    couponMsg.classList.remove("hidden");
-
-    if (!data.success) {
-      couponMsg.innerHTML = `<span class="text-red-500">${data.message}</span>`;
-      removeBtn.classList.add("hidden");
-      return;
-    }
-
-    couponMsg.innerHTML = `<span class="text-green-600">${data.message}</span>`;
-    grandTotalDisplay.innerText = "₹" + data.grandTotal.toLocaleString();
-
-    // 👉 Show Remove button
-    removeBtn.classList.remove("hidden");
-
-  } catch (err) {
-    Swal.fire("Error!", data.message||"Something went wrong.", "error");
-  }
-});
-
-
-  
-
-
-
   // DOM Elements for Coupon
   const clearCouponBtn = document.getElementById('clearCouponBtn');
 
@@ -289,13 +250,12 @@ applyBtn.addEventListener("click", async () => {
     }
   });
 
-  // Clear Coupon functionality with Fetch
   clearCouponBtn.addEventListener('click', async function() {
     try {
         const response = await fetch('/removeCoupon', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(couponCode)
+            body: JSON.stringify({couponCode})
         });
 
         const result = await response.json();
@@ -306,6 +266,7 @@ applyBtn.addEventListener("click", async () => {
 
             if (result.grandTotal) {
                 document.getElementById('grandTotalDisplay').innerText = `₹${result.grandTotal.toLocaleString()}`;
+                toggleCOD(result.grandTotal);
             }
 
             Swal.fire({
@@ -373,4 +334,37 @@ applyBtn.addEventListener("click", async () => {
 
 
 
-  
+const codRadio = document.querySelector('input[name="payment"][value="COD"]');
+const codLabel = codRadio.closest("label");
+
+function toggleCOD(grandTotal){
+
+  if(grandTotal > 1000){
+
+    codRadio.disabled = true;
+    codRadio.checked = false;
+    codLabel.classList.add("opacity-50","pointer-events-none");
+
+    Swal.fire({
+      toast:true,
+      position:"top-end",
+      icon:"info",
+      title:"COD disabled for orders above ₹1000",
+      timer:2000,
+      showConfirmButton:false
+    })
+
+  }else{
+
+    codRadio.disabled = false;
+    codLabel.classList.remove("opacity-50","pointer-events-none");
+  }
+}
+
+window.addEventListener("DOMContentLoaded",()=>{
+
+  const amountText = grandTotalDisplay.innerText;
+  const amount = Number(amountText.replace(/[₹,]/g,""));
+
+  toggleCOD(amount);
+});

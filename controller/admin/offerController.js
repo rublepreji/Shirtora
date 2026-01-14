@@ -89,7 +89,9 @@ async function loadEditOffer(req,res) {
         if(!offerEdit){
             return res.status(STATUS.NOT_FOUND).json({success:false,message:"Offer not found"})
         }
-        return res.render('editOffer',{offerEdit,selectedItem})
+        const formattedEndDate= offerEdit.endDate.toISOString().split("T")[0]
+        const formattedStartDate= offerEdit.startDate.toISOString().split("T")[0]
+        return res.render('editOffer',{offerEdit,selectedItem,formattedEndDate,formattedStartDate})
     } catch (error) {
         logger.error('Error from offerController',error)
         return res.status(STATUS.OK).json({success:false,message:"Internal server error"})
@@ -157,6 +159,8 @@ async function offerList(req,res) {
 
 async function addOffer(req,res) {
     try {
+        console.log("add offer");
+        
         const {
             offerName,
             offerType,

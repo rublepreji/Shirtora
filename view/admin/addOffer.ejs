@@ -165,8 +165,7 @@
       return;
     }
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const today = new Date().toISOString().split("T")[0];
 
     const start = new Date(startDate.value);
     const end = new Date(endDate.value);
@@ -177,7 +176,7 @@
     title: 'Validation Error',
     text: "Start date cannot be a past date"
     });
-      return;
+      return;   
     }
 
     if (end < start) {

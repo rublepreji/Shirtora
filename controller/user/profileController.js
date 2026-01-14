@@ -289,11 +289,12 @@ async function loadUserDetails(req,res) {
     }
     const id= req.session.user._id
     const findUser=await profileService.findUserService(id)
-    res.render('userProfile',{
+    return res.render('userProfile',{
       user:findUser
     })
   } catch (error) {
-    
+    logger.error("Error from loadUserDetails",error)
+    return res.redirect("/pageNotFound")
   }
 }
 

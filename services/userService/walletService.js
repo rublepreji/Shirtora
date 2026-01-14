@@ -16,22 +16,22 @@ async function placeOrderWithWallet(userId,addressIndex) {
       .session(session)
 
       if(!cart || cart.items.length==0){
-        return {success:false,message:"Cart is empty"}
+        throw new Error("Cart is empty")
       }
 
       const wallet = await Wallet.findOne({userId}).session(session)
-      if(!wallet) return {success:false,message:"Wallet not found"}
+      if(!wallet) throw new Error("Wallet not found")
 
       const validItems= cart.items.filter((i)=>{
         return i.productId?.isBlocked===false
       })
 
-      if(validItems.length===0) return {success:false,message:"All products are blocked"}
+      if(validItems.length===0) throw new Error("All products are blocked")
 
       const addressDoc= await Address.findOne({userId}).session(session)
       const selectedAddress= addressDoc.address[addressIndex]
 
-      if(!selectedAddress) return {success:false,message:"Invalid address selected"}
+      if(!selectedAddress) throw new Error("Invalid address selected")
 
       let total =0
       for(let item of validItems){
@@ -44,7 +44,7 @@ async function placeOrderWithWallet(userId,addressIndex) {
       }
 
       if(wallet.balance < offerAmount){
-        return {success:false,message:"Insufficient wallet balance"}
+        throw new Error("Insufficient wallet balance")
       }
 
       for(let item of validItems){

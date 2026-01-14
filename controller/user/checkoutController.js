@@ -89,14 +89,13 @@ async function cancelItem(req,res) {
 }
 
 async function handlePaymentFailed(req, res) {
-  
   try {
-    const { orderId, reason, selectedAddressIndex,  } = req.body;
+    const { orderId, reason, selectedAddressIndex, paymentMethod } = req.body;
     const userId = req.session.user._id
     
     const result= await checkoutService.createFailedPaymentOrder(userId,reason,orderId,selectedAddressIndex,paymentMethod)
 
-    return res.json({ success: result.success }); 
+    return res.json({ success: result.success , orderId: result.order.orderId}); 
   } catch (error) {
     console.error("Payment failed handler error:", error);
     return res.status(STATUS.INTERNAL_SERVER_ERROR).json({ success: false, message: "Error handling payment failure" });
@@ -110,68 +109,6 @@ async function returnRequest(req,res) {
     return res.json(result)
   } catch (error) {
     return res.json({ success: false });
-  }
-}
-
-async function cancelOrder(req,res) {  
-  const session= await mongoose.startSession()
-  try {
-    session.startTransaction()
-    const {orderId,newStatus}= req.body
-    
-    const order= await Order.findOne({orderId}).session(session)
-
-    if(!order){
-      await session.abortTransaction()
-      session.endSession()
-      return res.status(STATUS.BAD_REQUEST) .json({success:false,message:"Order not found"})
-    }
-
-    if(newStatus!=="Cancelled"){
-      await session.abortTransaction()
-      session.endSession()
-      return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Invalid status update"})
-    }
-
-    if (order.status === "Cancelled") {
-      await session.abortTransaction()
-      session.endSession()
-      return res.status(STATUS.BAD_REQUEST).json({
-        success: false,
-        message: "Order already cancelled"
-      });
-    }
-    order.status= newStatus
-    await order.save({session})
-
-    
-    await checkoutService.cancelOrderStockUpdateService(orderId,session)
-
-    const paymentMethod= order.paymentMethod?.trim()
-    const paymentStatus= order.paymentStatus?.trim()
-
-    console.log(paymentMethod,paymentStatus);
-    
-
-    if(paymentMethod!=="COD" && paymentStatus==="Paid"){
-      await creditWallet({
-        userId:order.userId,
-        amount:order.offerAmount,
-        orderId:order._id,
-        source:"ORDER_REFUND",
-        reason:"Refund for cancelled order",
-        session
-      })
-    }
-    await session.commitTransaction()
-    session.endSession()
-
-    return res.status(STATUS.OK).json({success:true,message:"Order cancelled and refund processed"})
-  } catch (error) {
-    logger.error("Error on cancel order controller",error)
-    await session.abortTransaction()
-    session.endSession()
-    return res.status(STATUS.INTERNAL_SERVER_ERROR).json({success:false,message:"Internal server error"})
   }
 }
 
@@ -243,7 +180,18 @@ async function loadOrderDetails(req,res) {
 
 async function loadOrderFailed(req,res) {
    try {
-      return res.render('orderFailed')
+    const {id}= req.params  
+    const userId= req.session.user._id
+    const order= await Order.findOne({
+      orderId:id,userId,paymentStatus:"Failed"
+    })
+    if(!order){
+      console.log("Error is here");
+      
+      return res.redirect("/pageNotFound")
+    }
+    let startDate= order.createdAt.toISOString().split("T")[0]
+      return res.render('orderFailed',{order,startDate})
    } catch (error) {
       return res.redirect('/pageNotFound')
    }
@@ -252,12 +200,17 @@ async function loadOrderFailed(req,res) {
 async function orderSuccessPage(req,res) {
    try {
       const orderId= req.params.id
-      return res.render  ('orderSuccess',{orderId:orderId})
-   } catch (error) {
+      const order= await Order.findOne({orderId})
+      const startDate=order.createdAt.toISOString().split("T")[0]
+      let date= new Date(order.createdAt)
+      date.setDate(date.getDate()+2)
+      let arrivingDate=date.toISOString().split("T")[0]
+      return res.render  ('orderSuccess',{order,startDate,arrivingDate})
+   } catch (error) { 
       return res.redirect('/pageNotFound')
    }
 }
-
+ 
 
 async function placeOrder(req, res) {
   try {     
@@ -293,6 +246,8 @@ async function placeOrder(req, res) {
         message: "No payment method selected"
       }); 
     }
+
+
     
     // UPI payment
     if (normalizedPaymentMethod === "UPI") {

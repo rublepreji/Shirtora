@@ -25,6 +25,9 @@ const orderSchema = new mongoose.Schema({
           type: Number,
           required: true
       },
+      originalPrice:Number,
+      discountAmount:Number,
+      finalPrice:Number,
       quantity: Number,
       variantIndex: Number,
       itemStatus: {
@@ -44,12 +47,16 @@ const orderSchema = new mongoose.Schema({
   ],
   totalAmount: Number,
   offerAmount:Number, 
-  discountAmount:Number,
+  totalOffer:Number, //offer
+  discountAmount:{ //coupon
+   type: Number,
+   default:0
+  },
   paymentMethod: String,
   address: Object,
   status:{
     type:String,
-    enum:['Pending','Processing', 'Tracking','Ordered','Shipped','Delivered','Cancelled','Return Requested','Returned'],
+    enum:['Pending','Processing', 'Tracking','Ordered','Shipped','Delivered','Cancelled','Return Requested','Returned','Payment Failed'],
     default:'Pending'
   },
   paymentStatus:{

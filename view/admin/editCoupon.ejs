@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shirtora - Add Coupon</title>
+    <title>Shirtora - Edit Coupon</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <style>
         body { font-family: 'Inter', sans-serif; }
         .error-msg { color: #ef4444; font-size: 0.75rem; margin-top: 0.25rem; display: block; }
@@ -38,7 +40,7 @@
                     <div class="flex flex-col gap-1">
                         <div class="flex flex-col md:flex-row md:items-center gap-2">
                             <label class="w-full md:w-40 text-sm font-medium">Coupon Code</label>
-                            <input type="text" id="couponCode" class="flex-1 bg-gray-200 border-none rounded-md px-4 py-2.5 focus:ring-2 focus:ring-indigo-400 outline-none">
+                            <input type="text" value="<%=selectedCoupon.couponCode%>" id="couponCode" class="flex-1 bg-gray-200 border-none rounded-md px-4 py-2.5 focus:ring-2 focus:ring-indigo-400 outline-none">
                         </div>
                         <span id="couponCodeError" class="error-msg md:ml-40"></span>
                     </div>
@@ -47,7 +49,7 @@
                     <div class="flex flex-col gap-1">
                         <div class="flex flex-col md:flex-row md:items-center gap-2">
                             <label class="w-full md:w-40 text-sm font-medium">Discount (%):</label>
-                            <input type="number" id="discount" class="flex-1 bg-gray-200 border-none rounded-md px-4 py-2.5 focus:ring-2 focus:ring-indigo-400 outline-none">
+                            <input type="number" value="<%=selectedCoupon.discountPercent%>" id="discount" class="flex-1 bg-gray-200 border-none rounded-md px-4 py-2.5 focus:ring-2 focus:ring-indigo-400 outline-none">
                         </div>
                         <span id="discountError" class="error-msg md:ml-40"></span>
                     </div>
@@ -56,7 +58,7 @@
                     <div class="flex flex-col gap-1">
                         <div class="flex flex-col md:flex-row md:items-center gap-2">
                             <label class="w-full md:w-40 text-sm font-medium leading-tight">UPTO (Max Discount):</label>
-                            <input type="number" id="upto" class="flex-1 bg-gray-200 border-none rounded-md px-4 py-2.5 focus:ring-2 focus:ring-indigo-400 outline-none">
+                            <input type="number" value="<%=selectedCoupon.upto%>" id="upto" class="flex-1 bg-gray-200 border-none rounded-md px-4 py-2.5 focus:ring-2 focus:ring-indigo-400 outline-none">
                         </div>
                         <span id="uptoError" class="error-msg md:ml-40"></span>
                     </div>
@@ -65,7 +67,7 @@
                     <div class="flex flex-col gap-1">
                         <div class="flex flex-col md:flex-row md:items-center gap-2">
                             <label class="w-full md:w-40 text-sm font-medium">Total usage limit:</label>
-                            <input type="number" id="totalLimit" class="flex-1 bg-gray-200 border-none rounded-md px-4 py-2.5 focus:ring-2 focus:ring-indigo-400 outline-none">
+                            <input type="number" value="<%=selectedCoupon.totalUsageLimit%>" id="totalLimit" class="flex-1 bg-gray-200 border-none rounded-md px-4 py-2.5 focus:ring-2 focus:ring-indigo-400 outline-none">
                         </div>
                         <span id="totalLimitError" class="error-msg md:ml-40"></span>
                     </div>
@@ -74,7 +76,7 @@
                     <div class="flex flex-col gap-1">
                         <div class="flex flex-col md:flex-row md:items-center gap-2">
                             <label class="w-full md:w-40 text-sm font-medium">Per user limit:</label>
-                            <input type="number" id="perUserLimit" class="flex-1 bg-gray-200 border-none rounded-md px-4 py-2.5 focus:ring-2 focus:ring-indigo-400 outline-none">
+                            <input type="number" value="<%=selectedCoupon.usageLimitPerUser%>" id="perUserLimit" class="flex-1 bg-gray-200 border-none rounded-md px-4 py-2.5 focus:ring-2 focus:ring-indigo-400 outline-none">
                         </div>
                         <span id="perUserLimitError" class="error-msg md:ml-40"></span>
                     </div>
@@ -83,7 +85,7 @@
                     <div class="flex flex-col gap-1">
                         <div class="flex flex-col md:flex-row md:items-center gap-2">
                             <label class="w-full md:w-40 text-sm font-medium leading-tight">Min purchase amount:</label>
-                            <input type="number" id="minPurchase" class="flex-1 bg-gray-200 border-none rounded-md px-4 py-2.5 focus:ring-2 focus:ring-indigo-400 outline-none">
+                            <input type="number" id="minPurchase" value="<%=selectedCoupon.minimumPrice%>" class="flex-1 bg-gray-200 border-none rounded-md px-4 py-2.5 focus:ring-2 focus:ring-indigo-400 outline-none">
                         </div>
                         <span id="minPurchaseError" class="error-msg md:ml-40"></span>
                     </div>
@@ -92,7 +94,7 @@
                     <div class="flex flex-col gap-1">
                         <div class="flex flex-col md:flex-row md:items-center gap-2">
                             <label class="w-full md:w-40 text-sm font-medium">Start Date :</label>
-                            <input type="date" id="startDate" class="flex-1 bg-gray-200 border-none rounded-md px-4 py-2.5 focus:ring-2 focus:ring-indigo-400 outline-none">
+                            <input type="date" id="startDate" value="<%=startDate%>" class="flex-1 bg-gray-200 border-none rounded-md px-4 py-2.5 focus:ring-2 focus:ring-indigo-400 outline-none">
                         </div>
                         <span id="startDateError" class="error-msg md:ml-40"></span>
                     </div>
@@ -101,7 +103,7 @@
                     <div class="flex flex-col gap-1">
                         <div class="flex flex-col md:flex-row md:items-center gap-2">
                             <label class="w-full md:w-40 text-sm font-medium">End Date :</label>
-                            <input type="date" id="endDate" class="flex-1 bg-gray-200 border-none rounded-md px-4 py-2.5 focus:ring-2 focus:ring-indigo-400 outline-none">
+                            <input type="date" value="<%=endDate%>" id="endDate" class="flex-1 bg-gray-200 border-none rounded-md px-4 py-2.5 focus:ring-2 focus:ring-indigo-400 outline-none">
                         </div>
                         <span id="endDateError" class="error-msg md:ml-40"></span>
                     </div>
@@ -109,7 +111,7 @@
 
                 <div class="mt-16 flex justify-center">
                     <button type="submit" id="submitBtn" class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-3 px-12 rounded-xl shadow-md transition-all flex items-center gap-2">
-                        <span>Add coupon</span>
+                        <span>Update</span>
                     </button>
                 </div>
             </form>
@@ -172,7 +174,7 @@
 
             // 5. Min Purchase
             if (isNaN(minPurchase) || minPurchase < 500) {
-                showError('minPurchase', 'Amount atleast need 500');
+                showError('minPurchase', 'Amount atleast 500');
                 isValid = false;
             }
 
@@ -221,8 +223,8 @@
                 };
 
                 try {
-                    const response = await fetch('/admin/addCoupon', {
-                        method: 'POST',
+                    const response = await fetch('/admin/editcoupon', {
+                        method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(formData)
                     });
@@ -230,10 +232,27 @@
                     const result = await response.json();
 
                     if (response.ok) {
-                        window.location.href = '/admin/coupon';
+                        Swal.fire({
+                        icon: "success",
+                        title: "Done!",
+                        text: "Your changes have been saved",
+                        toast: true,
+                        position: "top-end",
+                        showConfirmButton: false,
+                        timer: 2500,
+                        timerProgressBar: true
+                        }).then(()=>window.location.href = '/admin/coupon');
                     } else {
-                        generalError.textContent = result.message || 'Failed to add coupon.';
-                        submitBtn.disabled = false;
+                        Swal.fire({
+                        icon: "error",
+                        title: "Failed",
+                        text: "Unable to complete your request",
+                        confirmButtonColor: "#d33"
+                        }).then(()=>{
+                            generalError.textContent = result.message || 'Failed to add coupon.';
+                            submitBtn.disabled = false;
+                        });
+                        
                     }
                 } catch (error) {
                     generalError.textContent = 'Network error. Please try again.';

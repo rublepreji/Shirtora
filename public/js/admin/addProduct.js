@@ -155,8 +155,24 @@ form.addEventListener("submit", async (e) => {
   const color = document.getElementById("color").value.trim();
   const variants = document.querySelectorAll(".variant");
 
-  if (!isNonEmptyString(name)) { showError("nameError", "Product name is required."); valid = false; }
-  if (!isNonEmptyString(desc)) { showError("descError", "Description is required."); valid = false; }
+  if (!isNonEmptyString(name)) { 
+  showError("nameError", "Product name is required."); 
+  valid = false; 
+} 
+else if (name.length < 3) {
+  showError("nameError", "Product name must be at least 3 characters.");
+  valid = false;
+}
+
+if (!isNonEmptyString(desc)) { 
+  showError("descError", "Description is required."); 
+  valid = false; 
+} 
+else if (desc.length < 10) {
+  showError("descError", "Description must be at least 10 characters.");
+  valid = false;
+}
+
   if (!isNonEmptyString(cat)) { showError("catError", "Please select a category."); valid = false; }
   if (!isNonEmptyString(brand)) { showError("brandError", "Please select a brand."); valid = false; }
   if (!isNonEmptyString(color)) { showError("colorError", "Color is required."); valid = false; }
@@ -178,26 +194,47 @@ form.addEventListener("submit", async (e) => {
       const stock = stockEl?.value || "";
 
       if (!size) {
-        variantValid = false;
-        showError("variantError", `Variant ${idx + 1}: size is required.`);
-      } else if (!isPositiveNumberString(price)) {
-        variantValid = false;
-        showError("variantError", `Variant ${idx + 1}: price must be a positive number.`);
-      } else if (!isNonNegativeIntegerString(stock)) {
-        variantValid = false;
-        showError("variantError", `Variant ${idx + 1}: stock must be 0 or a positive integer.`);
-      } else {
-        // valid row
-        variantList.push({ size: size.trim(), price: Number(price), stock: Number(stock) });
-      }
+  variantValid = false;
+  showError("variantError", `Variant ${idx + 1}: size is required.`);
+} 
+else if (
+  !isNonEmptyString(price) ||
+  isNaN(price) ||
+  Number(price) < 10
+) {
+  variantValid = false;
+  showError(
+    "variantError",
+    `Variant ${idx + 1}: price must be at least 10.`
+  );
+} 
+else if (
+  isNaN(stock) ||
+  Number(stock) <= 0 ||
+  !Number.isInteger(Number(stock))
+) {
+  variantValid = false;
+  showError(
+    "variantError",
+    `Variant ${idx + 1}: stock must be a positive whole number.`
+  );
+} 
+else {
+  variantList.push({
+    size: size.trim(),
+    price: Number(price),
+    stock: Number(stock)
+  });
+}
+
     });
   }
 
   if (!variantValid) valid = false;
 
   // Image validation
-  if (Object.keys(croppedImages).length === 0) {
-    showError("imgError", "Please upload and crop at least one image.");
+  if (Object.keys(croppedImages).length < 3) {
+    showError("imgError", "Please upload and crop at least three image.");
     valid = false;
   }
 
