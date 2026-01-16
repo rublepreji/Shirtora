@@ -66,14 +66,6 @@ async function login(req, res) {
   }
 }
 
-async function loadDashboard(req, res) {
-  try {
-    if (req.session.admin) {
-      return res.render('dashboard');
-    }
-  } catch (error) {
-    return res.redirect('/pageError');
-  }
-}
 
-export { loadLogin, login, loadDashboard, pageError, adminLogout };
+
+export { loadLogin, login, pageError, adminLogout };

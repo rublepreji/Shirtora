@@ -1,0 +1,3 @@
+2026-01-16 12:02:53 [ERROR] Error from getDashboardData Cannot read properties of undefined (reading 'totalUsers')
+2026-01-16 12:03:01 [ERROR] Error from getDashboardData Cannot read properties of undefined (reading 'totalUsers')
+2026-01-16 12:03:10 [ERROR] Error from getDashboardData Cannot read properties of undefined (reading 'totalUsers')

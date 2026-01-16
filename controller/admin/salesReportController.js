@@ -319,7 +319,7 @@ async function salesReport(req,res) {
     }
     let start
     let end
-    let filter={status:"Delivered"}
+    let filter={"items.itemStatus":"Delivered"}
     if(range){
     if(range==="today"){
       start= new Date()
@@ -360,9 +360,18 @@ async function salesReport(req,res) {
     const totalPage= Math.ceil(totalOrders/limit)
 
     orders.forEach((order)=>{
-      totalSales+=Number(order.offerAmount ||0)
-      totalProductDiscount+=Number(order.totalOffer || 0)
-      totalCouponDiscount+=Number(order.discountAmount || 0)
+      let totalAmount= order.totalAmount
+      let discountAmounts= order.discountAmount
+    order.items.forEach((item)=>{
+      if(item.itemStatus==="Delivered"){
+        totalSales+=Number(item.totalPrice ||0)
+        totalProductDiscount+=Number(item.discountAmount || 0)
+        const itemShare= item.totalPrice / totalAmount
+        const discountAmount= itemShare * discountAmounts
+        totalCouponDiscount += discountAmount
+      }
+      })
+      
     })
    
     return res.status(STATUS.OK).json({

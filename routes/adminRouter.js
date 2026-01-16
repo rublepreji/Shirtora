@@ -2,7 +2,6 @@ import express from 'express';
 import { 
     loadLogin, 
     login, 
-    loadDashboard,
     pageError, 
     adminLogout,
     } from '../controller/admin/adminController.js';
@@ -82,7 +81,10 @@ import {
     salesReport,
     downloadReport
 } from '../controller/admin/salesReportController.js';
-
+import {
+    loadDashboard,
+    getDashboardData
+} from "../controller/admin/dashboardController.js"
 
 const router = express.Router();
 const uploads = multer({ storage: storage });
@@ -90,7 +92,6 @@ const uploads = multer({ storage: storage });
 router.get('/pageError',pageError);
 router.get('/login',adminLogged, loadLogin);
 router.post('/login',login);
-router.get('/',adminAuth ,loadDashboard);
 router.get('/adminlogout',adminLogout);
 
 // User management
@@ -163,5 +164,9 @@ router.put('/editcoupon',adminAuth,editCoupon)
 router.get('/salesreport',adminAuth,loadSalesReport)
 router.get('/sales-report-data',adminAuth,salesReport)
 router.get("/download-report", downloadReport)
+
+//Dashboard
+router.get('/',adminAuth ,loadDashboard);
+router.get('/dashboard',adminAuth,getDashboardData)
 
 export default router;

@@ -9,6 +9,10 @@ import { logger } from "../../logger/logger.js";
 
 async function findUserService(userId) {
     const user= await User.findOne({_id:userId})
+    if(!user.referralCode){
+      user.referralCode="REF" + user._id.toString().slice(-6).toUpperCase()
+      await user.save()
+    }
     return user
 }
 
