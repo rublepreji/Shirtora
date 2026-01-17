@@ -186,7 +186,7 @@ applyBtn.addEventListener("click", async () => {
 
     grandTotalDisplay.innerText = "₹" + data.grandTotal.toLocaleString();
 
-    toggleCOD(result.grandTotal);
+    toggleCOD(data.grandTotal);
   } catch (err) {
     Swal.fire("Error!", "Something went wrong.", "error");
   }

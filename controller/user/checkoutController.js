@@ -13,9 +13,7 @@ import profileService from '../../services/userService/profileService.js';
 async function addAdressCheckout(req,res) {
   try {
     const userId= req.session.user._id
-    const data= req.body
-    console.log("address",data);
-    
+    const data= req.body    
     const result = await profileService.addNewAddressService(userId, data)
     return res.status(STATUS.OK).json({success:result.success,message:result.message})
   } catch (error) {

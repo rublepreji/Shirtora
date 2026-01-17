@@ -11,7 +11,7 @@ async function applyCouponService(couponCode, userId) {
     .populate({
       path: "items.productId",
       populate: [{ path: "category" }, { path: "brand" }]
-    })
+    })    
 
     if(!cart || cart.items.length==0){
       return {success:false,message:"Your cart is empty"}
@@ -25,18 +25,16 @@ async function applyCouponService(couponCode, userId) {
       p.isBlocked===true || p?.brand?.isBlocked===true || p?.category?.isBlocked===true
       
       const isOutOfStock= !variant.stock || variant.stock<=0
-      const inSufficientStock= item.quantity < variant.stock 
+      const inSufficientStock= item.quantity <= variant.stock 
 
       return !isBlocked && !isOutOfStock && inSufficientStock
-    })
+    })    
 
     let subtotal=0
     filteredProduct.forEach((item)=>{
-      if(!item.productId?.isBlocked){
-        subtotal+=item.pricePerUnit* item.quantity
-      }
+      subtotal+=item.pricePerUnit* item.quantity
     })
-
+        
     if(subtotal<=0){
       return {success:false,message:"Your cart contains blocked products only"}
     }
