@@ -7,7 +7,31 @@ import mongoose from 'mongoose';
 import {creditWallet} from "../../services/userService/walletService.js"
 import Product from '../../model/productSchema.js';
 import orderService from '../../services/adminService/orderService.js';
+import profileService from '../../services/userService/profileService.js';
 
+
+async function addAdressCheckout(req,res) {
+  try {
+    const userId= req.session.user._id
+    const data= req.body
+    console.log("address",data);
+    
+    const result = await profileService.addNewAddressService(userId, data)
+    return res.status(STATUS.OK).json({success:result.success,message:result.message})
+  } catch (error) {
+    logger.error("Error from add address checkout",error)
+    return res.status(STATUS.INTERNAL_SERVER_ERROR).json({success:false,message:"Internal server error"})
+  }
+}
+
+async function getAddAddress(req,res) {
+  try {
+    return res.render('addAddressInCheckout')
+  } catch (error) {
+    logger.error("Error from getAddAddress",error)
+    return res.redirect("/pageNotFound")
+  }
+}
 
 async function cancelItem(req,res) {
   const session= await mongoose.startSession()
@@ -333,4 +357,18 @@ async function loadCheckout(req, res) {
 }
 }
 
-export {loadCheckout, placeOrder, orderSuccessPage, loadOrderFailed, loadOrderDetails, loadOrderList, loadOrderListData, downloadInvoice, returnRequest, handlePaymentFailed, cancelItem}
+export {
+  loadCheckout, 
+  placeOrder, 
+  orderSuccessPage, 
+  loadOrderFailed, 
+  loadOrderDetails, 
+  loadOrderList, 
+  loadOrderListData, 
+  downloadInvoice, 
+  returnRequest, 
+  handlePaymentFailed, 
+  cancelItem, 
+  getAddAddress, 
+  addAdressCheckout
+}

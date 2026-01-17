@@ -9,7 +9,7 @@ import uploadTo from '../middlewares/multerCloudinary.js';
 import multer from 'multer';
 import {storage} from '../helpers/multer.js';
 import { loadWishlist , addToWishlist, removeFromWishlist} from '../controller/user/wishlistController.js';
-import {loadCheckout , placeOrder, loadOrderFailed ,orderSuccessPage, loadOrderDetails, loadOrderList, downloadInvoice, cancelItem, returnRequest, loadOrderListData, handlePaymentFailed} from '../controller/user/checkoutController.js'
+import {loadCheckout , placeOrder, loadOrderFailed ,orderSuccessPage, loadOrderDetails, loadOrderList, downloadInvoice, cancelItem, returnRequest, loadOrderListData, handlePaymentFailed, getAddAddress, addAdressCheckout} from '../controller/user/checkoutController.js'
 import { processPayment, retryCreateOrder, retryVerifyPayment } from '../controller/user/paymentController.js';
 import {
   loadWallet,
@@ -96,6 +96,8 @@ router.post('/removefromwishlist/:id',userAuth,removeFromWishlist)
 //checkout management
 router.get('/checkout',userAuth,loadCheckout)
 router.post('/placeorder',userAuth,placeOrder)
+router.get('/addAddress',userAuth,getAddAddress)
+router.post('/checkout/addaddress',userAuth,addAdressCheckout)
 
 //Order Management
 router.get('/ordersuccess/:id',userAuth,orderSuccessPage)
