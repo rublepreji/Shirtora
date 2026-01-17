@@ -66,8 +66,8 @@ router.get('/contact',loadContact)
 
 //userProfile
 router.get('/userProfile',userAuth,loadUserDetails)
-router.get('/addressbook',loadAddressBook)
-router.get('/fetchaddress',fetchAddress)
+router.get('/addressbook',userAuth,loadAddressBook)
+router.get('/fetchaddress',userAuth,fetchAddress)
 router.get('/addnewaddress',userAuth,loadNewAddress)
 router.post('/addnewaddress',userAuth,addNewAddress)
 router.get('/editaddress/:addressId',userAuth,loadEditAddress)
@@ -86,7 +86,7 @@ router.get('/updateuserprofile',userAuth,updateUserProfile)
 router.get('/cart',userAuth,loadCart)
 router.post('/addToCart',userAuth,addToCart)
 router.post('/removefromcart',userAuth,removeFromCart)
-router.post("/updatecartqty", updateCartQty);
+router.post("/updatecartqty",userAuth, updateCartQty);
 
 //wishlist Management
 router.get('/wishlist',userAuth,loadWishlist)
@@ -108,8 +108,8 @@ router.put('/returnRequest',userAuth,returnRequest)
 router.put('/cancelItem',userAuth,cancelItem)
 
 //payment 
-router.post('/create_order',processPayment)
-router.post('/payment_failed',handlePaymentFailed)
+router.post('/create_order',userAuth,processPayment)
+router.post('/payment_failed',userAuth,handlePaymentFailed)
 router.post('/retry_create_order',userAuth,retryCreateOrder)
 router.post('/retry_create_payment',userAuth,retryVerifyPayment)
 
@@ -121,7 +121,7 @@ router.post('/wallet/pay',userAuth,walletPay)
 router.get('/wallet/transaction',userAuth,fetchWalletTx)
 
 //coupon management
-router.post('/applycoupon',applyCoupon)
+router.post('/applycoupon',userAuth,applyCoupon)
 router.post('/removeCoupon',userAuth,removeCoupon)
 
 

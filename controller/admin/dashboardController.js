@@ -222,15 +222,32 @@ const topBrands = await Order.aggregate([
 
   // summary
   const summaryAgg = await Order.aggregate([
-    { $match: match },
-    {
-      $group:{
-        _id:null,
-        totalSales:{ $sum:"$offerAmount" },
-        totalOrders:{ $sum:1 }
-      }
+  { $match: match },
+
+  { $unwind: "$items" },
+
+  {
+    $match: {
+      "items.itemStatus": "Delivered"
     }
-  ])
+  },
+
+  {
+    $group: {
+      _id: "$_id",
+      orderTotal: { $sum: "$items.totalPrice" }
+    }
+  },
+
+  {
+    $group: {
+      _id: null,
+      totalSales: { $sum: "$orderTotal" },
+      totalOrders: { $sum: 1 }
+    }
+  }
+]);
+
 
   const summary = summaryAgg[0] || { totalSales:0, totalOrders:0 }
 

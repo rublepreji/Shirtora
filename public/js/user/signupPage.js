@@ -139,3 +139,31 @@
                     e.preventDefault()
                 }
             })
+
+
+        const togglePass = document.getElementById('togglePass')
+const toggleCPass = document.getElementById('toggleCPass')
+
+togglePass.addEventListener('click', () => {
+  const icon = togglePass.querySelector("i")
+
+  if (passwordId.type === "password") {
+    passwordId.type = "text"
+    icon.classList.replace("fa-eye-slash", "fa-eye")
+  } else {
+    passwordId.type = "password"
+    icon.classList.replace("fa-eye", "fa-eye-slash")
+  }
+})
+
+toggleCPass.addEventListener('click', () => {
+  const icon = toggleCPass.querySelector("i")
+
+  if (cPassId.type === "password") {
+    cPassId.type = "text"
+    icon.classList.replace("fa-eye-slash", "fa-eye")
+  } else {
+    cPassId.type = "password"
+    icon.classList.replace("fa-eye", "fa-eye-slash")
+  }
+})

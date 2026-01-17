@@ -163,10 +163,10 @@ router.put('/editcoupon',adminAuth,editCoupon)
 //sales report
 router.get('/salesreport',adminAuth,loadSalesReport)
 router.get('/sales-report-data',adminAuth,salesReport)
-router.get("/download-report", downloadReport)
+router.get("/download-report", adminAuth,downloadReport)
 
 //Dashboard
-router.get('/',adminAuth ,loadDashboard);
+router.get('/',adminAuth,loadDashboard);
 router.get('/dashboard',adminAuth,getDashboardData)
 
 export default router;

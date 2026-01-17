@@ -1,6 +1,0 @@
-2026-01-03 00:13:57 [ERROR] walletPaymentVerify Cast to number failed for value "undefined" (type undefined) at path "balance"
-2026-01-03 00:15:21 [ERROR] walletPaymentVerify Cast to Number failed for value "NaN" (type number) at path "balance"
-2026-01-03 08:35:33 [ERROR] Error from WalletPay WalletTransaction validation failed: userId: Path `userId` is required.
-2026-01-03 09:05:27 [ERROR] Error from WalletPay User is not defined
-2026-01-03 09:07:24 [ERROR] Error from WalletPay Cannot read properties of undefined (reading '1')
-2026-01-03 09:09:40 [ERROR] Error on wallAndMoney

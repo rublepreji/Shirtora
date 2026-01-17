@@ -359,7 +359,9 @@ async function salesReport(req,res) {
 
     const totalPage= Math.ceil(totalOrders/limit)
 
-    orders.forEach((order)=>{
+    const order= await Order.find({status:"Delivered"})
+
+    order.forEach((order)=>{
       let totalAmount= order.totalAmount
       let discountAmounts= order.discountAmount
     order.items.forEach((item)=>{

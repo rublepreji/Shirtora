@@ -125,23 +125,24 @@
             Add to cart
           </button>
 
-          <button onclick="addtowishlist('${data._id}')"
-  class="w-10 h-10 border border-gray-300 rounded-md flex items-center justify-center hover:bg-gray-100">
+         <button onclick="addtowishlist('${data._id}', this)"
+        class="w-10 h-10 border border-gray-300 rounded-md flex items-center justify-center hover:bg-gray-100">
 
-  <svg 
-    class="w-5 h-5 transition
-      ${data.isWishlist ? 'text-red-500 fill-red-500' : 'text-gray-400'}"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-    stroke-width="2">
+        <svg 
+        class="w-5 h-5 transition
+        ${data.isWishlist ? 'text-red-500 fill-red-500' : 'text-gray-400'}"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        stroke-width="2">
 
-    <path stroke-linecap="round" stroke-linejoin="round"
-     d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636
+        <path stroke-linecap="round" stroke-linejoin="round"
+        d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636
         l1.318-1.318a4.5 4.5 0 116.364 6.364
         L12 21l-7.682-7.682a4.5 4.5 0 010-6.364z"/>
-  </svg>
+        </svg>
 
-</button>
+        </button>
+
 
         </div>
       </div>
@@ -198,36 +199,33 @@ if (!response.headers.get("content-type")?.includes("application/json")) {
    
 }
 
-async function addtowishlist(productId) {
-    try{
-    const response=await fetch(`/addtowishlist/${productId}`,{
-        method:"post"
+async function addtowishlist(productId, btn) {
+  const icon = btn.querySelector("svg");
+
+  if (icon.classList.contains("text-gray-400")) {
+    icon.classList.remove("text-gray-400");
+    icon.classList.add("text-red-500","fill-red-500");
+  } else {
+    icon.classList.remove("text-red-500","fill-red-500");
+    icon.classList.add("text-gray-400");
+  }
+
+  try{
+    const response = await fetch(`/addtowishlist/${productId}`,{
+      method:"post"
     })
-    const data= await response.json()
-    if(data.success){
-        Swal.fire({
-        icon: "success",
-        title: "Success!",
-        text: data.message || "Your action was completed successfully.",
-        confirmButtonColor: "#3085d6"
-        });
-    }else{
-        Swal.fire({
-        icon: "error",
-        title: "Oops!",
-        text: data.message || "Something went wrong. Please try again.",
-        confirmButtonColor: "#d33"
-        });
+
+    const data = await response.json()
+
+    if(!data.success){
+      Swal.fire("Error", data.message, "error")
     }
-    } catch (error) {
-        Swal.fire({
-        icon: "error",
-        title: "Oops!",
-        text: error || "Something went wrong. Please try again.",
-        confirmButtonColor: "#d33"
-        });
-    }
+
+  }catch(error){
+    Swal.fire("Error", "Something went wrong", "error")
+  }
 }
+
 
 
 function renderPagination(){

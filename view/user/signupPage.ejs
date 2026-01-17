@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
      <link rel="stylesheet" href="/css/user/signupPage.css">
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
 
@@ -60,12 +61,30 @@
                         <div class="text-red-500 text-sm" id="error4"></div>
                         
                         <!-- Password -->
-                        <input type="password" placeholder="Password" id="password" class="input-line w-full" name="password">
+                        <div class="relative">
+                        <input type="password" placeholder="Password" id="password" 
+                        class="input-line w-full pr-10" name="password">
+
+                        <span id="togglePass" 
+                        class="fa-eye absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500">
+                        <i class="fa-solid fa-eye-slash"></i>
+                        </span>
+                        </div>
                         <div class="text-red-500 text-sm" id="error5"></div>
+
                         
                         <!-- Confirm Password -->
-                        <input type="password" placeholder="Confirm Password" id="cPassword" class="input-line w-full" name="cPassword">
+                        <div class="relative">
+                        <input type="password" placeholder="Confirm Password" id="cPassword" 
+                            class="input-line w-full pr-10" name="cPassword">
+
+                        <span id="toggleCPass" 
+                            class="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500">
+                            <i class="fa-solid fa-eye-slash"></i>
+                        </span>
+                        </div>
                         <div class="text-red-500 text-sm" id="error6"></div>
+
                         
                         <!-- Referral Code -->
                         <input type="text" placeholder="Referral code (optional)" id="referralCode" class="input-line w-full" name="referralCode">

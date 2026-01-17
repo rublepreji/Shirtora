@@ -25,7 +25,11 @@ async function addToWishlistService(productId,userId) {
     try {
         const user= await User.findById(userId)
         if(user.wishlist.includes(productId)){
-            return {success:false,message:"Product already in wishlist"}
+            user.wishlist=user.wishlist.filter(id=>
+                id.toString() !== productId.toString()
+            )
+            await user.save()
+            return {success:false,message:"Product removed from wishlist"}
         }
         user.wishlist.push(productId)
         await user.save()
