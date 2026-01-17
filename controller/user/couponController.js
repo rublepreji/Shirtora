@@ -5,9 +5,7 @@ import { logger } from "../../logger/logger.js";
 
 
 async function applyCoupon(req,res) {
-    try {        
-        console.log("hitted on applycoupon");
-        
+    try {                
         const userId= req.session.user._id
         const couponCode= req.body.couponCode        
         const result=await applyCouponService(couponCode,userId)

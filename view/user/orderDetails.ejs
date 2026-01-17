@@ -134,14 +134,25 @@
                     <%= val.productId.productName %>
                 </p>
 
-                <p class="text-sm text-gray-600 mb-3">
-                    Price: ₹<%= val.productId.variants[val.variantIndex].price %>
+               <div class="flex items-center gap-4">
+                <p class="text-sm text-gray-600">
+                    Price: ₹<%= val.pricePerUnit %>
                 </p>
+
+                <p class="text-sm text-gray-600">
+                    Quantity: <%= val.quantity %>
+                </p>
+                
+                <p class="text-sm text-gray-600">
+                    Size: <%= val.productId.variants[val.variantIndex].size %>
+                </p>
+
+               </div>
 
     <% if (val.itemStatus === "Delivered") { %>
 
         <!-- DELIVERED → show return -->
-        <div class="flex items-center gap-4 mb-3">
+        <div class="flex items-center gap-4 mb-3 mt-1">
             <div class="status-bg-faint px-4 py-2 rounded-md border border-purple-300">
                 <p class="text-sm font-semibold text-purple-700 uppercase">
                     Status: <%= val.itemStatus %>
