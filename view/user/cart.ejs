@@ -29,7 +29,7 @@
 
 <body class="min-h-screen bg-gray-50">
 
-    <!-- ⭐ Header should be inside body -->
+    <!--  Header should be inside body -->
     <%- include("../../view/partials/user/header") %>
 
     <div class="flex flex-col items-center py-8 px-4 sm:px-6 lg:px-8">
@@ -54,7 +54,7 @@
                     <div class="flex flex-col sm:flex-row items-center justify-between border-b pb-4 mb-4">
 
                         <div class="flex items-center space-x-4 mb-4 sm:mb-0">
-                            <img src="<%= item.productImage[0] %>" class="cart-item-image rounded-md">
+                            <a href="/productdetails/<%=item.productId%>"><img src="<%= item.productImage[0] %>" class="cart-item-image rounded-md"></a>
                             <%if(item.status){%>
                                 <p>This product is currently unavailable</p>
                             <%}else{%>

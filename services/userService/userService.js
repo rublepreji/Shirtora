@@ -53,7 +53,7 @@ async function offerCalculation(product,variantIndex=1) {
 
 }
 
-async function productDetailsService(user,productId) {
+async function productDetailsService(user,productId) {   
     let userData= null
     if(user && user._id){
         userData=await User.findById(user._id);

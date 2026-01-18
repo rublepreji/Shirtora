@@ -49,6 +49,8 @@ async function retryVerifyPayment(req,res) {
 
 async function retryCreateOrder(req,res) {
     try {
+        console.log("this is controller");
+        
         const {orderId}= req.body
         const userId= req.session.user._id
 

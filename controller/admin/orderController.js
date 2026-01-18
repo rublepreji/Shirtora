@@ -129,7 +129,7 @@ async function updateReturnStatus(req, res) {
 
       const itemShare= item.totalPrice / order.totalAmount
       const discountShare= itemShare * order.discountAmount
-      const refundAmount= order.totalAmount- discountShare
+      const refundAmount= Math.round(item.totalPrice- discountShare)
 
       if(order.paymentStatus ==="Paid" && !item.isRefunded){
         await creditWallet({

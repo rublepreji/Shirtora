@@ -56,8 +56,8 @@
                 <div>
                     <h1 class="text-3xl font-bold mb-1"><%=product.productName%></h1>
                     <div class="flex items-center space-x-3 text-sm">
-                        <span class="text-yellow-500">★★★★☆</span>
-                        <span class="text-gray-500">(150 Reviews)</span>
+                        <!-- <span class="text-yellow-500">★★★★☆</span> -->
+                        <!-- <span class="text-gray-500">(150 Reviews)</span> -->
                         
                         <% if(selectedVariant.stock == 0) { %>
                             <span id="header-stock" class="text-red-600 font-semibold ml-auto lg:ml-0">| OUT OF STOCK</span>
@@ -179,14 +179,14 @@
         </div>
         
         
-        <div class="flex space-x-6 border-b border-gray-200 mb-10 text-gray-500 mt-16">
+        <!-- <div class="flex space-x-6 border-b border-gray-200 mb-10 text-gray-500 mt-16">
             <button id="desc-tab" class="py-3 px-1 tab-active" onclick="showTab('description')">
                 Description
             </button>
             <button id="reviews-tab" class="py-3 px-1 hover:text-black transition duration-150" onclick="showTab('reviews')">
                 Reviews
             </button>
-        </div>
+        </div> -->
 
         <div id="description-content">
             <section class="mb-12">
@@ -261,11 +261,15 @@
                 
                 <%relatedProduct.forEach(val=>{%>
                 <div class="product-card bg-gray-50 rounded-lg p-2 md:p-3 text-center border border-gray-100 hover:shadow-md">
-                    <img src="<%=val.productImage[0]%>" alt="Trending Polo Shirt" class="w-full h-40 object-cover rounded-md mb-2">
+                    <a href="/productdetails/<%=val._id%>"><img src="<%=val.productImage[0]%>" alt="Trending Polo Shirt" class="w-full h-40 object-cover rounded-md mb-2"></a>
                     <h3 class="font-semibold text-sm mb-0.5 truncate"><%=val.productName%></h3>
-                    <div class="text-xs text-yellow-500 mb-1">★★★★☆</div>
+                    <!-- <div class="text-xs text-yellow-500 mb-1">★★★★☆</div> -->
                     <div class="text-sm font-bold text-black">
-                        <span class="font-normal text-gray-500 text-xs strike-through">₹7,84,400</span> ₹<%=val.variants[0].price%>
+                       <% if(val.productOffer){ %>
+                            <span class="font-normal text-gray-500 text-xs strike-through">₹<%=val.productOffer%></span>₹<%=val.variants[0].price - (val.variants[0].price * val.productOffer)/100%>
+                       <% }else{ %>
+                         ₹<%=val.variants[0].price%>
+                         <%}%>
                     </div>
                 </div>
                 <%})%>

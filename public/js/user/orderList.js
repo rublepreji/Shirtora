@@ -99,7 +99,7 @@ async function repayment(orderId) {
                 if(data.success){
                     window.location.href=`/ordersuccess/${orderId}`
                 }else{
-                    window.location.href=`/orderfailed`
+                    window.location.href=`/orderfailed/${orderId}`
                 }
             },
             modal:{
@@ -119,7 +119,7 @@ async function repayment(orderId) {
             "error"
             );
 
-            window.location.href='/orderfailed'
+            window.location.href=`/orderfailed/${orderId}`
         });
         rzp.open()
     } catch (error) {
