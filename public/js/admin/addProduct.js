@@ -1,14 +1,12 @@
-// /js/admin/addProduct.js  (copy-paste overwrite)
 const form = document.getElementById("productForm");
 let currentImageInput = null;
 let cropper = null;
 const modal = document.getElementById("cropperModal");
 const cropperImage = document.getElementById("cropperImage");
 
-// Temporary store for cropped image blobs
 const croppedImages = {};
 
-// --- Handle Variants ---
+// Handle variants
 document.getElementById("addVariantBtn").addEventListener("click", () => {
   const section = document.getElementById("variantSection");
   const prototype = document.querySelector(".variant");
@@ -19,7 +17,7 @@ document.getElementById("addVariantBtn").addEventListener("click", () => {
   section.appendChild(newVariant);
 });
 
-// --- Image Upload ---
+// Image upload
 const fileInputs = ["img1", "img2", "img3", "img4"];
 fileInputs.forEach((id) => {
   const input = document.getElementById(id);
@@ -28,12 +26,11 @@ fileInputs.forEach((id) => {
     const file = e.target.files && e.target.files[0];
     if (!file) return;
 
-    // basic type check
     if (!file.type.startsWith("image/")) {
       showError("imgError", "Please select a valid image file.");
       return;
     } else {
-      // hide imgError if previously shown
+      
       const imgErr = document.getElementById("imgError");
       if (imgErr) imgErr.classList.add("hidden");
     }
@@ -70,30 +67,26 @@ document.getElementById("closeCropper").addEventListener("click", () => {
   currentImageInput = null;
 });
 
-// helper: convert canvas to blob (returns Promise)
+// helper: convert canvas to blob 
 function canvasToBlobAsync(canvas, type = "image/jpeg", quality = 0.9) {
   return new Promise((resolve) => {
     canvas.toBlob((blob) => resolve(blob), type, quality);
   });
 }
 
-// Crop & Save (uses async blob creation so blob is ready before continuing)
+// Crop & Save 
 document.getElementById("cropImageBtn").addEventListener("click", async () => {
   if (!cropper || !currentImageInput) return;
   try {
     const canvas = cropper.getCroppedCanvas({ width: 400, height: 533 });
     if (!canvas) throw new Error("Could not get cropped canvas");
 
-    // set preview immediately
     const preview = document.getElementById(currentImageInput + "Preview");
     if (preview) preview.src = canvas.toDataURL("image/jpeg");
 
-    // create blob and store it
     const blob = await canvasToBlobAsync(canvas, "image/jpeg", 0.9);
     if (blob) {
       croppedImages[currentImageInput] = blob;
-      // optional debug:
-      // console.log("Stored blob:", currentImageInput, blob.size);
     } else {
       showError("imgError", "Failed to crop image. Try again with another image.");
     }
@@ -110,13 +103,58 @@ document.getElementById("cropImageBtn").addEventListener("click", async () => {
   }
 });
 
-// ---------- Validation helpers ----------
+// validation helper
 function showError(id, message) {
   const el = document.getElementById(id);
   if (!el) return;
   el.textContent = message;
   el.classList.remove("hidden");
 }
+
+// live validation listener
+
+document.getElementById("productName").addEventListener("input", (e) => {
+  const v = e.target.value.trim();
+  if (v.length >= 3) hideError("nameError");
+});
+
+document.getElementById("description").addEventListener("input", (e) => {
+  const v = e.target.value.trim();
+  if (v.length >= 10) hideError("descError");
+});
+
+
+document.getElementById("category").addEventListener("change", (e) => {
+  if (e.target.value.trim()) hideError("catError");
+});
+
+document.getElementById("brand").addEventListener("change", (e) => {
+  if (e.target.value.trim()) hideError("brandError");
+});
+
+document.getElementById("color").addEventListener("input", (e) => {
+  if (e.target.value.trim()) hideError("colorError");
+});
+
+  
+document.addEventListener("input", (e) => {
+
+  if (e.target.classList.contains("variant-size")) {
+    if (e.target.value.trim()) hideError("variantError");
+  }
+
+  if (e.target.classList.contains("variant-price")) {
+    if (Number(e.target.value) >= 10) hideError("variantError");
+  }
+
+  if (e.target.classList.contains("variant-stock")) {
+    if (Number.isInteger(Number(e.target.value)) && Number(e.target.value) > 0) {
+      hideError("variantError");
+    }
+  }
+});
+
+
 
 function hideError(id) {
   const el = document.getElementById(id);
@@ -139,7 +177,7 @@ function isNonNegativeIntegerString(v) {
   return Number.isInteger(n) && n >= 0;
 }
 
-// ---------- Form Validation & Submit ----------
+// form validation submittion
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -250,7 +288,6 @@ else {
   formData.append("variants", JSON.stringify(variantList));
 
   // Append cropped images
-  // NOTE: your original code used "images" — keep same name. If your backend expects "images[]", change field name accordingly.
   let imgIndex = 0;
   Object.entries(croppedImages).forEach(([key, blob]) => {
     imgIndex++;
@@ -264,7 +301,6 @@ else {
       body: formData,
     });
 
-    // try to parse JSON (backend should return json)
     const data = await res.json();
 
     if (data.success) {
@@ -276,14 +312,11 @@ else {
         timer: 2000,
       });
       form.reset();
-      // reset previews
       fileInputs.forEach((id) => {
         const preview = document.getElementById(id + "Preview");
         if (preview) preview.src = "https://via.placeholder.com/150";
       });
-      // clear cropped images store
       Object.keys(croppedImages).forEach(k => delete croppedImages[k]);
-      // remove extra variants (keep the first)
       const variantSection = document.getElementById("variantSection");
       const allVariants = variantSection.querySelectorAll(".variant");
       for (let i = allVariants.length - 1; i >= 1; i--) allVariants[i].remove();

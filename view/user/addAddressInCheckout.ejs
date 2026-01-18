@@ -117,7 +117,6 @@
       errors.address = "Address must be at least 10 letters.";
     }
 
-    // STRICT VALIDATION for District and State (Ensures they aren't empty)
     ['district', 'state'].forEach(field => {
       if (!data[field] || !nameRegex.test(data[field].trim())) {
         errors[field] = "This field is required and supports letters only.";
@@ -138,14 +137,11 @@
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    // 1. Reset Error UI
     document.querySelectorAll('[id^="error-"]').forEach(el => el.classList.add('hidden'));
 
-    // 2. Collect Data
     const formData = new FormData(form);
     const formDataObj = Object.fromEntries(formData.entries()); 
 
-    // 3. Run Validation
     const validationErrors = validate(formDataObj);
 
     if (Object.keys(validationErrors).length > 0) {
@@ -159,7 +155,6 @@
       return; 
     }
 
-    // 4. Proceed to Fetch
     try {
       const response = await fetch('/checkout/addaddress', {
         method: 'POST',
@@ -167,7 +162,6 @@
         body: JSON.stringify(formDataObj),
       });
 
-      // Rename this to 'result' to avoid conflict with 'data'
       const result = await response.json();
 
       if (response.ok) {   
