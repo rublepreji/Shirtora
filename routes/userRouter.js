@@ -46,7 +46,7 @@ router.get(
       email: req.user.email
     };
     res.redirect('/');
-  }
+  } 
 );
 
 //profile management
