@@ -46,7 +46,7 @@ async function determineOrderStatusFromItems(items) {
     const allProcessing= statuses.every(s=>s==="Processing")
     const allTracking= statuses.every(s=>s==="Tracking")
     const allShipped= statuses.every(s=>s==="Shipped")
-    const allRetured= statuses.every(s=>s==="Returned")
+    const allRetured= statuses.every(s=>s==="Return-Approved")
     const allReturnReq = statuses.every(s=>s==="Return Requested")
 
     const anyProcessing = statuses.includes("Processing")
@@ -82,6 +82,23 @@ async function determineOrderStatusFromItems(items) {
     }
     if(anyProcessing){
       return "Processing"
+    }
+
+    const hasDelivered=statuses.includes("Delivered")
+    const hasCancelled= statuses.includes("Cancelled")
+    const hasRetured= statuses.includes("Return-Approved")
+    
+    if(hasDelivered && hasCancelled && hasRetured){
+      return "Mixed Status"
+    }
+    if(hasDelivered && hasCancelled){
+      return "Partially Completed"
+    }
+    if(hasDelivered && hasRetured){
+      return "Partially Returned"
+    }
+    if(hasCancelled && hasRetured){
+      return "Partially Cancelled"
     }
     return "Pending"
 

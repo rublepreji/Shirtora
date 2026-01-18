@@ -37,7 +37,7 @@ const orderSchema = new mongoose.Schema({
       },
       returnReason:{  
       type:String,
-      default:null
+      default:null 
     },
     isRefunded:{
       type:Boolean,
@@ -56,7 +56,7 @@ const orderSchema = new mongoose.Schema({
   address: Object,
   status:{
     type:String,
-    enum:['Pending','Processing', 'Tracking','Ordered','Shipped','Delivered','Cancelled','Return Requested','Returned','Payment Failed'],
+    enum:['Pending','Processing', 'Tracking','Ordered','Shipped','Delivered','Cancelled','Return Requested','Returned','Payment Failed','Mixed Status','Partially Completed','Partially Returned','Partially Cancelled'],
     default:'Pending'
   },
   paymentStatus:{
