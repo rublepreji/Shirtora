@@ -66,3 +66,17 @@
 
     }
 
+function togglePassword(icon, inputId) {
+
+  const passwordId = document.getElementById(inputId)
+
+  if (passwordId.type === "password") {
+    passwordId.type = "text"
+    icon.classList.replace("fa-eye-slash", "fa-eye")
+  } else {
+    passwordId.type = "password"
+    icon.classList.replace("fa-eye", "fa-eye-slash")
+  }
+}
+
+

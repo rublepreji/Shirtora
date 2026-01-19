@@ -1,6 +1,5 @@
- document.getElementById('otpForm').addEventListener('submit', function(event) {
-            
-
+ document.addEventListener("DOMContentLoaded",()=>{
+     document.getElementById('otpForm').addEventListener('submit', function(event) {
             const otpInput = document.getElementById('otp');
             const statusMessage = document.getElementById('statusMessage');
             const otp = otpInput.value.trim();
@@ -20,6 +19,7 @@
                 return;
             }   
         });
+ })
 
     // OTP TIMER (Persistent)
 
@@ -50,23 +50,18 @@
                 timerDisplay.textContent = "OTP expired.";
                 resendLink.classList.remove("pointer-events-none", "opacity-50");
                 resendLink.textContent = "Resend OTP";
-                localStorage.removeItem("otpExpiry"); // Timer finished
+                localStorage.removeItem("otpExpiry"); 
             }
         }, 1000);
     }
 
     startTimer();
 
-    // ----------------------------
     // RESEND OTP CLICK HANDLER
-    // ----------------------------
+
     resendLink.addEventListener("click", (e) => {
         e.preventDefault();
 
-        // TODO: call your backend to resend OTP
-        // fetch("/resend-otp")
-
-        // Reset timer
         const newExpiry = Date.now() + TIMER_DURATION * 1000;
         localStorage.setItem("otpExpiry", newExpiry);
         startTimer();

@@ -1,0 +1,9 @@
+2026-01-19 00:12:41 [ERROR] Error from process payment
+2026-01-19 00:22:32 [ERROR] Error from getDashboardData Cannot access 'last' before initialization
+2026-01-19 00:22:43 [ERROR] Error from getDashboardData Cannot access 'last' before initialization
+2026-01-19 09:32:01 [ERROR] Error from addOffer Offer validation failed: productOffer: Path `productOffer` (99) is more than maximum allowed value (90).
+2026-01-19 10:24:30 [ERROR] viewProductService error promise is not defined
+2026-01-19 10:25:05 [ERROR] viewProductService error promise is not defined
+2026-01-19 10:25:09 [ERROR] viewProductService error promise is not defined
+2026-01-19 10:25:12 [ERROR] viewProductService error promise is not defined
+2026-01-19 10:25:19 [ERROR] viewProductService error promise is not defined

@@ -131,12 +131,12 @@
 
 <!-- Update buttons to be disabled when out of stock -->
 <div class="flex items-center space-x-3 pt-2 pb-4 border-b">
-    <div class="flex items-center border border-gray-300 rounded-md overflow-hidden">
+    <!-- <div class="flex items-center border border-gray-300 rounded-md overflow-hidden">
        <button id="qty-minus" type="button" aria-label="decrease quantity" class="quantity-button p-2 w-8 h-full text-lg font-semibold">-</button>
         <input type="text" id="qty-input" value="1" class="w-10 text-center border-0 focus:ring-0" readonly>
         <button id="qty-plus" type="button" aria-label="increase quantity" class="quantity-button p-2 w-8 h-full text-lg font-semibold">+</button>
 
-    </div>
+    </div> -->
     
     <button  
     id="add-to-cart-btn" 
@@ -144,12 +144,24 @@
 >
     Add to cart
 </button>
-    
-    <button class="p-3 border border-gray-300 rounded-md hover:border-black transition duration-300 text-gray-500 hover:text-red-500">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-.318-.318A4.5 4.5 0 004.318 6.318z"></path>
-        </svg>
+        
+    <button 
+    id="wishlist-btn"
+    class="p-3 border border-gray-300 rounded-md hover:border-black transition duration-300 text-gray-500 hover:text-red-500">
+
+    <svg 
+    id="wishlist-icon"
+    class="w-6 h-6 transition <%=isWishlist ?'text-red-500 fill-red-500' : 'text-gray-400'%>"
+    fill="none" 
+    stroke="currentColor" 
+    viewBox="0 0 24 24">
+
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-.318-.318A4.5 4.5 0 004.318 6.318z"/>
+    </svg>
+
     </button>
+
 </div>
 
 <!-- <a href="/checkout">

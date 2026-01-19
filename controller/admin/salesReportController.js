@@ -131,14 +131,19 @@ if (type === "excel") {
       .map(i => "• " + i.quantity)
       .join("\n")
 
-    sheet.addRow([
+    const row = sheet.addRow([
       o.orderId,
       formatDate(o.createdAt),
       products,
       qty,
       o.offerAmount || o.totalAmount
     ])
+
+    // Enable wrap for this row
+    row.getCell(3).alignment = { wrapText: true }
+    row.getCell(4).alignment = { wrapText: true }
   })
+
 
   res.setHeader(
     "Content-Type",
@@ -396,7 +401,6 @@ async function salesReport(req,res) {
 async function loadSalesReport(req,res)
  {
  try {
-
     return res.render('salesReport')
  } catch (error) {
     logger.error("Error from loadSalesReport",error);

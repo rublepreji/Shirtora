@@ -107,47 +107,80 @@
             console.log('product',product);
             
   productContainer.innerHTML = product.map(data => `
-    <div class="product-card bg-white rounded-lg overflow-hidden shadow-md flex flex-col h-full">
-      <div class="w-full h-48 overflow-hidden">
-       <a href="/productdetails/${data._id}"><img src="${data.productImage[0]}" class="w-full h-full object-cover" alt="${data.productName}"></a>
-      </div>
+  <div class="product-card bg-white rounded-lg overflow-hidden shadow-md flex flex-col h-full">
+    
+    <div class="w-full h-48 overflow-hidden">
+      <a href="/productdetails/${data._id}">
+        <img src="${data.productImage[0]}" 
+        class="w-full h-full object-cover" 
+        alt="${data.productName}">
+      </a>
+    </div>
 
-      <div class="p-4 flex flex-col flex-1">
-        <h3 class="font-semibold text-sm mb-1 truncate">${data.productName}</h3>
-        <div class="text-xs text-yellow-500 mb-2">★★★★☆</div>
+    <div class="p-4 flex flex-col flex-1">
+      <h3 class="font-semibold text-sm mb-2 truncate">
+        ${data.productName}
+      </h3>
 
-        <div class="text-sm font-bold">₹${data.variants[0].price}</div>
+      ${
+        data.offer > 0
+        ? `
+          <!-- Price row -->
+          <div class="flex items-center gap-2">
 
-        <!-- Actions pushed to bottom -->
-        
-        <div class="mt-auto flex items-center gap-2 pt-3">
-          <button onclick="addtocart('${data._id}',0,1)" class="flex-1 border border-black py-2 rounded-md text-sm hover:bg-black hover:text-white transition">
-            Add to cart
-          </button>
+            <span class="text-lg font-bold text-600">
+              ₹${data.finalPrice}
+            </span>
 
-         <button onclick="addtowishlist('${data._id}', this)"
+            <span class="text-sm line-through text-gray-400">
+              ₹${data.orginalPrice}
+            </span>
+
+          </div>
+
+          <!-- Offer text -->
+          <p class="text-xs text-red-500 mt-1">
+            ${data.offer}% OFF
+          </p>
+        `
+        : `
+          <div class="text-lg font-bold">
+            ₹${data.variants[0].price}
+          </div>
+        `
+      }
+
+      <!-- Actions -->
+      <div class="mt-auto flex items-center gap-2 pt-4">
+
+        <button onclick="addtocart('${data._id}',0,1)"
+        class="flex-1 border border-black py-2 rounded-md text-sm hover:bg-black hover:text-white transition">
+          Add to cart
+        </button>
+
+        <button onclick="addtowishlist('${data._id}', this)"
         class="w-10 h-10 border border-gray-300 rounded-md flex items-center justify-center hover:bg-gray-100">
 
-        <svg 
-        class="w-5 h-5 transition
-        ${data.isWishlist ? 'text-red-500 fill-red-500' : 'text-gray-400'}"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        stroke-width="2">
+          <svg 
+          class="w-5 h-5 transition
+          ${data.isWishlist ? 'text-red-500 fill-red-500' : 'text-gray-400'}"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2">
 
-        <path stroke-linecap="round" stroke-linejoin="round"
-        d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636
-        l1.318-1.318a4.5 4.5 0 116.364 6.364
-        L12 21l-7.682-7.682a4.5 4.5 0 010-6.364z"/>
-        </svg>
+          <path stroke-linecap="round" stroke-linejoin="round"
+          d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636
+          l1.318-1.318a4.5 4.5 0 116.364 6.364
+          L12 21l-7.682-7.682a4.5 4.5 0 010-6.364z"/>
+          </svg>
 
         </button>
 
-
-        </div>
       </div>
     </div>
-  `).join("");
+  </div>
+`).join("");
+
 }
 
 async function addtocart(productId,variantIndex,qty) {
@@ -218,11 +251,11 @@ async function addtowishlist(productId, btn) {
     const data = await response.json()
 
     if(!data.success){
-      Swal.fire("Error", data.message, "error")
+      Swal.fire("Error", data.message, "error").then(()=>window.location.href='/signin')
     }
 
   }catch(error){
-    Swal.fire("Error", "Something went wrong", "error")
+    Swal.fire("Error", "You need to sign in first to continue shopping.", "error").then(()=>window.location.href='/signin')
   }
 }
 

@@ -554,7 +554,16 @@ return {
 }
 
 
-export default{placeOrderService,returnRequestService,cancelOrderStockUpdateService,downloadInvoiceService,loadOrderListService,getOrderDetailsService,loadCheckoutService,createFailedPaymentOrder}
+export default{
+  placeOrderService,
+  returnRequestService,
+  cancelOrderStockUpdateService,
+  downloadInvoiceService,
+  loadOrderListService,
+  getOrderDetailsService,
+  loadCheckoutService,
+  createFailedPaymentOrder
+}
 
 
 

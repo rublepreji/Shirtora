@@ -91,12 +91,12 @@ async function newEmail(req,res) {
 
 async function verifyChangeEmailOtp(req, res) {
   const { otp } = req.body;
-
+  
   if (otp == req.session.changeEmailOtp) {
+    req.flash('success', 'OTP Verified');
     req.session.isEmailVerifiedForChange = true;
     return res.redirect('/loadnewemail');
   }
-
    req.flash('error', 'Invalid OTP');
    return res.redirect('/userProfile');
 }

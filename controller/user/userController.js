@@ -14,7 +14,7 @@ async function productDetails(req,res) {
   try {    
     const user=req.session.user ?req.session.user :""
     const productId= req.params.id  
-    const {userData,product,defaultVariant,totalOffer,categoryOffer,relatedProduct,isBlocked}=await userService.productDetailsService(user,productId)
+    const {userData,product,defaultVariant,totalOffer,categoryOffer,relatedProduct,isBlocked,isWishlist}=await userService.productDetailsService(user,productId)
     
     if(!product || !defaultVariant){      
       return res.redirect('/pageNotFound')
@@ -33,7 +33,8 @@ async function productDetails(req,res) {
       relatedProduct,
       offer:offer,
       offerSource,
-      isBlocked
+      isBlocked,
+      isWishlist
     })
   } catch (error) {
     return res.redirect('/pageNotFound')

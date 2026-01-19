@@ -1,14 +1,9 @@
-/**
- * Global function for thumbnail clicks
- * Needs to be outside DOMContentLoaded so the HTML onclick can find it.
- */
 function changeImage(src) {
     const mainImg = document.getElementById('mainImage');
     const zoomResult = document.getElementById('zoomResult');
     
     if (mainImg) {
         mainImg.src = src;
-        // Trigger a background update for the zoom window immediately
         if (zoomResult) {
             zoomResult.style.backgroundImage = `url('${src}')`;
         }
@@ -37,7 +32,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const offerPercent = priceElement ? Number(priceElement.dataset.offer || 0) : 0;
     const calculateFinalPrice = (price, offer) => Math.round(price - (price * offer) / 100);
 
-    // Stock UI Helpers
     function updateStockUI(stock) {
         if (!stockMessage) return;
         if (stock === 0) {
@@ -52,7 +46,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // Initialize Size/Price
     let currentStock = 0;
     if (sizeSelect && sizeSelect.options.length > 0) {
         const opt = sizeSelect.options[sizeSelect.selectedIndex];
@@ -60,7 +53,6 @@ document.addEventListener("DOMContentLoaded", () => {
         updateStockUI(currentStock);
     }
 
-    // Size Change Listener
     sizeSelect?.addEventListener("change", function() {
         const opt = this.options[this.selectedIndex];
         const basePrice = Number(opt.dataset.price || 0);
@@ -84,7 +76,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (val > 1) qtyInput.value = val - 1;
     });
 
-    // --- IMPROVED ZOOM LOGIC ---
     function initZoom() {
         const img = $("mainImage");
         const lens = $("zoomLens");
@@ -92,34 +83,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (!img || !lens || !result) return;
 
-        // Set the background image once
         result.style.backgroundImage = `url('${img.src}')`;
 
         const moveLens = (e) => {
             const rect = img.getBoundingClientRect();
             
-            // Calculate magnification ratios
             const cx = result.offsetWidth / lens.offsetWidth;
             const cy = result.offsetHeight / lens.offsetHeight;
 
-            // Set background size relative to ratios
             result.style.backgroundSize = `${img.width * cx}px ${img.height * cy}px`;
 
-            // Calculate cursor position
             let x = e.clientX - rect.left;
             let y = e.clientY - rect.top;
 
-            // Center lens on cursor
             x = x - (lens.offsetWidth / 2);
             y = y - (lens.offsetHeight / 2);
 
-            // Boundaries
             if (x > img.width - lens.offsetWidth) x = img.width - lens.offsetWidth;
             if (x < 0) x = 0;
             if (y > img.height - lens.offsetHeight) y = img.height - lens.offsetHeight;
             if (y < 0) y = 0;
 
-            // Apply positions
             lens.style.left = x + "px";
             lens.style.top = y + "px";
             result.style.backgroundPosition = `-${x * cx}px -${y * cy}px`;
@@ -128,7 +112,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const toggleZoom = (show) => {
             lens.classList.toggle('hidden', !show);
             result.classList.toggle('hidden', !show);
-            // Refresh background in case thumbnail changed
             if (show) result.style.backgroundImage = `url('${img.src}')`;
         };
 
@@ -159,7 +142,47 @@ document.addEventListener("DOMContentLoaded", () => {
                 Swal.fire("Error", data.message || "Failed", "error");
             }
         } catch (err) {
-            Swal.fire("Error", "Something went wrong", "error");
+            Swal.fire("Error", "You need to sign in first to continue shopping.", "error").then(()=>window.location.href='/signin');
         }
     });
 }); 
+
+// Add To Wishlist
+const wishlistBtn = document.getElementById("wishlist-btn")
+const wishlistIcon = document.getElementById("wishlist-icon")
+
+wishlistBtn?.addEventListener("click", async () => {
+
+  const productId = document.getElementById("product-id")?.value
+
+  wishlistIcon.classList.toggle("text-red-500")
+  wishlistIcon.classList.toggle("fill-red-500")
+
+  try{
+    const res = await fetch(`/addtowishlist/${productId}`,{
+      method:"POST"
+    })
+
+    const data = await res.json()
+
+    if(!data.success){
+
+      if(data.login === false){
+        Swal.fire({
+          icon:"warning",
+          title:"Login required",
+          text:"Please login to add products to wishlist"
+        }).then(()=>window.location.href="/signin")
+      }else{
+        Swal.fire("Error",data.message,"error")
+      }
+    }
+
+  }catch(err){
+    Swal.fire({
+      icon:"error",
+      title:"Error",
+      text:"Please login to add products to wishlist"
+    }).then(()=>window.location.href='/signin')
+  }
+})

@@ -6,6 +6,7 @@ import Offer from "../../model/offerSchema.js";
 import { logger } from "../../logger/logger.js";
 import bcrypt from 'bcrypt'
 import { generateOtp, sendEmailVerification, securePassword } from '../../utils/userUtils.js';
+import offerSchema from "../../model/offerSchema.js";
 
 
 
@@ -62,6 +63,7 @@ async function productDetailsService(user,productId) {
     if(!product){
         return {userData,product:null}
     }
+    const isWishlist= userData && userData.wishlist.some((id)=>id.toString() === productId.toString())
     const findCategory= product.category
     const categoryOffer= findCategory?.categoryOffer || 0
     const productOffer= product?.productOffer || 0
@@ -77,7 +79,8 @@ async function productDetailsService(user,productId) {
         defaultVariant,
         totalOffer,
         categoryOffer,
-        relatedProduct
+        relatedProduct,
+        isWishlist
     }
 }
 
@@ -144,6 +147,20 @@ async function filterProductService(userQuery) {
       isWishlist:wishlist.includes((p._id.toString()))
     }))
 
+    findProducts= await Promise.all(
+      findProducts.map(async (p)=>{
+        const offerData= await offerCalculation(p,0)
+        return {
+          ...p,
+          offer:offerData.offer,
+          offerSource:offerData.offerSource,
+          orginalPrice:offerData.orginalPrice,
+          discountAmount:offerData.discountAmount,
+          finalPrice:offerData.finalPrice
+        }
+      })
+    )
+
     const totalProduct= await Product.countDocuments(query )
     const totalPage= Math.ceil(totalProduct/limit)
 
@@ -204,6 +221,21 @@ async function viewProductService(userId,page) {
         path:"brand",
         match:{isBlocked:false}
     })
+
+    product= await Promise.all(
+      product.map(async (p)=>{
+        const offerData= await offerCalculation(p,0)
+
+        return {
+          ...p,
+          offer:offerData.offer,
+          offerSource:offerData.offerSource,
+          orginalPrice:offerData.orginalPrice,
+          discountAmount:offerData.discountAmount,
+          finalPrice:offerData.finalPrice
+        }
+      })
+    )
 
     const totalProduct= unblockedProducts.filter(p=>p.category && p.brand).length
     const totalPages = Math.ceil(totalProduct/limit)
