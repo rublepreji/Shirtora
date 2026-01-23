@@ -10,7 +10,6 @@ async function adminCancelOrder(req,res) {
   const session =await mongoose.startSession()
   try {
     const {orderId,reason}= req.body
-    console.log(orderId,' ',reason);
     if(!orderId || !reason){
       return res.json({success:false,message:"Missing data"})
     }
@@ -35,17 +34,31 @@ async function adminCancelOrder(req,res) {
     order.status="Cancelled"
     order.cancelReason=reason
 
+    let refundAmount=0
+    order.items.forEach((val)=>{
+      if(val.itemStatus !== "Cancelled"){
+        refundAmount+=val.totalPrice
+      }
+    })
+
+    const itemShare=Math.round(refundAmount/order.totalAmount)
+    const refund= order.discountAmount * itemShare
+    refundAmount-=refund
+
     order.items.forEach((item)=>{
       if(item.itemStatus !=="Delivered"){
         item.itemStatus="Cancelled"
       }
     })
+
+    console.log("refundAmount",refundAmount);
+    
     await orderService.restoreStokeForOrderItems(order,session)
 
     if(order.paymentStatus==="Paid"){
       await creditWallet({
         userId:order.userId,
-        amount:order.offerAmount,
+        amount:refundAmount,
         source:"ORDER_REFUND",
         orderId:order.orderId,
         reason:reason,
@@ -69,6 +82,9 @@ async function updateItemStatus(req,res) {
   try {    
     const { orderId, itemIndex, newStatus } = req.body;
     const orders= await Order.findById(orderId)
+    if(orders.paymentStatus==="Failed"){
+      return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Status cannot be changed"})
+    }
     if(!orders){
       return res.status(STATUS.NOT_FOUND).json({success:false,message:"Order not found"})
     }

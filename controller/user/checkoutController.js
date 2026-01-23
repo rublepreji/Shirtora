@@ -4,7 +4,7 @@ import checkoutService from "../../services/userService/checkoutService.js";
 import {verifyRazorpaySignature} from '../../utils/razorpayVerification.js'
 import Order from '../../model/orderSchema.js';
 import mongoose from 'mongoose';
-import {creditWallet} from "../../services/userService/walletService.js"
+
 import Product from '../../model/productSchema.js';
 import orderService from '../../services/adminService/orderService.js';
 import profileService from '../../services/userService/profileService.js';
@@ -32,79 +32,12 @@ async function getAddAddress(req,res) {
 }
 
 async function cancelItem(req,res) {
-  const session= await mongoose.startSession()
   try {
-    session.startTransaction()
     const {orderId,itemIndex}= req.body
-    console.log(itemIndex);
-    
     const userId = req.session.user._id
-    
-    if(!orderId || itemIndex===undefined){
-      return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Invalid request"})
-    }
-    const order= await Order.findOne({orderId}).session(session)
-    if(!order){
-      return res.status(STATUS.NOT_FOUND).json({success:false,message:"Order not found"})
-    }
-    if(order.status==="Cancelled"){
-      return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Order is already cancelled"})
-    }
-    const item = order.items[itemIndex]
-
-    if(!item){ 
-      return res.status(STATUS.NOT_FOUND).json({success:false,message:"Item not found"})
-    }
-    if(item.itemStatus==="Delivered"){
-      return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Delivered item cannot be cancelled"})
-    }
-    if(item.itemStatus==="Return-Approved"){
-      return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Returned item cannot be cancelled"})
-    }
-    if(item.itemStatus==="Cancelled"){
-      return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Item already cancelled"})
-    }
-    if(item.isRefunded){
-      return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Already Refunded"})
-    }
-    item.itemStatus="Cancelled"
-    console.log(item.productId);
-    
-    const product=await Product.findById(item.productId).session(session)
-    
-    product.variants[item.variantIndex].stock+=item.quantity
-    await product.save({session})
-
-    order.status= await orderService.determineOrderStatusFromItems(order.items)
-    if(order.paymentStatus==="Paid" && !item.isRefunded){
-      const itemShare= item.totalPrice / order.totalAmount
-      const discountShare= order.discountAmount * itemShare
-
-      const refundAmount= Math.round(item.totalPrice-discountShare)
-      await creditWallet({
-        userId,
-        amount:refundAmount,
-        source:"ORDER_CANCEL_REFUND",
-        orderId,
-        reason:"Cancel Item",
-        itemIndex,
-        session
-      })
-      item.isRefunded=true
-    }
-    const allItemsCancelledOrReturned= order.items.every(i=>
-      ["Cancelled","Return-Approved"].includes(i.itemStatus)
-    )
-    if(allItemsCancelledOrReturned){
-      order.paymentStatus="Refunded"
-    }
-    await order.save({session})
-    await session.commitTransaction()
-    session.endSession()
-    return res.status(STATUS.OK).json({success:true,message:"Item cancelled successfully"})
+    const result= await checkoutService.cancelItemService(orderId,itemIndex,userId)
+    return res.status(result.status).json({success:result.success,message:result.message})
   } catch (error) {
-    await session.abortTransaction()
-    session.endSession()
     logger.error("Error from cancel item",error)
     return res.status(STATUS.INTERNAL_SERVER_ERROR).json({success:false,message:"Internal server error"})
   }
@@ -114,9 +47,7 @@ async function handlePaymentFailed(req, res) {
   try {
     const { orderId, reason, selectedAddressIndex, paymentMethod } = req.body;
     const userId = req.session.user._id
-    
     const result= await checkoutService.createFailedPaymentOrder(userId,reason,orderId,selectedAddressIndex,paymentMethod)
-
     return res.json({ success: result.success , orderId: result.order.orderId}); 
   } catch (error) {
     console.error("Payment failed handler error:", error);
@@ -268,8 +199,6 @@ async function placeOrder(req, res) {
         message: "No payment method selected"
       }); 
     }
-
-
     
     // UPI payment
     if (normalizedPaymentMethod === "UPI") {

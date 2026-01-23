@@ -2,6 +2,42 @@ import { logger } from "../../logger/logger.js"
 import Cart from "../../model/cartSchema.js"
 import Coupon from "../../model/couponSchema.js"
 import Usercoupon from "../../model/userCouponSchema.js"
+import { STATUS } from "../../utils/statusCode.js"
+
+async function removeCouponService(userId) {
+  try {
+    const cart= await Cart.findOne({userId})
+    .populate({
+    path: "items.productId",
+    populate: [{ path: "category" }, { path: "brand" }]
+})
+    if(!cart){
+      return {status:STATUS.NOT_FOUND, success:false, message:"Cart not found"}
+    }
+    const filteredProduct= cart.items.filter((item)=>{
+        const p = item.productId
+        if(!p) return false
+        const variant= p.variants[item.variantIndex]
+        const isBlocked= p.isBlocked===true || p?.brand?.isBlocked===true || p?.category?.isBlocked===true
+        const isStockAvailable= !variant.stock || variant.stock<=0
+        const isSufficientStock= item.quantity <= variant.stock
+        
+        return !isBlocked && !isStockAvailable && isSufficientStock
+    })
+    let subTotal=0
+    for(let item of filteredProduct){
+        subTotal += item.totalPrice
+    }
+    cart.grandTotal=subTotal
+    cart.discountAmount=0
+    await cart.save()
+
+    return {status:STATUS.OK, success:true, message:"Coupon removed",grandTotal:subTotal}    
+  } catch (error) {
+    logger.error("Error from couponService",error)
+    return {status:STATUS.INTERNAL_SERVER_ERROR, success:false,message:"Internal server error"}
+  }
+}
 
 async function applyCouponService(couponCode, userId) {
   try {
@@ -88,4 +124,7 @@ async function applyCouponService(couponCode, userId) {
   }
 }
 
-export {applyCouponService}
+export {
+  applyCouponService,
+  removeCouponService
+}

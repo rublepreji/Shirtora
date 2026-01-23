@@ -32,10 +32,7 @@ async function addToWishlist(req,res) {
             return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Product is required"})
         }
         const result= await wishListService.addToWishlistService(productId,userId)
-        if(!result.success){
-            return res.status(STATUS.BAD_REQUEST).json({success:false,message:result.message})
-        }
-        return res.status(STATUS.OK).json({success:true,message:result.message})
+        return res.status(result.status).json({success:result.success,message:result.message})
     } catch (error) {
         logger.error('Add wishlist error', error)
         return res.status(STATUS.INTERNAL_SERVER_ERROR).json({success:false,message:"Internal server error"})

@@ -3,11 +3,93 @@ import Order from "../../model/orderSchema.js";
 import Address from "../../model/addressSchema.js";
 import Usercoupon from "../../model/userCouponSchema.js"
 import Coupon from "../../model/couponSchema.js";
+import Product from "../../model/productSchema.js";
+import orderService from "../adminService/orderService.js";
 import PDFDocument from "pdfkit";
 import mongoose from "mongoose";
 import userService from "../../services/userService/userService.js"
+import { STATUS } from "../../utils/statusCode.js";
 import { logger } from "../../logger/logger.js";
+import {creditWallet} from "../../services/userService/walletService.js"
 import { populate } from "dotenv";
+
+async function cancelItemService(orderId, itemIndex, userId) {
+  const session= await mongoose.startSession()
+  try {
+    session.startTransaction()
+     if(!orderId || itemIndex===undefined){
+          throw {status:STATUS.BAD_REQUEST, success:false,message:"Invalid request"}
+        }
+        const order= await Order.findOne({orderId}).session(session)
+        if(!order){
+          throw {status:STATUS.NOT_FOUND, success:false, message:"Order not found"}
+        }
+        if(order.status==="Cancelled"){
+          throw {status:STATUS.BAD_REQUEST, success:false, message:"Order is already cancelled"}
+        }
+        const item = order.items[itemIndex]
+    
+        if(!item){ 
+          throw {status:STATUS.NOT_FOUND, success:false, message:"Item not found"}
+        }
+        if(item.itemStatus==="Delivered"){
+          throw {status:STATUS.BAD_REQUEST, success:false, message:"Delivered item cannot be cancelled"}
+        }
+        if(item.itemStatus==="Return-Approved"){
+          throw {status:STATUS.BAD_REQUEST, success:false, message:"Returned item cannot be cancelled"}
+        }
+        if(item.itemStatus==="Cancelled"){
+          throw {status:STATUS.BAD_REQUEST, success:false, message:"Item already cancelled"}
+        }
+        if(item.isRefunded){
+          throw {status:STATUS.BAD_REQUEST, success:false, message:"Already Refunded"}
+        }
+        item.itemStatus="Cancelled"
+        console.log(item.productId);
+         
+        const product=await Product.findById(item.productId).session(session)
+        
+        product.variants[item.variantIndex].stock+=item.quantity
+        await product.save({session})
+    
+        order.status= await orderService.determineOrderStatusFromItems(order.items)
+        if(order.paymentStatus==="Paid" && !item.isRefunded){
+          const itemShare= item.totalPrice / order.totalAmount
+          const discountShare= order.discountAmount * itemShare
+    
+          const refundAmount= Math.round(item.totalPrice-discountShare)
+          await creditWallet({
+            userId,
+            amount:refundAmount,
+            source:"ORDER_CANCEL_REFUND",
+            orderId,
+            reason:"Cancel Item",
+            itemIndex,
+            session
+          })
+          item.isRefunded=true
+        }
+        const allItemsCancelledOrReturned= order.items.every(i=>
+          ["Cancelled","Return-Approved"].includes(i.itemStatus)
+        )
+        if(allItemsCancelledOrReturned){
+          order.paymentStatus="Refunded"
+        }
+        await order.save({session})
+        await session.commitTransaction()
+        session.endSession()
+        return {
+          status:STATUS.OK,
+          success:true,
+          message:"Item cancelled successfully"
+        }
+  } catch (error) {
+    await session.abortTransaction()
+    session.endSession()
+    logger.error("Error from cancelItemService",error)
+    return {status:STATUS.INTERNAL_SERVER_ERROR, success:false, message:error.message ||  "Something went wrong!"}
+  }
+}
 
 
 async function createFailedPaymentOrder(userId, reason, razorpayOrderId, selectedAddressIndex, paymentMethod) {
@@ -562,7 +644,8 @@ export default{
   loadOrderListService,
   getOrderDetailsService,
   loadCheckoutService,
-  createFailedPaymentOrder
+  createFailedPaymentOrder,
+  cancelItemService
 }
 
 

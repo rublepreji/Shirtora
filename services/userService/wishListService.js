@@ -29,14 +29,14 @@ async function addToWishlistService(productId,userId) {
                 id.toString() !== productId.toString()
             )
             await user.save()
-            return {success:false,message:"Product removed from wishlist"}
+            return {success:true,status:STATUS.OK ,message:"Product removed from wishlist"}
         }
         user.wishlist.push(productId)
         await user.save()
-        return {success:true,message:"Product added to wishlist"}
+        return {success:true,status:STATUS.OK,message:"Product added to wishlist"}
     } catch (error) {
         logger.error("Add to wishlist service error",error)
-        throw error
+        return {success:false, status:STATUS.INTERNAL_SERVER_ERROR, message:"Internal server error"}
     }
 }
 

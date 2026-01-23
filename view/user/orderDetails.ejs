@@ -165,7 +165,7 @@
             </button>
         </div>
 
-    <% } else if (val.itemStatus !== 'Cancelled' && val.itemStatus !== "Return Requested" && val.itemStatus !=="Return-Rejected" && val.itemStatus !== "Return-Approved") { %>
+    <% } else if (val.itemStatus !== 'Cancelled' && val.itemStatus !== "Return Requested" && val.itemStatus !=="Return-Rejected" && val.itemStatus !== "Return-Approved" && order.paymentStatus !== "Failed") { %>
 
         <!-- NOT DELIVERED & NOT CANCELLED → show CANCEL BUTTON -->
         <div class="flex items-center gap-4 mb-3">

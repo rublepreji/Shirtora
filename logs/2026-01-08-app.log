@@ -1,9 +1,0 @@
-2026-01-08 17:14:42 [ERROR] Error from process payment
-2026-01-08 17:22:28 [ERROR] Error from addOffer Offer validation failed: categoryOffer: Path `categoryOffer` (100) is more than maximum allowed value (90).
-2026-01-08 17:22:37 [ERROR] Error from addOffer Offer validation failed: categoryOffer: Path `categoryOffer` (99) is more than maximum allowed value (90).
-2026-01-08 17:22:59 [ERROR] Error from addOffer Offer validation failed: categoryOffer: Path `categoryOffer` (100) is more than maximum allowed value (90).
-2026-01-08 17:23:24 [ERROR] Error from addOffer Offer validation failed: categoryOffer: Path `categoryOffer` (100) is more than maximum allowed value (90).
-2026-01-08 17:23:59 [ERROR] Error from addOffer Offer validation failed: categoryOffer: Path `categoryOffer` (100) is more than maximum allowed value (90).
-2026-01-08 17:24:09 [ERROR] Error from addOffer Offer validation failed: categoryOffer: Path `categoryOffer` (99) is more than maximum allowed value (90).
-2026-01-08 17:24:21 [ERROR] Error from addOffer Offer validation failed: categoryOffer: Path `categoryOffer` (100) is more than maximum allowed value (90).
-2026-01-08 17:24:27 [ERROR] Error from addOffer Offer validation failed: categoryOffer: Path `categoryOffer` (100) is more than maximum allowed value (90).

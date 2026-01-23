@@ -164,7 +164,15 @@ wishlistBtn?.addEventListener("click", async () => {
     })
 
     const data = await res.json()
-
+    if(data.success){
+        Toastify({
+      text: data.message ,
+      duration: 3000,
+      gravity: "top",
+      position: "right",
+      backgroundColor:  "#4CAF50" ,
+    }).showToast();
+    }
     if(!data.success){
 
       if(data.login === false){

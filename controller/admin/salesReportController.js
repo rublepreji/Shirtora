@@ -3,71 +3,29 @@ import Order from "../../model/orderSchema.js"
 import { logger } from "../../logger/logger.js"
 import ExcelJS from "exceljs"
 import PDFDocument from "pdfkit"
+import { downloadReportService, formatDate, drawRow, formatDateTime, salesReportService } from "../../services/adminService/salesReportService.js"
 
 async function downloadReport(req, res) {
   try {
 
-    const { range, startDate, endDate, type } = req.query
-    let filter = { status: "Delivered" }
+    const result = await downloadReportService(req.query)
+    const {
+      orders,
+      summary,
+      range,
+      startDate,
+      endDate,
+      type,
+      generatedAt
+    }= result
 
-    // Date filter
-    const today = new Date()
-    let start, end
-
-    if (range && range !== "all") {
-
-      if (range === "today") {
-        start = new Date()
-        start.setHours(0, 0, 0, 0)
-        end = new Date()
-        end.setHours(23, 59, 59, 999)
-      }
-
-      else if (range === "weekly") {
-        start = new Date()
-        start.setDate(today.getDate() - 7)
-        end = today
-      }
-
-      else if (range === "monthly") {
-        start = new Date(today.getFullYear(), today.getMonth(), 1)
-        end = today
-      }
-
-      else if (range === "yearly") {
-        start = new Date(today.getFullYear(), 0, 1)
-        end = today
-      }
-
-      else if (range === "custom" && startDate && endDate) {
-        start = new Date(startDate)
-        end = new Date(endDate)
-        end.setHours(23, 59, 59, 999)
-      }
-
-      if (start && end) {
-        filter.createdAt = { $gte: start, $lte: end }
-      }
-    }
-
-    const orders = await Order.find(filter)
-      .populate("items.productId")
-      .sort({ createdAt: -1 })
-
-    // Totals
-    let totalSales = 0
-    let totalProductDiscount = 0
-    let totalCouponDiscount = 0
-
-    orders.forEach(o => {
-      totalSales += Number(o.offerAmount || o.totalAmount || 0)
-      totalProductDiscount += Number(o.totalOffer || 0)
-      totalCouponDiscount += Number(o.discountAmount || 0)
-    })
-
-    const totalOrders = orders.length
-    const netPayable =
-      totalSales - totalProductDiscount - totalCouponDiscount
+    const {
+      totalSales,
+      totalProductDiscount,
+      totalCouponDiscount,
+      netPayable,
+      totalOrders
+    }= summary
 
 // Excel
 if (type === "excel") {
@@ -100,13 +58,13 @@ if (type === "excel") {
 
   // Summary
   sheet.addRow([])
+  sheet.addRow(["Date & Time", formatDateTime(generatedAt)])
   sheet.addRow(["Period", periodText])
   sheet.addRow(["Total Orders", totalOrders])
   sheet.addRow(["Total Sales", `₹${totalSales.toFixed(2)}`])
   sheet.addRow(["Product Discount", `₹${totalProductDiscount.toFixed(2)}`])
   sheet.addRow(["Coupon Discount", `₹${totalCouponDiscount.toFixed(2)}`])
   sheet.addRow(["Net Payable", `₹${netPayable.toFixed(2)}`])
-
   sheet.addRow([])
 
   // Table header
@@ -196,6 +154,9 @@ if (type === "excel") {
       const rightX = 320
       let sY = doc.y
 
+
+      doc.fontSize(10)
+   .text(`Date & Time : ${formatDateTime(generatedAt)}`,leftX, sY -15)
       doc.text(`Period: ${periodText}`, leftX, sY)
       doc.text(`Total Sales: ₹${totalSales.toFixed(2)}`, leftX, sY + 15)
       doc.text(`Coupon Discount: ₹${totalCouponDiscount.toFixed(2)}`, leftX, sY + 30)
@@ -275,122 +236,14 @@ if (type === "excel") {
   }
 }
 
-// Helpers
 
-function drawRow(doc, y, h, c1, c2, c3, c4, c5) {
-
-  const cols = [
-    { x: 40,  w: 90 },
-    { x: 130, w: 80 },
-    { x: 210, w: 150 },
-    { x: 360, w: 60 },
-    { x: 420, w: 90 }
-  ]
-
-  drawCell(doc, cols[0], y, h, c1)
-  drawCell(doc, cols[1], y, h, c2)
-  drawCell(doc, cols[2], y, h, c3)
-  drawCell(doc, cols[3], y, h, c4)
-  drawCell(doc, cols[4], y, h, c5)
-}
-
-function drawCell(doc, col, y, h, text) {
-
-  doc
-    .rect(col.x, y, col.w, h)
-    .stroke()
-
-  doc.text(text, col.x + 5, y + 5, {
-    width: col.w - 10
-  })
-}
-
-function formatDate(date) {
-  const d = new Date(date)
-  const day = String(d.getDate()).padStart(2, "0")
-  const month = String(d.getMonth() + 1).padStart(2, "0")
-  const year = d.getFullYear()
-  return `${day}/${month}/${year}`
-}
 
 async function salesReport(req,res) {
   try {
     const {startDate, endDate, range} = req.query
     const page= Number(req.query.page)
-    const today= new Date()
-
-    if(startDate>endDate){
-      return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Start date must be before end date"})
-    }
-    let start
-    let end
-    let filter={"items.itemStatus":"Delivered"}
-    if(range){
-    if(range==="today"){
-      start= new Date()
-      start.setHours(0,0,0,0)
-
-      end= new Date()
-      end.setHours(23,59,59,999)
-    }
-    else if(range==="weekly"){
-      start= new Date()
-      start.setDate(today.getDate() -7)
-      end= today
-    }else if(range === "monthly"){
-      start= new Date(today.getFullYear(), today.getMonth(),1)
-      end= today
-    }else if(range === "yearly"){
-      start= new Date(today.getFullYear(),0,1)
-      end= today
-    }else if(range === "custom" && startDate && endDate){
-      start = new Date(startDate)
-      end = new Date(endDate)
-      end.setHours(23,59,59,999)
-    }
-    if(start && end){
-      filter.createdAt= {$gte:start, $lte:end}
-    }
-  }
-    const limit=5
-    const skip= (page-1)*limit
-    const orders= await Order.find(filter).populate("items.productId").sort({createdAt:-1}).limit(limit).skip(skip)
-    console.log("orders",orders);
-    
-    let totalSales=0
-    let totalOrders= await Order.countDocuments(filter)
-    let totalProductDiscount =0
-    let totalCouponDiscount =0
-
-    const totalPage= Math.ceil(totalOrders/limit)
-
-    const order= await Order.find({status:"Delivered"})
-
-    order.forEach((order)=>{
-      let totalAmount= order.totalAmount
-      let discountAmounts= order.discountAmount
-    order.items.forEach((item)=>{
-      if(item.itemStatus==="Delivered"){
-        totalSales+=Number(item.totalPrice ||0)
-        totalProductDiscount+=Number(item.discountAmount || 0)
-        const itemShare= item.totalPrice / totalAmount
-        const discountAmount= itemShare * discountAmounts
-        totalCouponDiscount += discountAmount
-      }
-      })
-      
-    })
-   
-    return res.status(STATUS.OK).json({
-      success:true,
-      orders,
-      totalSales,
-      totalOrders,
-      totalProductDiscount,
-      totalCouponDiscount,
-      totalPage,
-      currentPage:page
-   })
+    const result= await salesReportService(startDate, endDate, range, page)
+    return res.status(result.status).json({success:result.success,message:result.message, orders:result.orders, totalSales:result.totalSales, totalOrders:result.totalOrders, totalProductDiscount:result.totalProductDiscount, totalCouponDiscount:result.totalCouponDiscount, totalPage:result.totalPage})
  } catch (error) {
     logger.error("Error from salesReport",error)
     return res.status(STATUS.INTERNAL_SERVER_ERROR).json({success:false,message:"Internal server error"})
