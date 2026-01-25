@@ -204,19 +204,21 @@ if (!response.headers.get("content-type")?.includes("application/json")) {
 }
   const data= await response.json()
   if(data.success){
-      Swal.fire({
-      icon: "success",
-      title: "Success!",
-      text: data.message || "Your action was completed successfully.",
-      confirmButtonColor: "#3085d6"
-      });
+      Toastify({
+      text: data.message ,
+      duration: 3000,
+      gravity: "top",
+      position: "right",
+      backgroundColor:  "#4CAF50" ,
+    }).showToast();
   }else{
-      Swal.fire({
-      icon: "error",
-      title: "Oops!",
-      text: data.message || "Something went wrong. Please try again.",
-      confirmButtonColor: "#d33"
-      });
+      Toastify({
+      text: data.message ,
+      duration: 3000,
+      gravity: "top",
+      position: "right",
+      backgroundColor:  "#d33" ,
+    }).showToast();
 
   }
   } catch (error) {

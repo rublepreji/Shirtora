@@ -137,7 +137,13 @@ document.addEventListener("DOMContentLoaded", () => {
             });
             const data = await res.json();
             if (data.success) {
-                Swal.fire({ icon: "success", title: "Added to cart", timer: 1200, showConfirmButton: false });
+                Toastify({
+                text: data.message ,
+                duration: 3000,
+                gravity: "top",
+                position: "right",
+                backgroundColor:  "#4CAF50" ,
+    }).showToast();
             } else {
                 Swal.fire("Error", data.message || "Failed", "error");
             }
