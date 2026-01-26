@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Furnicraft - Sales Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { height: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #d1d1d1; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <div class="flex min-h-screen">
+        <aside class="w-64 bg-white shadow-sm border-r border-gray-100 hidden md:block sticky top-0 h-screen p-6">
+            <%-include("../../view/partials/admin/sideBar")%>
+        </aside>
+
+        <main class="flex-1 overflow-hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+                
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Sales Report</h2>
+
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-6">
+                    <form id="table" class="flex flex-wrap items-center gap-4">
+                        <div class="flex flex-col">
+                            <label class="text-xs font-semibold text-gray-500 mb-1">Select Range</label>
+                            <select name="range" class="border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="all">All</option>
+                                <option value="today">Today</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="monthly">Monthly</option>
+                                <option value="yearly">Yearly</option>
+                                <option value="custom">Custom</option>
+                            </select>
+                        </div>
+
+                        <div class="flex flex-col">
+                            <label class="text-xs font-semibold text-gray-500 mb-1">From</label>
+                            <input type="date" name="startDate" class="border border-gray-200 rounded-lg px-3 py-2 text-sm">
+                        </div>
+
+                        <div class="flex flex-col">
+                            <label class="text-xs font-semibold text-gray-500 mb-1">To</label>
+                            <input type="date" name="endDate" class="border border-gray-200 rounded-lg px-3 py-2 text-sm">
+                        </div>
+
+                        <div class="flex gap-2 mt-auto">
+                            <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-red-700 transition">Apply</button>
+                            <button type="button" class="bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-emerald-700 transition" id="excel">Download Excel</button>
+                            <button type="button" class="bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-red-600 transition" id="pdf">Download PDF</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                    <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                        <p class="text-xs font-medium text-gray-500 uppercase">Sales</p>
+                        <p id="totalOrders" class="text-xl font-bold mt-1"></p>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                        <p class="text-xs font-medium text-gray-500 uppercase">Total Revenue</p>
+                        <p id="totalSales" class="text-xl font-bold mt-1">₹</p> 
+                    </div>
+                    <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                        <p class="text-xs font-medium text-gray-500 uppercase">Product Discount</p>
+                        <p id="productDiscount" class="text-xl font-bold mt-1">₹</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                        <p class="text-xs font-medium text-gray-500 uppercase">Coupon Discount</p>
+                        <p id="couponDiscount" class="text-xl font-bold mt-1">₹</p>
+                    </div>
+                </div>
+
+                <div class="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto custom-scrollbar">
+                        <table class="w-full text-left">
+                            <thead class="bg-gray-50 border-b border-gray-100">
+                                <tr>
+                                    <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Order ID</th>
+                                    <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Date</th>
+                                    <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Product</th>
+                                    <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Qty</th>
+                                    <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase text-right">Net Price</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody" class="divide-y divide-gray-50">
+                               
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div id="pagination" class="mt-6 flex justify-end gap-2"></div>
+            </div>
+        </main>
+    </div>
+
+    
+
+    <script src="/js/admin/salesReport.js"></script>
+</body>
+</html>

@@ -4,7 +4,7 @@ import Order from '../model/orderSchema.js'
 async function updateStatus(orderId,newStatus) {
  try {
     await Order.findOneAndUpdate(
-        { orderId },
+        { orderId ,status:{$ne:"Cancelled"}},
         { status: newStatus },
         { new: true }
     );
@@ -14,7 +14,7 @@ async function updateStatus(orderId,newStatus) {
     console.log(error);
     return false
  }   
-}
+}  
 
 
 export {updateStatus}

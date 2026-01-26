@@ -10,8 +10,9 @@ import adminRouter from './routes/adminRouter.js';
 import { fileURLToPath } from 'url';
 import nocache from 'nocache';
 import flash from "connect-flash";
-import morgan from 'morgan';
 import User from './model/userSchema.js';
+import Cart from './model/cartSchema.js';
+import errorHandler from './middlewares/errorHandler.js';
 
 // For __dirname equivalent
 const __filename = fileURLToPath(import.meta.url);
@@ -26,7 +27,6 @@ app.use(nocache())
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 
 app.use(
   session({
@@ -51,7 +51,6 @@ app.use((req, res, next) => {
   next();
 });
 
-
 app.use(async (req, res, next) => {
   if (req.session.user) {
     const userData = await User.findById(req.session.user._id).lean();
@@ -59,6 +58,22 @@ app.use(async (req, res, next) => {
   } else {
     res.locals.user = null;
   }
+  next();
+});
+
+app.use(async (req, res, next) => {
+  try {
+    if (req.session?.user?._id) {
+      const cart = await Cart.findOne({ userId: req.session.user._id });
+      res.locals.cartCount = cart?.items?.length || 0;
+    } else {
+      res.locals.cartCount = 0;
+    }
+  } catch (err) {
+    console.log("Cart count middleware error:", err);
+    res.locals.cartCount = 0;
+  }
+
   next();
 });
 
@@ -73,7 +88,7 @@ app.set('views', [
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', userRoute);
 app.use('/admin', adminRouter);
-
+app.use(errorHandler)
 db();
 
 app.listen(process.env.PORT, () => {

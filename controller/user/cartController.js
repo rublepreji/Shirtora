@@ -1,22 +1,31 @@
-import Cart from "../../model/cartSchema.js";
-import User from "../../model/userSchema.js";
-import Product from "../../model/productSchema.js";
 import { STATUS } from "../../utils/statusCode.js";
 import {logger} from '../../logger/logger.js'
 import cartService from "../../services/userService/cartService.js";
+import Product from "../../model/productSchema.js";
+import userService from '../../services/userService/userService.js'
 
-async function addToCart(req, res) {
+async function addToCart(req,res) {
   try {
+    console.log("inside the controller");
+    
     const userId = req.session.user._id;
+    console.log(userId);
+    
+    if(!userId){
+      return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Please login to add items in cart"})
+    }
     const { productId, variantIndex, qty } = req.body;
     const quantity = Number(qty);
-    const result = await cartService.addToCartService(userId, productId, variantIndex, quantity);
+    const product= await Product.findById(productId)
+    const {offer,offerSource,orginalPrice,discountAmount,finalPrice}= await userService.offerCalculation(product,variantIndex)
+    const result = await cartService.addToCartService(userId, productId, variantIndex, quantity, finalPrice);
+
     return res.status(result.status).json({
       success: result.success,
       message: result.message
     });
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     return res.status(STATUS.INTERNAL_SERVER_ERROR).json({ success: false, message: "Internal server error" });
   }
 }

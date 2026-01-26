@@ -3,12 +3,21 @@ import Address from "../../model/addressSchema.js";
 import bcrypt from 'bcrypt'
 import * as utils from '../../utils/userUtils.js'
 import { logger } from "../../logger/logger.js";
+import Wallet from "../../model/walletSchema.js";
 
 
 
 
 async function findUserService(userId) {
     const user= await User.findOne({_id:userId})
+    let wallet= await Wallet.findOne({userId})
+    if(!wallet){
+      wallet=await Wallet.create({userId, balance:0})
+    }
+    if(!user.referralCode){
+      user.referralCode="REF" + user._id.toString().slice(-6).toUpperCase()
+      await user.save()
+    }
     return user
 }
 

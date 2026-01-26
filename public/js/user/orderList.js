@@ -1,3 +1,4 @@
+
 let currentPage = 1;
 
 async function loadOrders(page = 1, search = "") {
@@ -22,6 +23,13 @@ function renderOrders(orders) {
     }
 
     orders.forEach(order => {
+        const retryButton =order.status=='Payment Failed'?  `
+                    <button data-order-id="${order.orderId}" class="mt-2 px-3 py-1 text-sm border rounded bg-red-200 text-red-700 w-full retry-btn">
+                        Retry Payment
+                    </button>
+                `
+                : "";
+
         container.innerHTML += `
             <div class="card-border rounded p-4 mb-6">
                 <div class="flex justify-between text-sm mb-3">
@@ -38,16 +46,86 @@ function renderOrders(orders) {
                         <p class="text-xs text-gray-600">₹${order.totalAmount}</p>
                         <p class="mt-1 text-sm font-medium text-orange-600">${order.status}</p>
                     </div>
-
+                    <div class="ml-auto flex flex-col items-end">
                     <a href="/orderdetails/${order.orderId}">
                         <button class="px-3 py-1 text-sm border rounded bg-blue-200 text-blue-700">
                             View
                         </button>
                     </a>
+                    ${retryButton}
+                </div>
                 </div>
             </div>
         `;
     });
+}
+
+document.addEventListener('click',async(e)=>{
+    if(!e.target.classList.contains('retry-btn')) return ;
+    const orderId= e.target.dataset.orderId
+    await repayment(orderId)
+})
+
+async function repayment(orderId) {
+    try {
+        const res= await fetch('/retry_create_order',{
+            method:"post",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({orderId})
+        })
+        const data= await res.json()
+        if(!data.success){
+            Swal.fire("Error", "Unable to retry payment", "error");
+            return;
+        }
+        const options={
+            key:"rzp_test_Rrt6G675QSRCo6",
+            amount:data.amount,
+            currency:data.currency,
+            order_id:data.razorpayOrderId,
+
+            handler:async function (response){
+                const verifyRes= await fetch('/retry_create_payment',{
+                    method:'post',
+                    headers:{"Content-Type":"application/json"},
+                    body: JSON.stringify({
+                        orderId,
+                        razorpay_payment_id:response.razorpay_payment_id,
+                        razorpay_order_id:response.razorpay_order_id,
+                        razorpay_signature:response.razorpay_signature
+                    })
+                })
+                const data= await verifyRes.json()
+                if(data.success){
+                    window.location.href=`/ordersuccess/${orderId}`
+                }else{
+                    window.location.href=`/orderfailed/${orderId}`
+                }
+            },
+            modal:{
+                ondismiss:()=>{
+                    Swal.fire("Payment Cancelled", "You cancelled the payment", "info");
+                }
+            },
+            theme: { color: "#000000" }
+        };
+        const rzp=new Razorpay(options)
+        rzp.on("payment.failed",async function (response) {
+            console.error("Payment failed:", response.error);
+
+            Swal.fire(
+            "Payment Failed",
+            response.error.description || "Payment could not be completed",
+            "error"
+            );
+
+            window.location.href=`/orderfailed/${orderId}`
+        });
+        rzp.open()
+    } catch (error) {
+        console.error(error);
+        return Swal.fire("Error", "Something went wrong", "error");
+    }
 }
 
 function renderPagination(current, total) {

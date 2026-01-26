@@ -1,10 +1,159 @@
 import Cart from "../../model/cartSchema.js";
 import Order from "../../model/orderSchema.js";
 import Address from "../../model/addressSchema.js";
-import { STATUS } from "../../utils/statusCode.js";
+import Usercoupon from "../../model/userCouponSchema.js"
+import Coupon from "../../model/couponSchema.js";
+import Product from "../../model/productSchema.js";
+import orderService from "../adminService/orderService.js";
 import PDFDocument from "pdfkit";
 import mongoose from "mongoose";
+import userService from "../../services/userService/userService.js"
+import { STATUS } from "../../utils/statusCode.js";
+import { logger } from "../../logger/logger.js";
+import {creditWallet} from "../../services/userService/walletService.js"
+import { populate } from "dotenv";
 
+async function cancelItemService(orderId, itemIndex, userId) {
+  const session= await mongoose.startSession()
+  try {
+    session.startTransaction()
+     if(!orderId || itemIndex===undefined){
+          throw {status:STATUS.BAD_REQUEST, success:false,message:"Invalid request"}
+        }
+        const order= await Order.findOne({orderId}).session(session)
+        if(!order){
+          throw {status:STATUS.NOT_FOUND, success:false, message:"Order not found"}
+        }
+        if(order.status==="Cancelled"){
+          throw {status:STATUS.BAD_REQUEST, success:false, message:"Order is already cancelled"}
+        }
+        const item = order.items[itemIndex]
+    
+        if(!item){ 
+          throw {status:STATUS.NOT_FOUND, success:false, message:"Item not found"}
+        }
+        if(item.itemStatus==="Delivered"){
+          throw {status:STATUS.BAD_REQUEST, success:false, message:"Delivered item cannot be cancelled"}
+        }
+        if(item.itemStatus==="Return-Approved"){
+          throw {status:STATUS.BAD_REQUEST, success:false, message:"Returned item cannot be cancelled"}
+        }
+        if(item.itemStatus==="Cancelled"){
+          throw {status:STATUS.BAD_REQUEST, success:false, message:"Item already cancelled"}
+        }
+        if(item.isRefunded){
+          throw {status:STATUS.BAD_REQUEST, success:false, message:"Already Refunded"}
+        }
+        item.itemStatus="Cancelled"
+        console.log(item.productId);
+         
+        const product=await Product.findById(item.productId).session(session)
+        
+        product.variants[item.variantIndex].stock+=item.quantity
+        await product.save({session})
+    
+        order.status= await orderService.determineOrderStatusFromItems(order.items)
+        if(order.paymentStatus==="Paid" && !item.isRefunded){
+          const itemShare= item.totalPrice / order.totalAmount
+          const discountShare= order.discountAmount * itemShare
+    
+          const refundAmount= Math.round(item.totalPrice-discountShare)
+          await creditWallet({
+            userId,
+            amount:refundAmount,
+            source:"ORDER_CANCEL_REFUND",
+            orderId,
+            reason:"Cancel Item",
+            itemIndex,
+            session
+          })
+          item.isRefunded=true
+        }
+        const allItemsCancelledOrReturned= order.items.every(i=>
+          ["Cancelled","Return-Approved"].includes(i.itemStatus)
+        )
+        if(allItemsCancelledOrReturned){
+          order.paymentStatus="Refunded"
+        }
+        await order.save({session})
+        await session.commitTransaction()
+        session.endSession()
+        return {
+          status:STATUS.OK,
+          success:true,
+          message:"Item cancelled successfully"
+        }
+  } catch (error) {
+    await session.abortTransaction()
+    session.endSession()
+    logger.error("Error from cancelItemService",error)
+    return {status:STATUS.INTERNAL_SERVER_ERROR, success:false, message:error.message ||  "Something went wrong!"}
+  }
+}
+
+
+async function createFailedPaymentOrder(userId, reason, razorpayOrderId, selectedAddressIndex, paymentMethod) {
+  const session =await mongoose.startSession();
+  try {
+    let orderDocument= null
+    await session.withTransaction(async ()=>{
+      const cart= await Cart.findOne({userId}).populate({
+        path:"items.productId",
+        populate:[{path:"category"},{path:"brand"}]
+      }).session(session);
+
+      if(!cart || cart.items.length==0){
+        throw new Error("Cart is empty")
+      }
+      const validItems= cart.items.filter((pro)=>{
+        const p= pro.productId
+        if(!p) return 
+        const variant= p.variants[pro.variantIndex]
+        const isBlocked= p.isBlocked===true || p.brand.isBlocked === true || p.category.isBlocked === true
+        const isOutOfStock = !variant.stock || variant.stock<=0
+        const sufficientStock= pro.quantity <= variant.stock
+        return !isBlocked || !isOutOfStock || sufficientStock
+      })
+      const addressDoc= await Address.findOne({userId}).session(session)
+      
+      const selectedAddress= addressDoc.address[selectedAddressIndex]
+
+      if(!selectedAddress){
+        throw new Error("Invalid address selected")
+      }
+      let total=0;
+      for(const item of validItems){
+        total += item.totalPrice
+      }
+      let offerAmount=total
+      if(cart.discountAmount>0){
+        offerAmount -= cart.discountAmount
+      }
+      const customOrderId= `ORD-${Date.now().toString(36).toUpperCase()}`
+
+      const newOrder = await Order.create([{
+        orderId:customOrderId,
+        userId,
+        items:validItems,
+        totalAmount:total,
+        paymentMethod,
+        offerAmount,
+        paymentStatus:"Failed",
+        status:"Payment Failed",
+        address:selectedAddress,
+        razorpayOrderId,
+        paymentFailureReason:reason
+      }],{session})
+      orderDocument= newOrder[0]
+    })
+    await session.endSession()
+    return {success:true,order:orderDocument}
+  } catch (error) {
+    await session.endSession()
+    console.log("create failed payment order service",error.message);
+    return {success:false,message:error.message}
+  }
+}
 
 async function returnRequestService(orderId,productIndex,reason,newStatus) {
     const order = await Order.findOne({ orderId });
@@ -18,14 +167,19 @@ async function returnRequestService(orderId,productIndex,reason,newStatus) {
     return({ success: true });
 }
 
-async function cancelOrderStockUpdateService(orderId) {
-    const order= await Order.findOne({orderId}).populate("items.productId")
+async function cancelOrderStockUpdateService(orderId, session) {
+  console.log("cancel order stockupdate service");
+  
+    const order= await Order.findOne({orderId}).populate("items.productId").session(session)
+    if(order.isStockRestored) return 
     for(const item of order.items){
     const product= item.productId
     const variantIndex= item.variantIndex
     product.variants[variantIndex].stock+=item.quantity
-    await product.save()
-}
+    await product.save({session})
+  }
+order.isStockRestored=true
+await order.save({session})
 return true;
 }
 
@@ -42,16 +196,16 @@ return true;
   const doc = new PDFDocument({ margin: 50 });
 
   const itemTotal = parseFloat(order.totalAmount) || 0;
-  const shippingCharge = 0.00;
+  const Discount = order.discountAmount;
   const taxAndOthers = 0.00;
-  const grandTotal = itemTotal + shippingCharge + taxAndOthers;
+  const grandTotal = itemTotal - order.discountAmount;
 
-  // ---------- PAGE DIMENSIONS ----------
+  // Page dimension
   const pageMargin = 50;
   const pageWidth = 612;
   const contentWidth = pageWidth - (2 * pageMargin);
 
-  // ---------- HEADER ----------
+  // Header
   doc.fontSize(28)
     .fillColor("#333333")
     .text("SHIRTORA", pageMargin, 60, { align: "left" });
@@ -61,7 +215,7 @@ return true;
 
   doc.moveDown(3);
 
-  // ---------- SHIPPING DETAILS ----------
+  // shipping details
   let currentY = doc.y;
 
   doc.fontSize(14)
@@ -80,7 +234,7 @@ return true;
     doc.text("Address not available");
   }
 
-  // ---------- ORDER INFO (Right Side) ----------
+  //Order info
   const orderDetailsX = pageMargin + contentWidth / 2;
   doc.y = currentY;
 
@@ -96,7 +250,7 @@ return true;
 
   doc.moveDown(4);
 
-  // ---------- TABLE HEADER ----------
+  // Table header
   const tableTop = doc.y;
   const col1X = pageMargin;
   const col2X = pageMargin + 300;
@@ -125,7 +279,7 @@ return true;
   let itemY = itemsStart + 10;
   doc.font("Helvetica");
 
-  // ---------- TABLE BODY ----------
+  // Table body
   order.items.forEach((item, i) => {
     if (itemY + 30 > doc.page.height - pageMargin) {
       doc.addPage();
@@ -137,7 +291,7 @@ return true;
         .text(`${i + 1}. PRODUCT REMOVED`, col1X, itemY);
     } else {
       const variant = item.productId.variants[item.variantIndex];
-      const price = variant ? parseFloat(variant.price) : 0;
+      const price =item.pricePerUnit
       const variantName = variant?.name || `Index: ${item.variantIndex}`;
 
       doc.fontSize(10)
@@ -155,7 +309,7 @@ return true;
     doc.y = itemY;
   });
 
-  // ---------- SUMMARY ----------
+  // Summary
   doc.moveDown(2);
   let summaryY = doc.y;
 
@@ -174,8 +328,8 @@ return true;
 
   summaryY += 15;
 
-  doc.text("Shipping Charge:", summaryLabelX, summaryY)
-    .text(`₹${shippingCharge.toFixed(2)}`, summaryValueX, summaryY);
+  doc.text("Discount:", summaryLabelX, summaryY)
+    .text(`₹${Discount.toFixed(2)}`, summaryValueX, summaryY);
 
   summaryY += 15;
 
@@ -198,7 +352,7 @@ return true;
 
   doc.moveDown(3);
 
-  // ---------- FOOTER ----------
+  // Footer
   doc.fontSize(10)
     .fillColor("#555555")
     .text("Thank you for your order!", pageMargin, doc.y, { align: "center" });
@@ -251,103 +405,248 @@ async function getOrderDetailsService(orderId) {
 }
 
 
-async function placeOrderService(userId,selectedAddressIndex,paymentMethod) { 
+async function placeOrderService(userId, selectedAddressIndex, paymentMethod, razorpayData = null) { 
     const session = await mongoose.startSession();
-    try { let orderDocument = null;
-        
-    await session.withTransaction(async () => {
-    const cart = await Cart.findOne({ userId }) .populate("items.productId") .session(session); if (!cart || cart.items.length === 0) { throw new Error("Cart is empty"); }
-    const validItems=cart.items.filter((pro)=>{ return pro.productId.isBlocked==false })
+    try { 
+        let orderDocument = null;
+        await session.withTransaction(async () => {
 
-    const addressDoc = await Address.findOne({ userId }).session(session);
-    const selectedAddress = addressDoc.address[selectedAddressIndex];
-    if (!selectedAddress) { 
-    throw new Error("Invalid address selected");
-    } 
-    let total = 0; for (const item of validItems) { 
-    total += item.totalPrice; 
-} 
-    for (const item of validItems) {
-        const product = item.productId;
-        const variantIndex = item.variantIndex;
-        const qty = item.quantity;
-    if (product.variants[variantIndex].stock < qty) {
-        throw new Error(`${product.productName} is out of stock`);
-        } 
-    }
-    for (const item of validItems) {
-        const product = item.productId;
-        const variantIndex = item.variantIndex;
-        const qty = item.quantity;
-        product.variants[variantIndex].stock -= qty;
-        await product.save({ session }); 
-    } 
-    const customOrderId =`ORD-${Date.now().toString(36).toUpperCase()}`;
-        const newOrder = await Order.create( [ { orderId: customOrderId, userId, items: cart.items, totalAmount: total, paymentMethod, address: selectedAddress, status: "Pending", }, ], { session } );
-        await Cart.updateOne( { userId }, { $set: { items: [] } }, { session } ); orderDocument= newOrder[0] });
-        await session.endSession()
-        return {success:true,order:orderDocument}
-        }catch (error) { 
-        await session.abortTransaction().catch(() => {});
+            const cart = await Cart.findOne({ userId })
+              .populate("items.productId")
+              .session(session); 
+            
+            if (!cart || cart.items.length === 0){ 
+              throw new Error("Cart is empty"); 
+            }
+            
+            const validItems = cart.items.filter((pro) => {
+              const p= pro.productId
+              if(!p) return false  
+              const variant = p.variants[pro.variantIndex]
+
+              const isBlocked= p.isBlocked === true || p?.brand?.isBlocked===true || p?.category?.isBlocked===true;
+              const stockAvailable= !variant.stock || variant.stock<=0
+              const sufficientStock= variant.stock >= pro.quantity
+
+              return !isBlocked && !stockAvailable && sufficientStock
+            });
+
+            if(validItems.length==0){
+              throw new Error("No valid items avaliable to order")
+            }
+
+            const addressDoc = await Address.findOne({ userId }).session(session);
+            const selectedAddress = addressDoc.address[selectedAddressIndex];
+            if (!selectedAddress) { 
+              throw new Error("Invalid address selected");
+            } 
+             
+            // Stock validation
+            for (const item of validItems) {
+              const product = item.productId;
+              const variantIndex = item.variantIndex;
+              const qty = item.quantity;
+              if (product.variants[variantIndex].stock < qty) {
+                throw new Error(`${product.productName} is out of stock`);
+              } 
+            }
+            
+            // Deduct stock
+            for (const item of validItems) {
+              const product = item.productId;
+              const variantIndex = item.variantIndex;
+              const qty = item.quantity;
+              product.variants[variantIndex].stock -= qty;
+              await product.save({ session }); 
+            } 
+            
+            const customOrderId = `ORD-${Date.now().toString(36).toUpperCase()}`;
+            
+            let orderStatus = "Pending";
+            let paymentStatus = "Pending";
+            
+            if (paymentMethod === "COD") {
+              orderStatus = "Pending";
+              paymentStatus = "Pending";
+            } else if (paymentMethod === "UPI" && razorpayData) {
+              orderStatus = "Pending";
+              paymentStatus = "Paid";
+            }
+            
+            const orderItems=[] 
+
+            for (const item of validItems) {
+
+              const product = item.productId
+
+              const offerData = await userService.offerCalculation(product, item.variantIndex)
+
+              const originalPrice = offerData.orginalPrice
+              const discountAmount = offerData.discountAmount
+              const finalPrice = offerData.finalPrice
+
+              orderItems.push({
+                productId: product._id,
+                variantIndex: item.variantIndex,
+                quantity: item.quantity,
+                pricePerUnit:finalPrice,
+                originalPrice,
+                discountAmount,
+                finalPrice,
+                offerSource: offerData.offerSource,
+                totalPrice: finalPrice * item.quantity
+              })
+            }
+
+             let total = 0; 
+             let totalDiscount=0
+            for (const item of orderItems) { 
+              total += item.totalPrice; 
+              totalDiscount+=item.discountAmount * item.quantity
+            }
+
+            let offerAmount=total
+            if(cart.discountAmount>0){
+              offerAmount-=cart.discountAmount
+            }
+
+            if(paymentMethod === "COD" && offerAmount > 1000){
+              throw new Error("COD not allowed for orders above ₹1000");
+            }
+
+            const newOrder = await Order.create([{
+              orderId: customOrderId,
+              userId,
+              items: orderItems,
+              totalAmount: total,
+              offerAmount,
+              discountAmount:cart.discountAmount,
+              totalOffer:totalDiscount,
+              paymentMethod,
+              paymentStatus,
+              address: selectedAddress,
+              status: orderStatus,
+              razorpayOrderId: razorpayData?.razorpay_order_id || null,
+              razorpayPaymentId: razorpayData?.razorpay_payment_id || null,
+              razorpaySignature: razorpayData?.razorpay_signature || null,
+            }], { session });
+            
+            await Cart.updateOne(
+              { userId }, 
+              { $set: { items: [] } }, 
+              { session }
+            ); 
+            
+          orderDocument = newOrder[0];
+        });
+        
         await session.endSession();
-        return {success:false,message:error.message}
+        return { success: true, order: orderDocument };
+        
+    } catch (error) { 
+      await session.abortTransaction().catch(() => {});
+      await session.endSession();
+      return { success: false, message: error.message };
     } 
 }
 
 async function loadCheckoutService(userId) {
+  try {
     const cart = await Cart.findOne({ userId })
-      .populate({
-        path: "items.productId",
-        populate: [{ path: "category" }, { path: "brand" }]
-      })
-      .lean();
+    .populate({
+      path: "items.productId",
+      populate: [{ path: "category" }, { path: "brand" }]
+    })
+    .lean();
 
-    const addressDoc = await Address.findOne({ userId }).lean();
-    const addresses = addressDoc ? addressDoc.address : [];
-    const defaultAddress = addresses.find(a => a.isDefault === true);
+  const addressDoc = await Address.findOne({ userId }).lean();
+  const addresses = addressDoc ? addressDoc.address : [];
+  const defaultAddress = addresses.find(a => a.isDefault === true);
 
-    if (!cart || cart.items.length === 0) {
-      return {
-        cartItems: [],
-        addresses,
-        subtotal: 0,
-        grandTotal: 0,
-        defaultAddress
-    };
-  }
-
-  const filteredProducts = cart.items.filter((product) => {
-    return product.productId.isBlocked === false;
-  });
-
-  if (filteredProducts.length === 0) {
-  return {
-    cartItems: [],
-    addresses,
-    subtotal: 0,
-    grandTotal: 0,
-    defaultAddress,
-    message: "Some products were unavailable and removed from your cart."
+  if (!cart || cart.items.length === 0) {
+    return {
+      cartItems: [],
+      addresses,
+      subtotal: 0,
+      grandTotal: 0,
+      defaultAddress
   };
 }
 
-  let subtotal = 0;
-  filteredProducts.forEach(item => {
-    subtotal += item.productId.variants[item.variantIndex].price * item.quantity;
-  });
+const filteredProducts = cart.items.filter((product) => {
+  const p= product.productId
+  if(!p) return false
+  const variant=p.variants[product.variantIndex]
 
-  const grandTotal = subtotal;
-  return {
-    cartItems:filteredProducts,
-    addresses,
-    subtotal,
-    grandTotal,
-    defaultAddress
+  const isBlocked= p?.isBlocked===true || p?.brand?.isBlocked===true || p?.category?.isBlocked===true
+  const isOutOfStock= !variant.stock || variant.stock<=0
+  const sufficientStock= product.quantity <= p.variants[product.variantIndex].stock
+  return !isBlocked && !isOutOfStock && sufficientStock
+});
+
+if (filteredProducts.length === 0) {
+return {
+  cartItems: [],
+  addresses,
+  subtotal: 0,
+  grandTotal: 0,
+  defaultAddress,
+  message: "Some products were unavailable and removed from your cart."
+};
+}
+
+let subtotal = 0;
+filteredProducts.forEach(item => {
+  subtotal += item.pricePerUnit * item.quantity;
+});
+
+const grandTotal = subtotal;
+
+const today= new Date()
+
+const coupons= await Coupon.find({
+  isActive:true,
+  expireOn:{$gte:today},
+  minimumPrice:{$lte:grandTotal},
+  $expr:{
+    $lt:["$usedCount","$totalUsageLimit"]
+  }
+})
+
+const usedCoupons= await Usercoupon.find({userId})
+
+const applicable= coupons.filter((item)=>{
+  const user= usedCoupons.find(items=>String(items.couponId)===String(item._id))
+  return !user || user.usedCount<item.usageLimitPerUser
+})
+
+await Cart.updateOne({userId},{$set:{discountAmount:0}})
+
+return {
+  cartItems:filteredProducts,
+  addresses,
+  subtotal,
+  grandTotal,
+  defaultAddress,
+  coupons:applicable
+}
+} catch (error) {
+    return error
   }
 }
 
 
-export default{placeOrderService,returnRequestService,cancelOrderStockUpdateService,downloadInvoiceService,loadOrderListService,getOrderDetailsService,loadCheckoutService}
+export default{
+  placeOrderService,
+  returnRequestService,
+  cancelOrderStockUpdateService,
+  downloadInvoiceService,
+  loadOrderListService,
+  getOrderDetailsService,
+  loadCheckoutService,
+  createFailedPaymentOrder,
+  cancelItemService
+}
 
 
 

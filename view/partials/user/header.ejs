@@ -26,12 +26,10 @@
         class="bg-black text-white text-sm flex flex-col md:flex-row justify-between items-center py-2 px-5 text-center gap-2 md:gap-0"
       >
         <p class="font-normal">
-          Summer Sale For All merch And Free Express Delivery - OFF 10%!
-          <a href="#" class="underline ml-1 cursor-pointer">ShopNow</a>
+          
         </p>
         <div class="flex items-center gap-1 cursor-pointer select-none">
-          <span>English</span>
-          <span class="text-xs">&#9662;</span>
+         
         </div>
       </div>
 
@@ -42,7 +40,7 @@
         >
           <!-- Logo -->
           <div class="flex-shrink-0">
-            <img src="./img/Logo.png" alt="Shirtora Logo" class="h-12 w-auto" />
+            <img src="/img/Logo.png" alt="Shirtora Logo" class="h-12 w-auto" />
           </div>
 
           <!-- Desktop Nav Links -->
@@ -51,11 +49,6 @@
               href="/"
               class="text-black font-medium text-base border-b-2 border-transparent hover:border-black pb-1 transition-all"
               >Home</a
-            >
-            <a
-              href="/contact"
-              class="text-black font-medium text-base border-b-2 border-transparent hover:border-black pb-1 transition-all"
-              >Contact</a
             >
             <a
               href="/about"
@@ -106,13 +99,20 @@
             <a href="/wishlist"
               class="fa-regular fa-heart text-xl text-gray-700 hover:text-black cursor-pointer transition"
             ></a>
-            <a href="/cart">
-            <button
-              class="text-xl text-gray-700 hover:text-black cursor-pointer transition"
-            >
-              🛒
-            </button>
-            </a>
+           <a href="/cart" class="relative inline-block">
+          <span class="text-xl text-gray-700 hover:text-black transition">
+            🛒
+          </span>
+
+          <% if(cartCount > 0){ %>
+            <span 
+              class="absolute -top-2 -right-3 bg-red-600 text-white text-xs font-semibold
+                    rounded-full px-2 py-0.5">
+              <%= cartCount %>
+            </span>
+          <% } %>
+        </a>
+
           </div>
 
           <!-- Mobile Menu Button -->

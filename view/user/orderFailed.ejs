@@ -21,75 +21,109 @@
 </head>
 <body>
 
-    <!-- Main Container - Centers content and limits maximum width -->
     <div class="w-full max-w-lg mx-auto">
-
-        <!-- Payment Failed Card -->
         <div class="bg-white rounded-lg p-6 sm:p-10 shadow-lg border border-gray-200">
             <div class="flex flex-col items-center text-center">
                 
-                <!-- Failure X Icon (Red Circle) -->
                 <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-red-600 flex items-center justify-center mb-6">
                     <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <!-- X Mark path -->
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </div>
                 
                 <h1 class="text-xl sm:text-2xl font-semibold text-red-700 mb-4">Payment Failed</h1>
                 
-                <!-- Error Message -->
                 <p class="text-gray-600 mb-8 max-w-sm">
                     Your transaction could not be processed. Please check your payment details or try a different method.
                 </p>
 
-                <!-- Order Details Section -->
                 <div class="w-full text-left space-y-3 mb-6">
                     
-                    <!-- Detail Row: Order ID -->
                     <div class="flex justify-between text-sm sm:text-base">
                         <span class="text-gray-500">Order ID</span>
-                        <span class="font-medium text-gray-800">000085752257</span>
+                        <span class="font-medium text-gray-800"><%=order.orderId%></span>
                     </div>
 
-                    <!-- Detail Row: Date -->
                     <div class="flex justify-between text-sm sm:text-base">
                         <span class="text-gray-500">Date</span>
-                        <span class="font-medium text-gray-800">Feb 01, 2025</span>
+                        <span class="font-medium text-gray-800"><%=startDate%></span>
                     </div>
 
-                    <!-- Detail Row: Time -->
-                    <div class="flex justify-between text-sm sm:text-base">
-                        <span class="text-gray-500">Time</span>
-                        <span class="font-medium text-gray-800">07:20 PM</span>
-                    </div>
-
-                    <!-- Detail Row: Payment Method -->
                     <div class="flex justify-between text-sm sm:text-base">
                         <span class="text-gray-500">Payment Method</span>
-                        <span class="font-medium text-gray-800">Credit Card</span>
+                        <span class="font-medium text-gray-800"><%=order.paymentMethod%></span>
                     </div>
 
-                    <!-- Detail Row: Amount -->
                     <div class="flex justify-between text-sm sm:text-base">
                         <span class="text-gray-500">Amount</span>
-                        <span class="font-bold text-gray-900">IDR 10,248</span>
+                        <span class="font-bold text-gray-900">₹<%=order.offerAmount%></span>
                     </div>
 
                 </div>
             </div>
         </div>
 
-        <!-- Action Buttons (Now only the Back button) -->
         <div class="flex justify-center mt-8">
-            
-            <!-- Back Button (Black, uses JavaScript history to go back) -->
+            <button 
+                onclick="retryPayment('<%= order.orderId %>')" 
+                class="bg-black text-white px-5 py-2 rounded">
+                Retry Payment
+            </button>
             <button onclick="history.back()" class="w-full sm:w-auto px-12 py-3 text-white bg-black hover:bg-gray-800 font-medium rounded-md transition duration-200 shadow-lg">
                 Back
             </button>
-            
         </div>
-
     </div>
+    
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+async function retryPayment(orderId){
+  const res = await fetch("/retry_create_order",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({orderId})
+  })
+
+  const data = await res.json()
+
+  if(!data.success){
+    return Swal.fire("Error",data.message || "Unable to retry","error")
+  }
+
+  const options = {
+    key: "rzp_test_Rrt6G675QSRCo6",
+    amount: data.amount,
+    currency: data.currency,
+    name: "Your Store",
+    description: "Retry Payment",
+    order_id: data.razorpayOrderId,
+
+    handler: async function (response) {
+
+      const verify = await fetch("/retry_create_payment",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+          orderId,
+          razorpay_payment_id: response.razorpay_payment_id,
+          razorpay_order_id: response.razorpay_order_id,
+          razorpay_signature: response.razorpay_signature
+        })
+      })
+
+      const result = await verify.json()
+
+      if(result.success){
+        window.location.href = "/ordersuccess/" + orderId
+    }else{
+        Swal.fire("Failed",result.message || "Verification failed","error")
+      }
+    }
+  }
+
+  new Razorpay(options).open()
+}
+</script>
+
 </body>
 </html>

@@ -3,20 +3,24 @@ import Cart from "../../model/cartSchema.js";
 import User from "../../model/userSchema.js";
 import { STATUS } from "../../utils/statusCode.js";
 
-async function addToCartService(userId, productId, variantIndex, quantity) {
+async function addToCartService(userId, productId, variantIndex, quantity, finalPrice) {
+  console.log("Inside the service");
+  if(!userId){
+    return {status:STATUS.BAD_REQUEST,success:false,message:"Please login!"}
+  }
   
   const product = await Product.findById(productId);
   if (!product) {
-    return { success: false, status: 404, message: "Product not found" };
+    return { success: false, status: STATUS.NOT_FOUND, message: "Product not found" };
   }
 
   if (product.isBlocked) {
-    return { success: false, status: 400, message: "This product is currently unavailable" };
+    return { success: false, status: STATUS.NOT_FOUND, message: "This product is currently unavailable" };
   }
 
   const variant = product.variants[variantIndex];
   if (!variant) {
-    return { success: false, status: 400, message: "Invalid variant" };
+    return { success: false, status: STATUS.NOT_FOUND, message: "Invalid variant" };
   }
 
   const stock = variant.stock;
@@ -48,9 +52,9 @@ async function addToCartService(userId, productId, variantIndex, quantity) {
     }
 
     existing.quantity += quantity;
-    existing.totalPrice = existing.quantity * variant.price;
+    existing.pricePerUnit= finalPrice
+    existing.totalPrice = existing.quantity * finalPrice;
   } else {
-    // New item
     if (quantity > stock) {
       return { success: false, status: 400, message: `Only ${stock} available` };
     }
@@ -59,7 +63,8 @@ async function addToCartService(userId, productId, variantIndex, quantity) {
       productId,
       variantIndex: vIndex,
       quantity,
-      totalPrice: quantity * variant.price
+      pricePerUnit:finalPrice,
+      totalPrice: quantity * finalPrice
     });
   }
 
@@ -110,7 +115,7 @@ async function addToCartService(userId, productId, variantIndex, quantity) {
 
   // Update quantity
   item.quantity = qty;
-  item.totalPrice = qty * product.variants[variantIndex].price;
+  item.totalPrice = qty * item.pricePerUnit;
 
   await cart.save();
 
@@ -144,7 +149,7 @@ async function loadCartService(userId) {
         path: "items.productId",
         populate: [
           { path: "category", select: "name isBlocked" },
-          { path: "brand", select: "name isBlocked" }
+          { path: "brand", select: "brandName isBlocked" }
         ]
       })
       .sort({ createdAt: -1 })
@@ -156,24 +161,26 @@ async function loadCartService(userId) {
         grandTotal: 0
       };
     }
-
+    
     const products = [];
 
     for (let item of cart.items) {
-      const p = item.productId;
+      const p = item.productId;      
       if (!p) continue;
 
       const variant = p.variants[item.variantIndex];
       if (!variant) continue;
 
       const isBlocked =
-        p.isBlocked === true ||
+        p?.isBlocked===true ||
         p?.brand?.isBlocked === true ||
-        p?.category?.isBlocked === true;
+        p?.category?.isBlocked === true; 
 
-      if (isBlocked) continue;  
+      const stockNotAvailable= item.quantity > p.variants[item.variantIndex].stock
 
-      const totalPrice = variant.price * item.quantity;
+      const isOutStock= !variant.stock || variant.stock <=0
+      const isUnavailable= isOutStock || isBlocked || stockNotAvailable
+      const totalPrice = item.totalPrice;
 
       products.push({
         _id: item._id,
@@ -181,12 +188,18 @@ async function loadCartService(userId) {
         productName: p.productName,
         productImage: p.productImage,
         variantIndex: item.variantIndex,
+        isBlocked,
+        isUnavailable,
+        stockNotAvailable,
         variant,
         quantity: item.quantity,
+        pricePerUnit:item.pricePerUnit,
         totalPrice
       });
     }
-    const grandTotal = products.reduce((sum, item) => sum + item.totalPrice, 0);
+    const grandTotal = products.reduce((sum, item) =>{ 
+      return item.isUnavailable? sum: sum + item.totalPrice
+    }, 0);
     return {products,grandTotal}
 }
 

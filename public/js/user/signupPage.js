@@ -11,7 +11,7 @@
         const error5=document.getElementById('error5')
         const error6=document.getElementById('error6')
         const error7=document.getElementById('error7')
-        const formSubmitId=document.getElementById('formSubmit')
+        const formSubmitId=document.getElementById('signupForm')
 
         function firstNameValidateChecking(){
             let firstNameVal= firstNameId.value
@@ -139,3 +139,59 @@
                     e.preventDefault()
                 }
             })
+
+
+const togglePass = document.getElementById('togglePass')
+const toggleCPass = document.getElementById('toggleCPass')
+
+togglePass.addEventListener('click', () => {
+  const icon = togglePass.querySelector("i")
+
+  if (passwordId.type === "password") {
+    passwordId.type = "text"
+    icon.classList.replace("fa-eye-slash", "fa-eye")
+  } else {
+    passwordId.type = "password"
+    icon.classList.replace("fa-eye", "fa-eye-slash")
+  }
+})
+
+toggleCPass.addEventListener('click', () => {
+  const icon = toggleCPass.querySelector("i")
+
+  if (cPassId.type === "password") {
+    cPassId.type = "text"
+    icon.classList.replace("fa-eye-slash", "fa-eye")
+  } else {
+    cPassId.type = "password"
+    icon.classList.replace("fa-eye", "fa-eye-slash")
+  }
+})
+
+
+// live validation
+
+firstNameId.addEventListener("input", () => {
+  if (firstNameValidateChecking()) error1.style.display = "none"
+})
+
+lastNameId.addEventListener("input", () => {
+  if (lastNameValidateChecking()) error2.style.display = "none"
+})
+
+phoneId.addEventListener("input", () => {
+  if (phoneValidateChecking()) error3.style.display = "none"
+})
+
+emailId.addEventListener("input", () => {
+  if (emailValidateChecking()) error4.style.display = "none"
+})
+
+passwordId.addEventListener("input", () => {
+  if (passwordValidateChecking()) error5.style.display = "none"
+})
+
+cPassId.addEventListener("input", () => {
+  if (confirmPasswordChecking()) error6.style.display = "none"
+})
+

@@ -18,7 +18,7 @@ async function dataForProductPage(req,res) {
     res.status(STATUS.OK).json({
       success:true,
       data:result.productData,
-      totalProduct:result.totalProduct,
+      totalProduct:result.totalProduct, 
       totalpages:result.totalpages,
       currentPage:page,
     })
@@ -54,11 +54,10 @@ async function unblockProduct(req,res) {
     }
   } catch (error) {
     console.log(error);
-    
     return res.status(STATUS.INTERNAL_SERVER_ERROR).json({success:false,message:"Internal server error"})
   }
 }
-
+  
 async function imageChanges(req,res) {
   try {    
     const {productId, imageIndex}= req.body    

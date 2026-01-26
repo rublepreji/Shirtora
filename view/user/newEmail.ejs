@@ -67,3 +67,47 @@
     <script src="/js/user/newEmail.js"></script>
 </body>
 </html>
+
+<script>
+    function validateSmoothForm() {
+
+  const newEmail = document.getElementById("new-email")
+  const confirmEmail = document.getElementById("confirm-email")
+  const errorText = document.getElementById("error-text")
+
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+  // Reset error
+  errorText.classList.add("hidden")
+  errorText.classList.remove("opacity-100")
+
+  // Empty check
+  if (!newEmail.value.trim() || !confirmEmail.value.trim()) {
+    showError("Both fields are required")
+    return false
+  }
+
+  // Email format validation
+  if (!emailPattern.test(newEmail.value)) {
+    showError("Please enter a valid email address")
+    return false
+  }
+
+  // Match validation
+  if (newEmail.value !== confirmEmail.value) {
+    showError("Emails do not match")
+    return false
+  }
+
+  return true
+}
+
+function showError(message) {
+  const errorText = document.getElementById("error-text")
+
+  errorText.textContent = message
+  errorText.classList.remove("hidden")
+  errorText.classList.add("opacity-100")
+}
+
+</script>

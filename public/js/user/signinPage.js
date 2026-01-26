@@ -37,3 +37,17 @@
                 e.preventDefault()
             }
         })
+
+const togglePass = document.getElementById('togglePass')
+
+togglePass.addEventListener('click', () => {
+  const icon = togglePass.querySelector("i")
+
+  if (password.type === "password") {
+    password.type = "text"
+    icon.classList.replace("fa-eye-slash","fa-eye")
+  } else {
+    password.type = "password"
+    icon.classList.replace("fa-eye","fa-eye-slash")
+  }
+})

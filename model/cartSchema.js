@@ -23,26 +23,30 @@ const cartSchema = new mongoose.Schema({
                 type: Number,
                 default: 1
             },
-
             totalPrice: {
                 type: Number,
                 required: true
             },
-
+            pricePerUnit: { 
+                type: Number,
+                required: true
+            },
             status: {
                 type: String,
                 default: "placed"
-            },
-
-            cancellationReason: {
-                type: String,
-                default: "none"
             }
         }
     ],
     grandTotal: {
         type: Number,
         default: 0
+    },
+    discountAmount:{
+        type:Number,
+        default:0
+    },
+    appliedCoupon:{
+        type:String
     }
 }, { timestamps: true });
 

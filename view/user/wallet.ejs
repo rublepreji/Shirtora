@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Account - Wallet</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #ffffff;
+        }
+        .main-content {
+            min-height: 100vh;
+        }
+        .status-credit {
+            background-color: #DEF7EC;
+            color: #03543F;
+        }
+        .status-debit {
+            background-color: #FDE8E8;
+            color: #9B1C1C;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+    <div class="flex flex-col md:flex-row">
+        
+        <!-- Sidebar Placeholder (Representing your partial) -->
+        <%-include("../../view/partials/user/sideBar")%>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 p-4 sm:p-8 lg:p-12 main-content">
+            
+            <!-- Breadcrumbs -->
+            <div class="mb-8 text-sm text-gray-500">
+                <a href="/" class="hover:text-black">Home</a> / <span class="text-black font-medium">My Wallet</span>
+            </div>
+
+            <div class="max-w-5xl mx-auto">
+                
+                <!-- Wallet Overview Cards -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
+                    
+                    <!-- Balance Card -->
+                    <div class="lg:col-span-2 bg-black rounded-2xl p-8 text-white flex flex-col justify-between shadow-xl relative overflow-hidden">
+                        <div class="relative z-10">
+                            <p class="text-gray-400 text-sm font-medium mb-1 uppercase tracking-wider">Current Balance</p>
+                            <h2 class="text-4xl sm:text-5xl font-bold mb-8">₹<%=balance%></h2>
+                            
+                            <div class="flex space-x-4">
+                                <button onclick="openAddMoney()" class="bg-white text-black px-6 py-2.5 rounded-lg text-sm font-bold">
+                                <i class="fas fa-plus mr-2"></i>Add Money
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Abstract Design Element -->
+                        <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-white/5 rounded-full blur-3xl"></div>
+                        <div class="absolute right-10 top-10 text-white/20 text-6xl">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transaction History Section -->
+                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                    <div class="p-6 sm:p-8 border-b border-gray-50">
+                        <h3 class="text-xl font-bold text-black">Transaction History</h3>
+                        <p class="text-sm text-gray-500 mt-1">Monitor your credits and debits</p>
+                    </div>
+
+                    <div class="overflow-x-auto custom-scrollbar">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50/50">
+                                    <th class="py-4 px-6 text-xs font-bold text-gray-400 uppercase tracking-widest">Source</th>
+                                    <th class="py-4 px-6 text-xs font-bold text-gray-400 uppercase tracking-widest">Date</th>
+                                    <th class="py-4 px-6 text-xs font-bold text-gray-400 uppercase tracking-widest">Type</th>
+                                    <th class="py-4 px-6 text-xs font-bold text-gray-400 uppercase tracking-widest text-right">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody id="walletBody" class="divide-y divide-gray-50">
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="walletPagination" class="flex justify-center gap-2 mt-6"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+<script src="/js/user/wallet.js"></script>
+    <script>
+        let addMoneyAmount=0
+async function openAddMoney(){
+    const { value: amount } = await Swal.fire({
+      title: "Add Money to Wallet",
+      input: "number",
+      inputLabel: "Enter amount (₹)",
+      inputPlaceholder: "Eg: 500",
+      confirmButtonText: "Proceed",
+      showCancelButton: true,
+      cancelButtonText: "Cancel",
+
+      inputValidator: (value) => {
+         if (!value || value <= 0) {
+            return "Please enter a valid amount";
+         }
+      }
+   });
+   if(!amount)return
+    addMoneyAmount=Number(amount)
+
+   // call backend to create Razorpay order
+   const res = await fetch('/wallet/create-order',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({amount:addMoneyAmount})
+   });
+
+   const data = await res.json();
+
+   openRazorpayPayment(data);
+}
+</script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+function openRazorpayPayment(order){
+
+ var options = {
+    key: order.key,
+    amount: order.amount * 100,
+    currency: "INR",
+    name: "My Wallet",
+    description: "Add Money",
+    order_id: order.orderId,
+
+    handler: async function (response){
+        response.amount=addMoneyAmount
+        await fetch("/wallet/payment-success",{
+            method:"POST",
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify(response)
+        });
+
+        Swal.fire({
+   title: "Payment Successful 🎉",
+   text: `₹${addMoneyAmount} has been added to your wallet`,
+   icon: "success",
+   confirmButtonText: "OK"
+}).then(() => {
+   location.reload();
+});
+    }
+ };
+
+ var rzp1 = new Razorpay(options);
+ rzp1.open();
+}
+</script>
+
+</body>
+</html>

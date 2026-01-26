@@ -4,19 +4,55 @@
     <img src="" alt="">
     <div class="p-6 text-2xl font-bold tracking-wide">SHIRTORA</div>
     <nav class="mt-4 space-y-1">
-      <a href="/admin" class="block px-6 py-3 text-gray-700 hover:bg-indigo-100 rounded-md font-medium bg-indigo-100">Dashboard</a>
-      <a href="/admin/product" class="block px-6 py-3 text-gray-700 hover:bg-indigo-100 rounded-md">Products</a>
-      <a href="/admin/orderlist" class="block px-6 py-3 text-gray-700 hover:bg-indigo-100 rounded-md">Order Lists</a>
-      <a href="/admin/users" class="block px-6 py-3 text-gray-700 hover:bg-indigo-100 rounded-md">Users</a>
-      <a href="#" class="block px-6 py-3 text-gray-700 hover:bg-indigo-100 rounded-md">Sales Report</a>
-      <a href="#" class="block px-6 py-3 text-gray-700 hover:bg-indigo-100 rounded-md">Coupons</a>
-      <a href="/admin/category" class="block px-6 py-3 text-gray-700 hover:bg-indigo-100 rounded-md">Category</a>
-      <a href="/admin/brand" class="block px-6 py-3 text-gray-700 hover:bg-indigo-100 rounded-md">Brand</a>
-      <a href="#" class="block px-6 py-3 text-gray-700 hover:bg-indigo-100 rounded-md">Offer</a>
-      <a href="#" class="block px-6 py-3 text-gray-700 hover:bg-indigo-100 rounded-md">Settings</a>
+      <a href="/admin" class="sidebar-link block px-6 py-3 text-gray-700 hover:bg-indigo-100 rounded-md font-medium">
+  Dashboard
+</a>
+
+<a href="/admin/product" class="sidebar-link block px-6 py-3 text-gray-700 hover:bg-indigo-100 rounded-md">
+  Products
+</a>
+
+<a href="/admin/orderlist" class="sidebar-link block px-6 py-3 text-gray-700 hover:bg-indigo-100 rounded-md">
+  Order Lists
+</a>
+
+<a href="/admin/users" class="sidebar-link block px-6 py-3 text-gray-700 hover:bg-indigo-100 rounded-md">
+  Users
+</a>
+
+<a href="/admin/salesreport" class="sidebar-link block px-6 py-3 text-gray-700 hover:bg-indigo-100 rounded-md">
+  Sales Report
+</a>
+
+<a href="/admin/coupon" class="sidebar-link block px-6 py-3 text-gray-700 hover:bg-indigo-100 rounded-md">
+  Coupons
+</a>
+
+<a href="/admin/category" class="sidebar-link block px-6 py-3 text-gray-700 hover:bg-indigo-100 rounded-md">
+  Category
+</a>
+
+<a href="/admin/brand" class="sidebar-brand block px-6 py-3 text-gray-700 hover:bg-indigo-100 rounded-md">
+  Brand
+</a>
+
+<a href="/admin/offerlist" class="sidebar-link block px-6 py-3 text-gray-700 hover:bg-indigo-100 rounded-md">
+  Offer
+</a>
+
     </nav>
   </div>
   <div class="mb-6">
     <a href="/admin/adminlogout" class="block px-6 py-3 text-red-600 hover:bg-red-50 rounded-md font-medium">Logout</a>
   </div>
 </aside>
+
+<script>
+  const currentPath = window.location.pathname;
+  const links = document.querySelectorAll(".sidebar-link");
+  links.forEach(link => {
+    if (link.getAttribute("href") === currentPath) {
+      link.classList.add("bg-indigo-100", "font-semibold", "text-indigo-700");
+    }
+  });
+</script>

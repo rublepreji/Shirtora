@@ -2,7 +2,6 @@ import express from 'express';
 import { 
     loadLogin, 
     login, 
-    loadDashboard,
     pageError, 
     adminLogout,
     } from '../controller/admin/adminController.js';
@@ -51,13 +50,41 @@ import {
     dataForOrderList,
     updateOrderStatus,
     updateReturnStatus,
-    updateItemStatus
+    updateItemStatus,
+    adminCancelOrder
 } from '../controller/admin/orderController.js'
+import {
+    loadOfferList,
+    loadAddOffer,
+    getOfferTargets,
+    addOffer,
+    offerList,
+    loadEditOffer,
+    loadDeleteOffer,
+    editOffer
+} from "../controller/admin/offerController.js"
+import {
+    loadCoupon,
+    getAddCoupon,
+    addCoupon,
+    dataForCouponPage,
+    deleteCoupon,
+    loadEditCoupon,
+    editCoupon
+} from "../controller/admin/couponController.js"
 import uploadTo from '../middlewares/multerCloudinary.js';
 import multer from 'multer';
 import {storage} from '../helpers/multer.js';
 import {adminAuth ,adminLogged} from '../middlewares/auth.js'
-
+import { 
+    loadSalesReport, 
+    salesReport,
+    downloadReport
+} from '../controller/admin/salesReportController.js';
+import {
+    loadDashboard,
+    getDashboardData
+} from "../controller/admin/dashboardController.js"
 
 const router = express.Router();
 const uploads = multer({ storage: storage });
@@ -65,8 +92,6 @@ const uploads = multer({ storage: storage });
 router.get('/pageError',pageError);
 router.get('/login',adminLogged, loadLogin);
 router.post('/login',login);
-
-router.get('/',adminAuth ,loadDashboard);
 router.get('/adminlogout',adminLogout);
 
 // User management
@@ -95,7 +120,6 @@ router.get('/editBrand/:id',adminAuth,loadEditBrand);
 router.put('/editBrand',adminAuth, uploadTo('brands').single('image'), editBrand);
 router.get('/brand/data', adminAuth,dataForBrandPage);
 
-
 // Product management
 router.get('/product',adminAuth, loadProductpage);
 router.get('/addproduct',adminAuth, loadAddProduct);
@@ -115,7 +139,34 @@ router.get('/orderdetails/:id',adminAuth,loadOrderDetails)
 router.put('/updateOrderStatus',adminAuth,updateOrderStatus)
 router.put('/updateReturnStatus',adminAuth,updateReturnStatus)
 router.put("/updateItemStatus", adminAuth, updateItemStatus);
+router.put('/admincancelorder',adminAuth,adminCancelOrder)
 
+//Offer management
+router.get('/offerlist',adminAuth,loadOfferList)
+router.get('/addoffer',adminAuth,loadAddOffer)
+router.get('/getoffertargets',adminAuth,getOfferTargets)
+router.post('/addoffer',adminAuth,addOffer)
+router.get('/dataforofferlist',adminAuth,offerList)
+router.get('/editoffer/:id',adminAuth,loadEditOffer)
+router.put('/editoffer/:id',adminAuth,editOffer)
+router.get('/deleteoffer/:id',adminAuth,loadDeleteOffer)
 
+//Coupon management
+router.get('/coupon',adminAuth,loadCoupon)
+router.get('/addcoupon',adminAuth,getAddCoupon)
+router.post('/addcoupon',adminAuth,addCoupon)
+router.get('/dataforcouponlist',adminAuth,dataForCouponPage)
+router.delete('/deletecoupon',adminAuth,deleteCoupon)
+router.get('/editcoupon/:id',adminAuth,loadEditCoupon)
+router.put('/editcoupon',adminAuth,editCoupon)
+
+//sales report
+router.get('/salesreport',adminAuth,loadSalesReport)
+router.get('/sales-report-data',adminAuth,salesReport)
+router.get("/download-report", adminAuth,downloadReport)
+
+//Dashboard
+router.get('/',adminAuth,loadDashboard);
+router.get('/dashboard',adminAuth,getDashboardData)
 
 export default router;

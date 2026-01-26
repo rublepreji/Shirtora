@@ -7,38 +7,32 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
      <link rel="stylesheet" href="/css/user/signupPage.css">
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
 
-    <!-- Main Content Container -->
     <div class="min-h-screen flex items-center justify-center p-4 sm:p-8 lg:p-12">
         
-        <!-- Layout Grid: 1 column on mobile, 2 columns on desktop -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 w-full max-w-6xl mx-auto">
 
-            <!-- Left Column: Product Image/Branding -->
             <div class="lg:flex justify-center items-center hidden">
                 <div class="max-w-md">
-                    <!-- Placeholder image matching the vibe of the screenshot -->
                     <img 
                         src="/img/1041f330-970f-4210-a1a8-f9061e6ab89b_1.dd51e5689fa4d69724e15383322ccff7.webp"
                         onerror="this.onerror=null; this.src='https://placehold.co/400x550/f0f0f0/666?text=PREMIUM+BRANDING+SIGN';" 
                         alt="Premium T-Shirt Branding Sign" 
                         class="w-full h-auto rounded-lg shadow-xl"
                     />
-                    <!-- Note: In a real app, you would use the actual image URL here. -->
                 </div>
             </div>
 
-            <!-- Right Column: Create Account Form -->
             <div class="flex flex-col justify-center">
                 <div class="w-full max-w-lg lg:max-w-md mx-auto">
                     <h1 class="text-3xl sm:text-4xl font-semibold text-gray-900 mb-2">Create an account</h1>
                     <p class="text-gray-600 mb-8">Enter your details below</p>
 
-                    <form class="space-y-6" id="formSubmit" method="post" action="/signup" novalidate>
+                    <form class="space-y-6" id="signupForm" method="post" action="/signup" novalidate>
 
-                        <!-- First Name & Last Name (Side-by-side on all screens) -->
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <input type="text" id="firstName" class="input-line" placeholder="First Name" name="firstName">
@@ -50,7 +44,6 @@
                             </div>
                         </div>
 
-                        
                         <!-- Phone -->
                         <input type="tel" placeholder="Phone" id="phone" class="input-line w-full" name="phone">
                         <div class="text-red-500 text-sm" id="error3"></div>
@@ -60,12 +53,30 @@
                         <div class="text-red-500 text-sm" id="error4"></div>
                         
                         <!-- Password -->
-                        <input type="password" placeholder="Password" id="password" class="input-line w-full" name="password">
+                        <div class="relative">
+                        <input type="password" placeholder="Password" id="password" 
+                        class="input-line w-full pr-10" name="password">
+
+                        <span id="togglePass" 
+                        class="fa-eye absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500">
+                        <i class="fa-solid fa-eye-slash"></i>
+                        </span>
+                        </div>
                         <div class="text-red-500 text-sm" id="error5"></div>
+
                         
                         <!-- Confirm Password -->
-                        <input type="password" placeholder="Confirm Password" id="cPassword" class="input-line w-full" name="cPassword">
+                        <div class="relative">
+                        <input type="password" placeholder="Confirm Password" id="cPassword" 
+                            class="input-line w-full pr-10" name="cPassword">
+
+                        <span id="toggleCPass" 
+                            class="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500">
+                            <i class="fa-solid fa-eye-slash"></i>
+                        </span>
+                        </div>
                         <div class="text-red-500 text-sm" id="error6"></div>
+
                         
                         <!-- Referral Code -->
                         <input type="text" placeholder="Referral code (optional)" id="referralCode" class="input-line w-full" name="referralCode">
@@ -77,18 +88,14 @@
                         </div>
                         <%}%>
 
-                        <!-- Create Account Button (Black) -->
                         <button type="submit" class="w-full py-3 text-white bg-black hover:bg-gray-800 font-medium rounded-md transition duration-200 mt-6 shadow-md">
                             Create Account
                         </button>
                     </form>
                     <div class="my-6">
-                        <!-- Divider Line -->
                         <div class="border-b border-gray-200"></div>
-                        <!-- Space for the design aesthetic -->
                     </div>
 
-                    <!-- Sign Up with Google Button -->
                     <button class="w-full py-3 border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 font-medium rounded-md transition duration-200 flex items-center justify-center space-x-2 shadow-sm">
                         
                         <!-- <svg class="w-5 h-5" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">

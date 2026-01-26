@@ -62,19 +62,37 @@ function validateForm() {
     hideError("variantError");
 
     variants.forEach((v, i) => {
-      const price = v.querySelector(".variant-price").value.trim();
-      const stock = v.querySelector(".variant-stock").value.trim();
+  const price = v.querySelector(".variant-price").value.trim();
+  const stock = v.querySelector(".variant-stock").value.trim();
 
-      if (price === "" || isNaN(price) || Number(price) < 0) {
-        showError("variantError", `Variant ${i + 1}: Price cannot be negative.`);
-        valid = false;
-      }
+  // PRICE validation (minimum 10)
+  if (
+    price === "" ||
+    isNaN(price) ||
+    Number(price) < 10
+  ) {
+    showError(
+      "variantError",
+      `Variant ${i + 1}: Price must be at least 10.`
+    );
+    valid = false;
+  }
 
-      if (stock === "" || isNaN(stock) || Number(stock) < 0) {
-        showError("variantError", `Variant ${i + 1}: Stock cannot be negative.`);
-        valid = false;
-      }
-    });
+  // STOCK validation (only positive integers)
+  if (
+    stock === "" ||
+    isNaN(stock) ||
+    Number(stock) <= 0 ||
+    !Number.isInteger(Number(stock))
+  ) {
+    showError(
+      "variantError",
+      `Variant ${i + 1}: Stock must be a positive whole number.`
+    );
+    valid = false;
+  }
+});
+
   }
 
   return valid;

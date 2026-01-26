@@ -1,7 +1,59 @@
 import {STATUS} from '../../utils/statusCode.js'
-import {updateStatus} from "../../helpers/updateOrderStatus.js"
 import {logger} from '../../logger/logger.js'
 import checkoutService from "../../services/userService/checkoutService.js";
+import {verifyRazorpaySignature} from '../../utils/razorpayVerification.js'
+import Order from '../../model/orderSchema.js';
+import mongoose from 'mongoose';
+
+import Product from '../../model/productSchema.js';
+import orderService from '../../services/adminService/orderService.js';
+import profileService from '../../services/userService/profileService.js';
+
+
+async function addAdressCheckout(req,res) {
+  try {
+    const userId= req.session.user._id
+    const data= req.body    
+    const result = await profileService.addNewAddressService(userId, data)
+    return res.status(STATUS.OK).json({success:result.success,message:result.message})
+  } catch (error) {
+    logger.error("Error from add address checkout",error)
+    return res.status(STATUS.INTERNAL_SERVER_ERROR).json({success:false,message:"Internal server error"})
+  }
+}
+
+async function getAddAddress(req,res) {
+  try {
+    return res.render('addAddressInCheckout')
+  } catch (error) {
+    logger.error("Error from getAddAddress",error)
+    return res.redirect("/pageNotFound")
+  }
+}
+
+async function cancelItem(req,res) {
+  try {
+    const {orderId,itemIndex}= req.body
+    const userId = req.session.user._id
+    const result= await checkoutService.cancelItemService(orderId,itemIndex,userId)
+    return res.status(result.status).json({success:result.success,message:result.message})
+  } catch (error) {
+    logger.error("Error from cancel item",error)
+    return res.status(STATUS.INTERNAL_SERVER_ERROR).json({success:false,message:"Internal server error"})
+  }
+}
+
+async function handlePaymentFailed(req, res) {
+  try {
+    const { orderId, reason, selectedAddressIndex, paymentMethod } = req.body;
+    const userId = req.session.user._id
+    const result= await checkoutService.createFailedPaymentOrder(userId,reason,orderId,selectedAddressIndex,paymentMethod)
+    return res.json({ success: result.success , orderId: result.order.orderId}); 
+  } catch (error) {
+    console.error("Payment failed handler error:", error);
+    return res.status(STATUS.INTERNAL_SERVER_ERROR).json({ success: false, message: "Error handling payment failure" });
+  }
+}
 
 async function returnRequest(req,res) {
   try {
@@ -9,23 +61,7 @@ async function returnRequest(req,res) {
     const result=await checkoutService.returnRequestService(orderId,productIndex,reason,newStatus)
     return res.json(result)
   } catch (error) {
-    res.json({ success: false });
-  }
-}
-
-async function cancelOrder(req,res) {
-  try {
-    const {orderId,newStatus}= req.body
-    const result= await updateStatus(orderId,newStatus)
-    if(result){
-      await checkoutService.cancelOrderStockUpdateService(orderId)
-      return res.status(STATUS.OK).json({success:true,message:"Updated successfully"})
-    }
-    else{
-      return res.status(STATUS.BAD_REQUEST).json({success:false,message:"Failed to update status"})
-    }
-  } catch (error) {
-    return res.status(STATUS.INTERNAL_SERVER_ERROR).json({success:false,message:"Internal server error"})
+    return res.json({ success: false });
   }
 }
 
@@ -47,16 +83,16 @@ async function downloadInvoice(req, res) {
   } catch (error) {
    console.log("Invoice Error:", error);
     if (!res.headersSent) {
-      res.status(STATUS.INTERNAL_SERVER_ERROR).send("Server error");
+      return res.status(STATUS.INTERNAL_SERVER_ERROR).send("Server error");
     }
   }
 }
 
 async function loadOrderList(req, res) {
   try {
-    res.render("orderList", { user: req.session.user });
+    return res.render("orderList", { user: req.session.user });
   } catch (error) {
-    res.redirect("/pageNotFound");
+    return res.redirect("/pageNotFound");
   }
 }
 
@@ -97,38 +133,130 @@ async function loadOrderDetails(req,res) {
 
 async function loadOrderFailed(req,res) {
    try {
-      res.render('orderFailed')
+    const {id}= req.params  
+    const userId= req.session.user._id
+    const order= await Order.findOne({
+      orderId:id,userId,paymentStatus:"Failed"
+    })
+    if(!order){
+      console.log("Error is here");
+      
+      return res.redirect("/pageNotFound")
+    }
+    let startDate= order.createdAt.toISOString().split("T")[0]
+      return res.render('orderFailed',{order,startDate})
    } catch (error) {
-      res.redirect('/pageNotFound')
+      return res.redirect('/pageNotFound')
    }
 }
 
 async function orderSuccessPage(req,res) {
    try {
       const orderId= req.params.id
-      res.render  ('orderSuccess',{orderId:orderId})
-   } catch (error) {
-      res.redirect('/pageNotFound')
+      const order= await Order.findOne({orderId})
+      const startDate=order.createdAt.toISOString().split("T")[0]
+      let date= new Date(order.createdAt)
+      date.setDate(date.getDate()+2)
+      let arrivingDate=date.toISOString().split("T")[0]
+      return res.render  ('orderSuccess',{order,startDate,arrivingDate})
+   } catch (error) { 
+      return res.redirect('/pageNotFound')
    }
 }
+ 
 
 async function placeOrder(req, res) {
-   try { 
+  try {     
     const userId = req.session.user._id;
-    const { selectedAddressIndex, paymentMethod } = req.body; 
+    const { 
+      selectedAddressIndex, 
+      paymentMethod,
+      razorpay_payment_id,
+      razorpay_order_id,
+      razorpay_signature
+    } = req.body;     
+
+    let normalizedPaymentMethod;
+
+    if (paymentMethod === "UPI Method") {
+      normalizedPaymentMethod = "UPI";
+    } else if (paymentMethod === "Cash On Delivery") {
+      normalizedPaymentMethod = "COD";
+    } else {
+      normalizedPaymentMethod = paymentMethod?.trim();
+    }
+
     if (!selectedAddressIndex) { 
-      return res.status(STATUS.BAD_REQUEST).json({ success: false, message: "No address selected" });
-     } 
-     if (!paymentMethod) { 
-      return res .status(STATUS.BAD_REQUEST) .json({ success: false, message: "No payment method selected"}); 
+      return res.status(STATUS.BAD_REQUEST).json({ 
+        success: false, 
+        message: "No address selected" 
+      });
     } 
-    const result=await checkoutService.placeOrderService(userId,selectedAddressIndex,paymentMethod) 
-    if(!result.success){ 
-      return res.redirect('/orderfailed') 
+    
+    if (!normalizedPaymentMethod) { 
+      return res.status(STATUS.BAD_REQUEST).json({ 
+        success: false, 
+        message: "No payment method selected"
+      }); 
+    }
+    
+    // UPI payment
+    if (normalizedPaymentMethod === "UPI") {
+      if (!razorpay_payment_id || !razorpay_order_id || !razorpay_signature) {
+        return res.status(STATUS.BAD_REQUEST).json({
+          success: false,
+          message: "Invalid payment data"
+        });
+      }
+        
+        const isValid = verifyRazorpaySignature(
+          razorpay_order_id,
+          razorpay_payment_id,
+          razorpay_signature
+        );
+        
+        if (!isValid) {
+          return res.status(STATUS.BAD_REQUEST).json({
+            success: false,
+            message: "Payment verification failed"
+          });
+        }
+        
+        // Payment verified
+        const razorpayData = {
+          razorpay_payment_id,
+          razorpay_order_id,
+          razorpay_signature
+        };  
+        
+        const result = await checkoutService.placeOrderService(
+          userId,
+          selectedAddressIndex,
+          normalizedPaymentMethod,
+          razorpayData
+        );
+        
+        if (!result.success) { 
+          return res.redirect('/orderfailed');
+        } 
+        
+      return res.redirect(`/ordersuccess/${result.order.orderId}`);
+    }
+    
+    // cod flow
+    const result = await checkoutService.placeOrderService(
+      userId,
+      selectedAddressIndex,
+      normalizedPaymentMethod
+    ); 
+    
+    if (!result.success) { 
+      return res.redirect('/orderfailed');
     } 
+    
     return res.redirect(`/ordersuccess/${result.order.orderId}`); 
-  } 
-  catch (error) { 
+      
+  } catch (error) { 
     console.error("Place order error:", error.message); 
     return res.redirect("/pageNotFound"); 
   } 
@@ -148,11 +276,26 @@ async function loadCheckout(req, res) {
     addresses:result.addresses,
     subtotal: result.subtotal,
     grandTotal: result.grandTotal,
-    defaultAddress: result.defaultAddress
+    defaultAddress: result.defaultAddress,
+    availableCoupons:result.coupons
   });
 } catch (error) {
   return res.redirect("/pageNotFound");
 }
 }
 
-export {loadCheckout, placeOrder, orderSuccessPage, loadOrderFailed, loadOrderDetails, loadOrderList, loadOrderListData, downloadInvoice, cancelOrder, returnRequest}
+export {
+  loadCheckout, 
+  placeOrder, 
+  orderSuccessPage, 
+  loadOrderFailed, 
+  loadOrderDetails, 
+  loadOrderList, 
+  loadOrderListData, 
+  downloadInvoice, 
+  returnRequest, 
+  handlePaymentFailed, 
+  cancelItem, 
+  getAddAddress, 
+  addAdressCheckout
+}

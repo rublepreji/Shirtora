@@ -2,15 +2,59 @@ import User from "../../model/userSchema.js"
 import Product from "../../model/productSchema.js"
 import Brand from "../../model/brandSchema.js";
 import Category from "../../model/categorySchema.js";
+import Offer from "../../model/offerSchema.js";
 import { logger } from "../../logger/logger.js";
 import bcrypt from 'bcrypt'
 import { generateOtp, sendEmailVerification, securePassword } from '../../utils/userUtils.js';
+import offerSchema from "../../model/offerSchema.js";
 
 
 
+async function offerCalculation(product,variantIndex=1) {
+  let productOfferPercent=0
+  let categoryOfferPercent=0
 
+  const productOffer= await Offer.findOne({
+    isActive:true,
+    type:"product",
+    productId:product._id
+  })
+  
+  if(productOffer){
+    productOfferPercent= productOffer.productOffer ||0
+  }  
 
-async function productDetailsService(user,productId) {
+  const categoryOffer= await Offer.findOne({
+    isActive:true,
+    type:"category",
+    categoryId:product.category?._id || product.category
+  })
+  if(categoryOffer){
+    categoryOfferPercent= categoryOffer.categoryOffer || 0
+  }
+
+  const appliedOfferPercent= Math.max(productOfferPercent, categoryOfferPercent)
+
+  let offerSource=null
+  if(appliedOfferPercent>0){
+    offerSource= productOfferPercent>categoryOfferPercent?"Product":"Category"
+  }
+
+  const orginalPrice= product.variants[variantIndex].price
+  const discountAmount= (orginalPrice * appliedOfferPercent)/100;
+  const finalPrice= orginalPrice-discountAmount
+
+  return {
+    offer:appliedOfferPercent,
+    offerSource,
+    orginalPrice,
+    discountAmount,
+    finalPrice
+  }
+
+}
+
+async function productDetailsService(user,productId) {   
     let userData= null
     if(user && user._id){
         userData=await User.findById(user._id);
@@ -19,6 +63,7 @@ async function productDetailsService(user,productId) {
     if(!product){
         return {userData,product:null}
     }
+    const isWishlist= userData && userData.wishlist.some((id)=>id.toString() === productId.toString())
     const findCategory= product.category
     const categoryOffer= findCategory?.categoryOffer || 0
     const productOffer= product?.productOffer || 0
@@ -34,17 +79,20 @@ async function productDetailsService(user,productId) {
         defaultVariant,
         totalOffer,
         categoryOffer,
-        relatedProduct
+        relatedProduct,
+        isWishlist
     }
 }
 
 async function filterProductService(userQuery) {
-    const {category,brand,price,sort,page,limit,search}= userQuery
+    const {category,brand,price,sort,page,limit,search,userId}= userQuery
+    const userData=await User.findOne({_id:userId})
     let sortOption={}
     const skip= (page-1)*limit
     const query={
       isBlocked:{$eq:false}
     }
+    const wishlist = userData?.wishlist?.map(id => id.toString()) || [];
     if(search){
       query.productName={$regex:search,$options:"i"}
     }
@@ -94,6 +142,24 @@ async function filterProductService(userQuery) {
     .lean()
 
     findProducts=findProducts.filter(p=>p.category && p.brand)
+    .map(p=>({
+      ...p,
+      isWishlist:wishlist.includes((p._id.toString()))
+    }))
+
+    findProducts= await Promise.all(
+      findProducts.map(async (p)=>{
+        const offerData= await offerCalculation(p,0)
+        return {
+          ...p,
+          offer:offerData.offer,
+          offerSource:offerData.offerSource,
+          orginalPrice:offerData.orginalPrice,
+          discountAmount:offerData.discountAmount,
+          finalPrice:offerData.finalPrice
+        }
+      })
+    )
 
     const totalProduct= await Product.countDocuments(query )
     const totalPage= Math.ceil(totalProduct/limit)
@@ -116,6 +182,8 @@ async function viewProductService(userId,page) {
     const categoryIds= categories.map(category=>category._id)
     const brandIds= brand.map(b=>b._id)
     const limit=9
+
+    const wishlist= userData?.wishlist?.map(id=>id.toString()) || []
     
     const skip= (page-1)*limit
     const query={
@@ -139,6 +207,10 @@ async function viewProductService(userId,page) {
     .lean()
 
     product=product.filter(p=>p.category && p.brand)
+    .map(p=>({
+      ...p,
+      isWishlist:wishlist.includes(p._id.toString())
+    }))
 
     const unblockedProducts= await Product.find(query)
     .populate({
@@ -149,6 +221,21 @@ async function viewProductService(userId,page) {
         path:"brand",
         match:{isBlocked:false}
     })
+
+    product= await Promise.all(
+      product.map(async (p)=>{
+        const offerData= await offerCalculation(p,0)
+
+        return {
+          ...p,
+          offer:offerData.offer,
+          offerSource:offerData.offerSource,
+          orginalPrice:offerData.orginalPrice,
+          discountAmount:offerData.discountAmount,
+          finalPrice:offerData.finalPrice
+        }
+      })
+    )
 
     const totalProduct= unblockedProducts.filter(p=>p.category && p.brand).length
     const totalPages = Math.ceil(totalProduct/limit)
@@ -211,14 +298,20 @@ async function verifyOtpService(otp,sessionOtp,userData) {
   if(!userData){
     return {success:false,message:"User session expired, Try again"}
   }
+  let referrer=null
+  if(userData.referralCode){
+    referrer= await User.findOne({referralCode:data.referralCode.trim()});
+  }
       const newUser = new User({
       firstName: userData.firstName,
       lastName: userData.lastName,
       fullName: (userData.firstName + userData.lastName).toLowerCase(),
       phone: userData.phone,
       email: userData.email,
-      password: userData.hashedPassword
+      password: userData.hashedPassword,
+      referredBy:referrer?._id || null
   });
+  newUser.referralCode="REF" + newUser._id.toString().slice(-6).toUpperCase();
   await newUser.save();      
   return {success:true}
 } catch (error) {
@@ -286,5 +379,6 @@ export default {
     resendOtpService,
     verifyOtpService,
     signupService,
-    loadHomeService
+    loadHomeService,
+    offerCalculation
 }

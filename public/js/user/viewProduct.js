@@ -35,29 +35,28 @@
         async function fetchdata(){
             try{
             const queryString=new URLSearchParams({
-                search,
-                category:selectedCategories.join(","),
-                brand:selectedbrands.join(","),
-                price:selectedPrice.join(","),
-                sort:selectedSort,
-                page:currentPage
+              search,
+              category:selectedCategories.join(","),
+              brand:selectedbrands.join(","),
+              price:selectedPrice.join(","),
+              sort:selectedSort,
+              page:currentPage
             }).toString()
            const res= await fetch(`/filterproduct?${queryString}`)
             const data=await res.json()
-            console.log(data);
             
             if(data.success){
-                totalPage= data.totalPage
-                currentPage= data.currentPage
-                renderProduct(data.product)
-                renderPagination()
+              totalPage= data.totalPage
+              currentPage= data.currentPage
+              renderProduct(data.product)
+              renderPagination()
             }
             else{
-                 productContainer.innerHTML = '<p class="text-center w-full py-8">No products found.</p>';
-                 totalPage = 1;
-                 currentPage = 1;
-                 renderPagination();
-                }
+              productContainer.innerHTML = '<p class="text-center w-full py-8">No products found.</p>';
+              totalPage = 1;
+              currentPage = 1;
+              renderPagination();
+            }
         }catch(err){
             paginationContainer.innerHTML=`<p class="text-center w-full py-8 text-red-500">Failed to load products.</p>`
             totalPage=1
@@ -67,30 +66,30 @@
 
         priceFilter.forEach(price=>{
             price.addEventListener('change',()=>{
-                selectedPrice=[...priceFilter]
-                .filter(val=>val.checked)
-                .map(x=>x.value)
-                currentPage=1
-                fetchdata()
+              selectedPrice=[...priceFilter]
+              .filter(val=>val.checked)
+              .map(x=>x.value)
+              currentPage=1
+              fetchdata()
             })
         })
 
         categoryFilter.forEach(item=>{
             item.addEventListener('change',()=>{
-                    selectedCategories= [...categoryFilter]
-                    .filter(val=>val.checked).map(x=>x.value)
-                    currentPage=1
-                    fetchdata()
+              selectedCategories= [...categoryFilter]
+              .filter(val=>val.checked).map(x=>x.value)
+              currentPage=1
+              fetchdata()
             }) 
          }) 
 
          brandFilter.forEach(item=>{
             item.addEventListener('change',()=>{
-                    selectedbrands=[...brandFilter]
-                    .filter(val=>val.checked)
-                    .map(x=>x.value)
-                    currentPage=1
-                    fetchdata()
+              selectedbrands=[...brandFilter]
+              .filter(val=>val.checked)
+              .map(x=>x.value)
+              currentPage=1
+              fetchdata()
             })
          })
 
@@ -104,34 +103,82 @@
 
 
         function renderProduct(product){
+            
   productContainer.innerHTML = product.map(data => `
-    <div class="product-card bg-white rounded-lg overflow-hidden shadow-md flex flex-col h-full">
-      <div class="w-full h-48 overflow-hidden">
-       <a href="/productdetails/${data._id}"><img src="${data.productImage[0]}" class="w-full h-full object-cover" alt="${data.productName}"></a>
-      </div>
+  <div class="product-card bg-white rounded-lg overflow-hidden shadow-md flex flex-col h-full">
+    
+    <div class="w-full h-48 overflow-hidden">
+      <a href="/productdetails/${data._id}">
+        <img src="${data.productImage[0]}" 
+        class="w-full h-full object-cover" 
+        alt="${data.productName}">
+      </a>
+    </div>
 
-      <div class="p-4 flex flex-col flex-1">
-        <h3 class="font-semibold text-sm mb-1 truncate">${data.productName}</h3>
-        <div class="text-xs text-yellow-500 mb-2">★★★★☆</div>
+    <div class="p-4 flex flex-col flex-1">
+      <h3 class="font-semibold text-sm mb-2 truncate">
+        ${data.productName}
+      </h3>
 
-        <div class="text-sm font-bold">₹${data.variants[0].price}</div>
+      ${
+        data.offer > 0
+        ? `
+          <!-- Price row -->
+          <div class="flex items-center gap-2">
 
-        <!-- Actions pushed to bottom -->
-        
-        <div class="mt-auto flex items-center gap-2 pt-3">
-          <button onclick="addtocart('${data._id}',0,1)" class="flex-1 border border-black py-2 rounded-md text-sm hover:bg-black hover:text-white transition">
-            Add to cart
-          </button>
+            <span class="text-lg font-bold text-600">
+              ₹${data.finalPrice}
+            </span>
 
-          <button onclick="addtowishlist('${data._id}')" class="w-10 h-10 border border-gray-300 rounded-md flex items-center justify-center hover:bg-gray-100">
-            <svg class="w-5 h-5 text-gray-500 hover:text-red-500 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 21l-7.682-7.682a4.5 4.5 0 010-6.364z"/>
-            </svg>
-          </button>
-        </div>
+            <span class="text-sm line-through text-gray-400">
+              ₹${data.orginalPrice}
+            </span>
+
+          </div>
+
+          <!-- Offer text -->
+          <p class="text-xs text-red-500 mt-1">
+            ${data.offer}% OFF
+          </p>
+        `
+        : `
+          <div class="text-lg font-bold">
+            ₹${data.variants[0].price}
+          </div>
+        `
+      }
+
+      <!-- Actions -->
+      <div class="mt-auto flex items-center gap-2 pt-4">
+
+        <button onclick="addtocart('${data._id}',0,1)"
+        class="flex-1 border border-black py-2 rounded-md text-sm hover:bg-black hover:text-white transition">
+          Add to cart
+        </button>
+
+        <button onclick="addtowishlist('${data._id}', this)"
+        class="w-10 h-10 border border-gray-300 rounded-md flex items-center justify-center hover:bg-gray-100">
+
+          <svg 
+          class="w-5 h-5 transition
+          ${data.isWishlist ? 'text-red-500 fill-red-500' : 'text-gray-400'}"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2">
+
+          <path stroke-linecap="round" stroke-linejoin="round"
+          d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636
+          l1.318-1.318a4.5 4.5 0 116.364 6.364
+          L12 21l-7.682-7.682a4.5 4.5 0 010-6.364z"/>
+          </svg>
+
+        </button>
+
       </div>
     </div>
-  `).join("");
+  </div>
+`).join("");
+
 }
 
 async function addtocart(productId,variantIndex,qty) {
@@ -146,64 +193,79 @@ async function addtocart(productId,variantIndex,qty) {
             })
         })
 
-    const data= await response.json()
-    if(data.success){
-        Swal.fire({
-        icon: "success",
-        title: "Success!",
-        text: data.message || "Your action was completed successfully.",
-        confirmButtonColor: "#3085d6"
-        });
-    }else{
-        Swal.fire({
-        icon: "error",
-        title: "Oops!",
-        text: data.message || "Something went wrong. Please try again.",
-        confirmButtonColor: "#d33"
-        });
+if (!response.headers.get("content-type")?.includes("application/json")) {
+ await Swal.fire({
+    icon: "warning",
+    title: "Login required",
+    text: "Please login to add products to cart"
+  })
+  window.location.href='/signin'
+  return 
+}
+  const data= await response.json()
+  if(data.success){
+      Toastify({
+      text: data.message ,
+      duration: 3000,
+      gravity: "top",
+      position: "right",
+      backgroundColor:  "#4CAF50" ,
+    }).showToast();
+  }else{
+      Toastify({
+      text: data.message ,
+      duration: 3000,
+      gravity: "top",
+      position: "right",
+      backgroundColor:  "#d33" ,
+    }).showToast();
 
-    }
-    } catch (error) {
-        Swal.fire({
-        icon: "error",
-        title: "Oops!",
-        text: error || "Something went wrong. Please try again.",
-        confirmButtonColor: "#d33"
-        });
-    }
-   
+  }
+  } catch (error) {
+      Swal.fire({
+      icon: "error",
+      title: "Oops!",
+      text: error || "Something went wrong. Please try again.",
+      confirmButtonColor: "#d33"
+      });
+  }
 }
 
-async function addtowishlist(productId) {
-    try{
-    const response=await fetch(`/addtowishlist/${productId}`,{
-        method:"post"
+async function addtowishlist(productId, btn) {
+  const icon = btn.querySelector("svg");
+
+  if (icon.classList.contains("text-gray-400")) {
+    icon.classList.remove("text-gray-400");
+    icon.classList.add("text-red-500","fill-red-500");
+  } else {
+    icon.classList.remove("text-red-500","fill-red-500");
+    icon.classList.add("text-gray-400");
+  }
+
+  try{
+    const response = await fetch(`/addtowishlist/${productId}`,{
+      method:"post",
     })
-    const data= await response.json()
+
+    const data = await response.json()
+    if(!data.success){
+     Swal.fire("Error", data.message ||"", "error").then(()=>window.location.href='/signin')
+    }
     if(data.success){
-        Swal.fire({
-        icon: "success",
-        title: "Success!",
-        text: data.message || "Your action was completed successfully.",
-        confirmButtonColor: "#3085d6"
-        });
-    }else{
-        Swal.fire({
-        icon: "error",
-        title: "Oops!",
-        text: data.message || "Something went wrong. Please try again.",
-        confirmButtonColor: "#d33"
-        });
+      Toastify({
+      text: data.message ,
+      duration: 3000,
+      gravity: "top",
+      position: "right",
+      backgroundColor:  "#4CAF50" ,
+    }).showToast();
     }
-    } catch (error) {
-        Swal.fire({
-        icon: "error",
-        title: "Oops!",
-        text: error || "Something went wrong. Please try again.",
-        confirmButtonColor: "#d33"
-        });
-    }
+
+  }catch(error){    
+    Swal.fire("Error", "You need to sign in first to continue shopping.", "error").then(()=>window.location.href='/signin')
+  }
 }
+
 
 
 function renderPagination(){

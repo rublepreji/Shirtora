@@ -1,113 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment Successful - Order Confirmation</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8f8f8; /* Light gray background */
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-        }
-        /* Custom colors to match the design */
-        .text-green-arrival {
-            color: #22c55e; /* Tailwind 'green-500' is a good match */
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payment Successful - Order Confirmation</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: #f8f8f8; 
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+    }
+    .text-green-arrival {
+        color: #22c55e; 
+    }
+</style>
 </head>
 <body>
-
-    <!-- Main Container - Centers content and limits maximum width -->
     <div class="w-full max-w-lg mx-auto">
-
-        <!-- Payment Successful Card -->
         <div class="bg-white rounded-lg p-6 sm:p-10 shadow-lg border border-gray-200">
             <div class="flex flex-col items-center text-center">
-                
-                <!-- Success Checkmark Icon (Blue Circle) -->
                 <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-blue-600 flex items-center justify-center mb-6">
                     <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                     </svg>
                 </div>
-                
-                <h1 class="text-xl sm:text-2xl font-semibold text-gray-800 mb-8">Payment Successful</h1>
 
-                <!-- Order Details Section -->
+                <h1 class="text-xl sm:text-2xl font-semibold text-gray-800 mb-8">Payment Successful</h1>
                 <div class="w-full text-left space-y-3 mb-6">
-                    
-                    <!-- Detail Row: Order ID -->
                     <div class="flex justify-between text-sm sm:text-base">
                         <span class="text-gray-500">Order ID</span>
-                        <%if(orderId){%>
-                        <span class="font-medium text-gray-800"><%=orderId%></span>
+                        <%if(order.orderId){%>
+                        <span class="font-medium text-gray-800"><%=order.orderId%></span>
                         <%}%>
                     </div>
 
-                    <!-- Detail Row: Date -->
                     <div class="flex justify-between text-sm sm:text-base">
                         <span class="text-gray-500">Date</span>
-                        <span class="font-medium text-gray-800">Feb 01, 2025</span>
+                        <span class="font-medium text-gray-800"><%=startDate%></span>
                     </div>
 
-                    <!-- Detail Row: Time -->
-                    <div class="flex justify-between text-sm sm:text-base">
-                        <span class="text-gray-500">Time</span>
-                        <span class="font-medium text-gray-800">07:20 PM</span>
-                    </div>
-
-                    <!-- Detail Row: Payment Method -->
                     <div class="flex justify-between text-sm sm:text-base">
                         <span class="text-gray-500">Payment Method</span>
-                        <span class="font-medium text-gray-800">Credit Card</span>
+                        <span class="font-medium text-gray-800"><%=order.paymentMethod%></span>
                     </div>
 
-                    <!-- Detail Row: Amount -->
                     <div class="flex justify-between text-sm sm:text-base">
                         <span class="text-gray-500">Amount</span>
-                        <span class="font-bold text-gray-900">IDR 10,248</span>
+                        <span class="font-bold text-gray-900"><%=order.offerAmount%></span>
                     </div>
-
                 </div>
             </div>
         </div>
 
-        <!-- Arrival Date Confirmation -->
         <div class="text-center mt-8 mb-8">
             <p class="text-lg font-semibold text-green-700 tracking-wide">
-                Arriving By 07 - February - 2025
+                Arriving By <%=arrivingDate%>
             </p>
         </div>
 
-        <!-- Action Buttons -->
         <div class="flex flex-col sm:flex-row justify-center gap-4 px-4 sm:px-0">
             
-            <!-- View Order Button (Gray) -->
-            <a href='/orderdetails/<%=orderId%>'><button class="w-full sm:w-auto px-10 py-3 text-white bg-gray-600 hover:bg-gray-700 font-medium rounded-md transition duration-200">
+            <a href='/orderdetails/<%=order.orderId%>'><button class="w-full sm:w-auto px-10 py-3 text-white bg-gray-600 hover:bg-gray-700 font-medium rounded-md transition duration-200">
                 View Order
             </button></a>
 
             <a href="/viewproducts"><button class="w-full sm:w-auto px-8 py-3 text-white bg-black hover:bg-gray-800 font-medium rounded-md transition duration-200">
                 Continue Shopping
             </button></a>
-            
         </div>
-
     </div>
-
     <script>
     history.pushState(null, null, location.href);
     window.onpopstate = function () {
         history.go(1);  
     };
-</script>
+    </script>
 </body>
 </html>

@@ -7,6 +7,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/user/signinPage.css">
+    <link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
 </head>
 <body>
 
@@ -47,10 +50,19 @@
                         <div class="errorDisplay" id="emailError"></div>
                         
                         <!-- Password Input with Custom Label/Placeholder effect -->
-                        <div class="input-container">
-                            <input value="ruble2001" type="password" id="password" name="password" placeholder="Password" class="input-line w-full" required>
-                            <label for="password">Password</label>
+                        <div class="input-container relative">
+
+                        <input type="password" id="password" name="password"
+                            value="ruble2001" class="input-line w-full pr-10">
+
+                        <label for="password">Password</label>
+
+                        <span id="togglePass"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500">
+                            <i class="fa-solid fa-eye-slash"></i>
+                        </span>
                         </div>
+
                         <div class="errorDisplay" id="passwordError"></div>
                         <%if(locals.message && message.length>0){%>
                         <div class="errorDisplay">
