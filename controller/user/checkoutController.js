@@ -270,7 +270,7 @@ async function loadCheckout(req, res) {
     const userId = req.session.user._id;
     const result= await checkoutService.loadCheckoutService(userId)
 
-  return res.render("checkout", {
+  return res.render("checkOut", {
     user: req.session.user,
     cartItems: result.cartItems,
     addresses:result.addresses,
