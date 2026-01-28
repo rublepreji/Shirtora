@@ -10,7 +10,7 @@ import offerSchema from "../../model/offerSchema.js";
 
 
 
-async function offerCalculation(product,variantIndex=1) {
+async function offerCalculation(product,variantIndex=0) {
   let productOfferPercent=0
   let categoryOfferPercent=0
 
@@ -21,7 +21,7 @@ async function offerCalculation(product,variantIndex=1) {
   })
   
   if(productOffer){
-    productOfferPercent= productOffer.productOffer ||0
+    productOfferPercent= productOffer.productOffer || 0
   }  
 
   const categoryOffer= await Offer.findOne({
@@ -112,13 +112,8 @@ async function filterProductService(userQuery) {
       query.$or=priceConditions
     }
     
-    if(sort=="low-high"){
-      sortOption["variants.price"]=1
-    }
-    else if(sort ==="high-low"){
-      sortOption["variants.price"]=-1
-    }
-    else if(sort=="A-Z"){
+    
+    if(sort=="A-Z"){
       sortOption.productName=1
     }
     else if(sort=="Z-A"){
@@ -160,6 +155,12 @@ async function filterProductService(userQuery) {
         }
       })
     )
+    if(sort=="low-high"){
+      findProducts.sort((a,b)=>a.finalPrice - b.finalPrice)
+    }
+     if(sort ==="high-low"){
+      findProducts.sort((a,b)=>b.finalPrice-a.finalPrice)
+    }
 
     const totalProduct= await Product.countDocuments(query )
     const totalPage= Math.ceil(totalProduct/limit)
@@ -173,9 +174,9 @@ async function filterProductService(userQuery) {
 
 async function viewProductService(userId,page) {
     try {
-        let userData=null;
+      let userData=null;
     if(userId){
-        userData= await User.findById(userId)
+      userData= await User.findById(userId)
     }
     const categories= await Category.find({isBlocked:false})
     const brand= await Brand.find({isBlocked:false})
@@ -187,10 +188,10 @@ async function viewProductService(userId,page) {
     
     const skip= (page-1)*limit
     const query={
-        isBlocked:false,
-        category:{$in:categoryIds},
-        brand:{$in:brandIds},
-        "variants.stock":{$gt:0}
+      isBlocked:false,
+      category:{$in:categoryIds},
+      brand:{$in:brandIds},
+      "variants.stock":{$gt:0}
     }
     let product=await Product.find(query)
     .populate({

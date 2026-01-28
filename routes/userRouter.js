@@ -28,7 +28,7 @@ router.get('/pageNotFound',pageNotFound);
 router.get('/signup',userIsLogged,loadSignup);
 router.get('/signin',userIsLogged,loadSignin);
 router.post('/signup',signup);
-router.get('/verifyOtp',loadVerifyOtp);
+router.get('/verifyOtp',userIsLogged,loadVerifyOtp);
 router.post('/verifyOtp',verifyOtp);
 router.post('/resendOtp',resendOtp);
 router.post('/signin', signin);
@@ -50,12 +50,12 @@ router.get(
 );
 
 //profile management
-router.get('/forgotpassword', loadForgotPassword);
+router.get('/forgotpassword',userAuth,loadForgotPassword);
 router.post('/verifyemail', verifyEmail);
 router.post('/verifyPassOtp', verifyPassOtp);
-router.get('/forgototppage',loadOTPpage)
-router.get('/passreset',loadPasswordReset)
-router.post('/resendOtps',resendOtps)
+router.get('/forgototppage',userAuth,loadOTPpage)
+router.get('/passreset',userAuth,loadPasswordReset)
+router.post('/resendOtps',userAuth,resendOtps)
 router.post('/resetpassword', resetPassword)
 router.get('/viewproducts',viewProducts)
 router.get('/filterproduct',filterProduct)
