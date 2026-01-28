@@ -38,83 +38,101 @@
 <body>
 
    <%-include("../../view/partials/user/header")%>
-  <main class="max-w-7xl mx-auto px-4 py-10">
+  <main class="max-w-7xl mx-auto px-4 py-12">
 
-    <div class="flex items-center justify-between mb-6">
-      <h2 class="text-lg font-semibold">Wishlist <span class="text-sm text-gray-500">(<%=products.length%>)</span></h2>
-      <div>
-        <button class="bg-white border text-sm px-4 py-2 rounded shadow-sm hover:bg-gray-50">Move All To Bag</button>
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-2xl font-bold tracking-tight text-gray-900">My Wishlist</h1>
+      <p class="text-sm text-gray-500 mt-1">You have <%=products.length%> items in your list</p>
+    </div>
+    <button class="hidden sm:block bg-gray-900 text-white text-sm font-medium px-6 py-2.5 rounded-lg shadow-sm hover:bg-gray-800 transition-all">
+      Move All To Bag
+    </button>
+  </div>
+
+  <section class="space-y-4">
+    <% if(products.length > 0) { %>
+      <% for(let i=0; i < products.length; i++) { %>
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow p-4 sm:p-6">
+          <div class="grid grid-cols-12 items-center gap-4 sm:gap-6">
+            
+            <div class="col-span-4 sm:col-span-2 lg:col-span-1">
+              <a href="/productdetails/<%=products[i]._id%>" class="block aspect-square overflow-hidden rounded-lg bg-gray-50">
+                <img class="w-full h-full object-cover transform hover:scale-105 transition-transform duration-300" 
+                     src="<%=products[i].productImage[0]%>" 
+                     alt="<%=products[i].productName%>">
+              </a>
+            </div>
+
+            <div class="col-span-8 sm:col-span-6 lg:col-span-7">
+              <a href="/productdetails/<%=products[i]._id%>" class="text-base sm:text-lg font-semibold text-gray-900 hover:text-red-600 transition-colors">
+                <%=products[i].productName%>
+              </a>
+              <div class="mt-2 flex items-baseline gap-3">
+                <% if(products[i].productOffer) { %>
+                  <span class="text-xl font-bold text-gray-900">₹<%=products[i].variants[0].price - (products[i].variants[0].price * products[i].productOffer)/100%></span>
+                  <span class="text-sm text-gray-400 line-through">₹<%=products[i].variants[0].price%></span>
+                  <span class="text-xs font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded"><%=products[i].productOffer%>% OFF</span>
+                <% } else { %>
+                  <span class="text-xl font-bold text-gray-900">₹<%=products[i].variants[0].price%></span>
+                <% } %>
+              </div>
+            </div>
+
+            <div class="col-span-12 sm:col-span-4 lg:col-span-4 flex flex-row sm:flex-col items-center sm:items-end gap-3 mt-4 sm:mt-0">
+              <button onclick="addtocart('<%=products[i]._id%>',0,1)" 
+                      class="flex-1 sm:w-48 bg-gray-900 text-white py-2.5 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 hover:bg-gray-800 transition-all shadow-sm">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h2l.4 2M7 13h10l3-8H6.4" /><circle cx="10" cy="20" r="1" /><circle cx="18" cy="20" r="1" /></svg>
+                Add To Cart
+              </button>
+              <button onclick="confirmRemoveProduct('<%=products[i]._id%>')" 
+                      class="px-4 py-2.5 sm:w-48 border border-gray-200 text-gray-600 rounded-lg text-sm font-medium hover:bg-red-50 hover:text-red-600 hover:border-red-100 transition-all">
+                Remove
+              </button>
+            </div>
+
+          </div>
+        </div>
+      <% } %>
+    <% } else { %>
+      <div class="text-center py-20 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+          <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+        </div>
+        <h3 class="text-lg font-medium text-gray-900">Your wishlist is empty</h3>
+        <p class="text-gray-500 mt-1">Save items that you like in your wishlist to review them later.</p>
+        <a href="/viewproducts" class="mt-6 inline-block bg-gray-900 text-white px-8 py-3 rounded-lg font-semibold hover:bg-gray-800 transition-all">Start Shopping</a>
       </div>
+    <% } %>
+  </section>
+
+  <div class="mt-20">
+    <div class="flex items-center justify-between mb-8">
+      <h2 class="text-xl font-bold text-gray-900">Just For You</h2>
+      <a href="/viewproducts" class="text-sm font-semibold text-red-600 hover:underline">View All Recommendations</a>
     </div>
 
-    <section class="bg-white rounded-lg shadow-sm border">
-      <div class="p-6 space-y-0">
-         <%if(products.length>0){%>
-            <%for(let i=0;i<products.length;i++){%>
-        <div class="grid grid-cols-12 items-center gap-6 py-6 border-b wishlist-row">
-          <div class="col-span-2">
-            <a href="/productdetails/<%=products[i]._id%>"><img class="prod-thumb" src="<%=products[i].productImage[0]%>" alt="Lymio Casual Shirt"></a>
-          </div>
-
-          <div class="col-span-7">
-            <div class="text-sm text-gray-700 font-semibold"><%=products[i].productName%></div>
-            <div class="flex items-center text-xs text-yellow-500 mt-2">
-              <svg class="star" viewBox="0 0 24 24" fill="#FBBF24"><path d="M12 .587l3.668 7.431L24 9.748l-6 5.848 1.418 8.264L12 19.77 4.582 23.86 6 15.596 0 9.748l8.332-1.73z"/></svg>
-            </div>
-            <div class="mt-3">
-              
-              <%if(products[i].productOffer){ %>
-                <span class="text-lg font-semibold">₹<%=products[i].variants[0].price - (products[i].variants[0].price * products[i].productOffer)/100%></span>
-                <span class="text-sm text-gray-500 line-through ml-2">₹<%=products[i].productOffer%></span>
-              <%}else{ %>
-                <span class="text-lg font-semibold">₹<%=products[i].variants[0].price%></span>
-              <% } %>
-              
-            </div>
-          </div>
-
-          <div class="col-span-3 flex flex-col items-end space-y-3 wishlist-actions">
-            <button onclick="confirmRemoveProduct('<%=products[i]._id%>')" class="w-40 bg-black text-white py-2 rounded text-sm flex items-center justify-center gap-2">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white"><path d="M3 6h18M8 6v12a2 2 0 002 2h4a2 2 0 002-2V6M10 11v6M14 11v6M9 6V4h6v2"/></svg>
-              Remove
-            </button>
-            <button onclick="addtocart('<%=products[i]._id%>',0,1)" class="w-40 bg-gray-700 text-white py-2 rounded text-sm flex items-center justify-center gap-2">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white"><path d="M3 3h2l.4 2M7 13h10l3-8H6.4" /><circle cx="10" cy="20" r="1" /><circle cx="18" cy="20" r="1" /></svg>
-              Add To Cart
+    <section class="grid grid-cols-2 md:grid-cols-4 gap-6">
+      <% for(let i=0; i < latestProduct.length; i++) { %>
+        <div class="group bg-white rounded-xl border border-gray-100 p-3 hover:shadow-lg transition-all duration-300">
+          <div class="relative aspect-[3/4] overflow-hidden rounded-lg bg-gray-50 mb-4">
+            <a href="/productdetails/<%=latestProduct[i]._id%>">
+              <img src="<%=latestProduct[i].productImage[0]%>" 
+                   alt="<%=latestProduct[i].productName%>" 
+                   class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500">
+            </a>
+            <button class="absolute bottom-3 left-3 right-3 bg-white/90 backdrop-blur-sm text-gray-900 py-2 rounded-lg text-xs font-bold opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
+              QUICK VIEW
             </button>
           </div>
+          <h4 class="text-sm font-semibold text-gray-800 truncate"><%=latestProduct[i].productName%></h4>
+          <p class="mt-1 text-base font-bold text-gray-900">₹<%=latestProduct[i].variants[0].price%></p>
         </div>
-        <%}%>
-        <%}else{%>
-          <div>No products found</div>
-        <%}%>
-        </div>
-      </div>
+      <% } %>
     </section>
+  </div>
 
-    <!-- Just For You -->
-    <div class="flex items-center justify-between mt-10 mb-4">
-      <h3 class="font-semibold">Just For You</h3>
-      <a href="/viewproducts"><button class="text-sm border px-3 py-2 rounded">See All</button></a>
-    </div>
-
-    <section class="grid grid-cols-4 gap-6 just-for-you-grid">
-      <!-- Card 1 -->
-       <%for(let i=0;i<latestProduct.length;i++){%>
-      <div class="bg-white border rounded p-4">
-        <a href="/productdetails/<%=latestProduct[i]._id%>"><img src="<%=latestProduct[i].productImage[0]%>" alt="Christian t-shirt" class="w-full h-48 object-cover rounded mb-3"></a>
-        <div class="text-sm font-semibold"><%=latestProduct[i].productName%></div>
-        <!-- <div class="text-sm text-gray-500 line-through">₹<%=latestProduct[i].variants[0].price%></div> -->
-        <div class="mt-1 text-sm font-semibold">₹<%=latestProduct[i].variants[0].price%></div>
-        <div class="mt-2 text-yellow-500 text-sm flex items-center">
-          <svg class="star" viewBox="0 0 24 24" fill="#FBBF24"><path d="M12 .587l3.668 7.431L24 9.748l-6 5.848 1.418 8.264L12 19.77 4.582 23.86 6 15.596 0 9.748l8.332-1.73z"/></svg>
-          <span class="text-xs text-gray-500 ml-2">★★★★☆</span>
-        </div>
-      </div>
-      <%}%>
-    </section>
-
-  </main>
+</main>
 <script src="/js/user/wishList.js"></script>
 <%-include("../../view/partials/user/footer")%>
 </body>

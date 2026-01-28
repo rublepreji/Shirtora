@@ -43,6 +43,7 @@ router.get(
       _id: req.user._id,
       firstName: req.user.firstName,
       lastName: req.user.lastName,
+      fullName: req.user.firstName+" "+req.user.lastName,
       email: req.user.email
     };
     res.redirect('/');

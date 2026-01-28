@@ -243,7 +243,7 @@ async function salesReport(req,res) {
     const {startDate, endDate, range} = req.query
     const page= Number(req.query.page)
     const result= await salesReportService(startDate, endDate, range, page)
-    return res.status(result.status).json({success:result.success,message:result.message, orders:result.orders, totalSales:result.totalSales, totalOrders:result.totalOrders, totalProductDiscount:result.totalProductDiscount, totalCouponDiscount:result.totalCouponDiscount, totalPage:result.totalPage})
+    return res.status(result.status).json({success:result.success,message:result.message, orders:result.orders, totalSales:result.totalSales, totalOrders:result.totalOrders, totalProductDiscount:result.totalProductDiscount, totalCouponDiscount:result.totalCouponDiscount, totalPage:result.totalPage, currentPage:page})
  } catch (error) {
     logger.error("Error from salesReport",error)
     return res.status(STATUS.INTERNAL_SERVER_ERROR).json({success:false,message:"Internal server error"})

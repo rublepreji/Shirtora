@@ -5,10 +5,18 @@ async function userList(page,search,filter) {
     const limit=4
     const skip= (page-1)*limit
 
-    const query= {
-        isAdmin:false,
-        ...(search?{fullName:{$regex:search,$options:"i"}}:{})
-    }
+   const query = {
+    isAdmin: false,
+    ...(search
+        ? {
+            $or: [
+            { fullName: { $regex: search, $options: "i" } },
+            { email: { $regex: search, $options: "i" } }
+            ]
+        }
+        : {})
+    };
+
     if(filter=='blocked') query.isBlocked=true
     else if(filter=='active') query.isBlocked=false
 

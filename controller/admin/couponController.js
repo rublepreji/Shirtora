@@ -63,7 +63,7 @@ async function dataForCouponPage(req,res) {
     try {
         const page= parseInt(req.query.page) || 1
         const search= req.query.search || ''
-        const limit=1
+        const limit=6;
         const skip= (page-1)*limit
 
         const query={couponCode:{$regex:search,$options:"i"}}

@@ -354,14 +354,16 @@ async function loadHomeService(userId) {
       "variants.stock":{$gt:0},
       ...(categoryIds.length ? {category:{$in: categoryIds}}:{})
     }
-    const [newArrivals,flashSales,userData]= await Promise.all([
+    const [newArrivals,flashSales,bestSelling,userData]= await Promise.all([
      Product.find(baseQuery).sort({createdAt:-1}).limit(4).lean(),
-     Product.find(baseQuery).sort({"variants.price":-1}).limit(5).lean(),
+     Product.find(baseQuery).sort({"variants.price":-1}).limit(4).lean(),
+     Product.find(baseQuery).sort({createdAt:1}).limit(4).lean(),
     userId ? User.findById(userId).lean():Promise.resolve(null)
     ])
     return {
       newArrivals:newArrivals ||[],
       flashSales: flashSales || [],
+      bestSelling:bestSelling || [],
       userData : userData || null
     }
   } catch (error) {

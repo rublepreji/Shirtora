@@ -24,6 +24,7 @@ passport.use(
           return done(null, user);
         } else {
           user = new User({
+            fullName: profile.displayName,
             firstName,
             lastName,
             email: profile.emails[0].value,

@@ -171,6 +171,7 @@ async function verifyOtp(req, res) {
     const newUser = await User.create({
       firstName: data.firstName,
       lastName: data.lastName,
+      fullName: data.firstName+" "+data.lastName,
       email: data.email,
       phone: data.phone,
       password: data.hashedPassword,
@@ -305,6 +306,7 @@ const loadHomePage = async (req, res) => {
       user: result.userData || undefined,
       newArrivals: result.newArrivals || [],
       flashSales: result.flashSales || [],
+      bestSelling: result.bestSelling || []
     });
   } catch (error) {
     logger.error("Home page is not loading:", error);

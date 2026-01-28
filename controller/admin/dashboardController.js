@@ -218,7 +218,7 @@ const topBrands = await Order.aggregate([
     userMatch.createdAt = { $gte:first, $lte:last }
   }
 
-  const totalUsers = await User.countDocuments(userMatch)
+  const totalUsers = await User.countDocuments({...userMatch,isAdmin:false})
 
   // summary
   const summaryAgg = await Order.aggregate([
