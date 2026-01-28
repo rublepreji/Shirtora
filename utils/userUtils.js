@@ -28,9 +28,12 @@ async function sendEmailVerification(email, otp) {
 
         return info.accepted.length > 0;
     } catch (error) {
-        console.log("Error on sending email ", error);
+        console.log("NODEMAILER ERROR FULL:", error);
+        console.log("NODEMAILER MESSAGE:", error?.message);
+        console.log("NODEMAILER CODE:", error?.code);
         return false;
     }
+
 }
 
 async function sendEmailForgotPassword(email, otp) {    
