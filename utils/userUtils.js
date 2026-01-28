@@ -13,13 +13,13 @@ async function sendEmailVerification(email, otp) {
             secure: false,
             requireTLS: true,
             auth: {
-                user: process.env.nodeMailerEmail,
-                pass: process.env.nodeMailerPassword
+                user: process.env.NODEMAILEREMAIL,
+                pass: process.env.NODEMAILERPASSWORD
             }
         });
 
         const info = await transporter.sendMail({
-            from: process.env.nodeMailerEmail,
+            from: process.env.NODEMAILEREMAIL,
             to: email,
             subject: "Verify your account",
             text: `Your OTP is ${otp}`,
@@ -50,7 +50,7 @@ async function sendEmailForgotPassword(email, otp) {
         });
 
         const info = await transporter.sendMail({
-            from: process.env.nodeMailerEmail,
+            from: process.env.NODEMAILEREMAIL,
             to: email,
             subject: "Your OTP for Password reset",
             text: `Your OTP is ${otp}`,
