@@ -19,10 +19,19 @@ passport.use(
         const firstName = fullName[0];
         const lastName = fullName.slice(1).join(' ');
 
-        let user = await User.findOne({ googleId: profile.id });
+        let user = await User.findOne({
+        $or: [
+          { googleId: profile.id },
+          { email: profile.emails[0].value }
+        ]
+      });
         if (user) {
-          return done(null, user);
-        } else {
+  if (!user.googleId) {
+    user.googleId = profile.id;
+    await user.save();
+  }
+  return done(null, user);
+} else {
           user = new User({
             fullName: profile.displayName,
             firstName,
