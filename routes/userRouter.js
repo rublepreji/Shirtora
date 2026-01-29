@@ -18,6 +18,9 @@ import {
   walletPay,
   fetchWalletTx
 } from "../controller/user/walletController.js"
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const router = express.Router();
 const uploads = multer({ storage: storage });
@@ -46,7 +49,7 @@ router.get(
       fullName: req.user.firstName+" "+req.user.lastName,
       email: req.user.email
     };
-    res.redirect('/');
+    res.redirect(process.env.BASE_URL ||'/');
   } 
 );
 
