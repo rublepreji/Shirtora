@@ -10,14 +10,14 @@ passport.use(
     {
       clientID: process.env.GOOGLECLIENTID,
       clientSecret: process.env.GOOGLECLIENTSECRET,
-      callbackURL: 'http://localhost:3000/auth/google/callback',
+      callbackURL: 'http://13.60.251.75/auth/google/callback',
     },
 
     async (accessToken, refreshToken, profile, done) => {
-      try {
+      try { 
         const fullName = profile.displayName.split(' ');
         const firstName = fullName[0];
-        const lastName = fullName.slice(1).join('');
+        const lastName = fullName.slice(1).join(' ');
 
         let user = await User.findOne({ googleId: profile.id });
         if (user) {

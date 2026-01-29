@@ -20,6 +20,7 @@
         },
         wishlist:[{
             type:Schema.Types.ObjectId,
+            ref:"Product"
         }]
         ,
         phone: {
