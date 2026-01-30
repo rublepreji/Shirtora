@@ -426,7 +426,9 @@ async function loadOTPpage(req,res) {
 
 async function loadForgotPassword(req, res) {
   try {
-    return res.render('forgotPassword');
+    console.log('hitted forgot password');
+    
+    res.render('forgotPassword');
   } catch (error) {
     return res.redirect('/pageNotFound');
   }

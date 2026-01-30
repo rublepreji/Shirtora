@@ -150,12 +150,7 @@ async function resendOtp(req, res) {
 
 async function verifyOtp(req, res) {
   try {
-    console.log("hitting verifyotp");
-
     const { otp } = req.body;
-    console.log(otp);
-    console.log(req.session.userOtp);
-
     if (otp != req.session.userOtp) {
       return res.render("verifyOtp", { message: "Invalid OTP" });
     }

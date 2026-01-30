@@ -4,12 +4,9 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Admin Login</title>
-        <!-- Load Tailwind CSS from CDN -->
         <script src="https://cdn.tailwindcss.com"></script>
-        <!-- Configure Tailwind for Inter font -->
         <link rel="stylesheet" href="/">
         <script src="/css/admin/adminLogin.css"></script>
-        <!-- font-awesome -->
         <link
         rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
@@ -17,49 +14,34 @@
 
     </head>
     <body class="min-h-screen flex items-center justify-center p-4">
-
-        <!-- Login Card Container -->
         <div class="w-full max-w-sm p-8 bg-white rounded-xl shadow-xl transition-all duration-300">
-
-            <!-- Header -->
             <h1 class="text-2xl font-bold text-zion-dark text-center mb-10 mt-2">
                 Admin Login
             </h1>
-
-            <!-- Form -->
             <form id="loginForm" method="post" action="/admin/login" class="space-y-6" novalidate>
-
-                <!-- Email Input -->
                 <div>
-                    <!-- The input border is visibly lighter/bluer in the example, 
-                        so we use an explicit class to replicate this appearance on focus/active state. -->
                     <input
                         type="email"
                         name="email"
                         id="email"
-                        value="admin@gmail.com"
+                        value=""
                         placeholder="Email"
-                        class="w-full px-4 py-3 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 placeholder-gray-500 transition duration-150 ease-in-out"
-                        
+                        class="w-full px-4 py-3 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 placeholder-gray-500 transition duration-150 ease-in-out" 
                     >
                 </div>
                 <div class="errorDisplay" id="emailError"></div>
-
-                <!-- Password Input -->
                 <div class="relative">
                 <input
                     type="password"
                     name="password"
                     id="password"
-                    value="admin123"
+                    value=""
                     placeholder="Password"
                     class="w-full px-4 py-3 pr-10 text-sm rounded-lg border border-gray-300
                         focus:outline-none focus:ring-1 focus:ring-blue-400
                         focus:border-blue-400 placeholder-gray-500
                         transition duration-150 ease-in-out"
                 >
-
-                <!-- Eye Icon -->
                 <button
                     type="button"
                     id="togglePassword"
@@ -70,9 +52,6 @@
                 </div>
 
                 <div class="errorDisplay" id="passwordError"></div>
-
-
-                <!-- Log in Button -->
                 <button
                     type="submit"
                     class="w-full py-3 mt-8 text-white font-medium bg-zion-blue rounded-lg transition duration-200 hover:bg-opacity-90 active:bg-opacity-80 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-zion-blue focus:ring-offset-2"

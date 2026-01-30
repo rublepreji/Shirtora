@@ -54,12 +54,12 @@ router.get(
 );
 
 //profile management
-router.get('/forgotpassword',userAuth,loadForgotPassword);
+router.get('/forgotpassword',userIsLogged,loadForgotPassword);
 router.post('/verifyemail', verifyEmail);
 router.post('/verifyPassOtp', verifyPassOtp);
-router.get('/forgototppage',userAuth,loadOTPpage)
-router.get('/passreset',userAuth,loadPasswordReset)
-router.post('/resendOtps',userAuth,resendOtps)
+router.get('/forgototppage',loadOTPpage)
+router.get('/passreset',userIsLogged,loadPasswordReset)
+router.post('/resendOtps',userIsLogged,resendOtps)
 router.post('/resetpassword', resetPassword)
 router.get('/viewproducts',viewProducts)
 router.get('/filterproduct',filterProduct)

@@ -17,7 +17,7 @@
 
     otpInput.focus();
 
-    // 🕒 Start timer
+    //  Start timer
     function startTimer() {
       resendButton.disabled = true;
       updateTimerDisplay();
@@ -51,7 +51,7 @@
 
     startTimer();
 
-    // 📨 Verify OTP
+    // Verify OTP
     function validateOTPForm() {
       const otpVal = otpInput.value.trim();
 
@@ -83,7 +83,7 @@
             Swal.fire({
               icon: "error",
               title: "Error",
-              text: response.message,
+              text: response.message||"Invalid OTP",
             });
           }
         },
@@ -99,7 +99,7 @@
       return false;
     }
 
-    // 🔁 Resend OTP
+    // Resend OTP
     resendButton.addEventListener("click", () => {
       resendButton.disabled = true;
       timer = 60;

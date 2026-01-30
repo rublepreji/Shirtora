@@ -12,49 +12,33 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 
 </head>
 <body>
-
     <!-- Main Content Container -->
     <div class="min-h-screen flex items-center justify-center p-4 sm:p-8 lg:p-12">
-        
-        <!-- Layout Grid: 1 column on mobile, 2 columns on desktop -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 w-full max-w-6xl mx-auto">
-
-            <!-- Left Column: Product Image/Branding -->
-            <!-- Hiding image on smaller screens for better mobile experience -->
             <div class="lg:flex justify-center items-center hidden">
                 <div class="max-w-md">
-                    <!-- Placeholder image matching the vibe of the screenshot -->
                     <img 
                         src="https://placehold.co/400x550/e0e0e0/555?text=EXCLUSIVE+SHIRTS+COLLECTION"
                         onerror="this.onerror=null; this.src='https://placehold.co/400x550/e0e0e0/555?text=EXCLUSIVE+SHIRTS+COLLECTION';" 
                         alt="Shirts Collection" 
                         class="w-full h-auto rounded-lg shadow-xl"
                     />
-                    <!-- Note: In a real app, you would use the actual image URL here. -->
                 </div>
             </div>
-
             <!-- Right Column: Login Form -->
             <div class="flex flex-col justify-center">
                 <div class="w-full max-w-sm mx-auto">
                     <h1 class="text-3xl sm:text-4xl font-semibold text-gray-900 mb-2">Log in to Exclusive</h1>
                     <p class="text-gray-600 mb-8">Enter your details below</p>
-
                     <form class="space-y-4" action="/signin" method="post" id="loginForm" novalidate>
-
-                        <!-- Email Input with Custom Label/Placeholder effect -->
                         <div class="input-container">
-                            <input value="ruble@gmail.com" type="email" id="email" name="email" placeholder="Email" class="input-line w-full" >
+                            <input value="" type="email" id="email" name="email" placeholder="Email" class="input-line w-full" >
                             <label for="email">Email</label>
                         </div>
                         <div class="errorDisplay" id="emailError"></div>
-                        
-                        <!-- Password Input with Custom Label/Placeholder effect -->
                         <div class="input-container relative">
-
                         <input type="password" id="password" name="password"
-                            value="ruble2001" class="input-line w-full pr-10">
-
+                            value="" class="input-line w-full pr-10">
                         <label for="password">Password</label>
 
                         <span id="togglePass"
@@ -62,7 +46,6 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
                             <i class="fa-solid fa-eye-slash"></i>
                         </span>
                         </div>
-
                         <div class="errorDisplay" id="passwordError"></div>
                         <%if(locals.message && message.length>0){%>
                         <div class="errorDisplay">
@@ -70,19 +53,14 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
                         </div>
                         <%}%>
                         <!-- Forgot Password Link -->
-                         
                         <div class="text-right pt-2">
-                            <a href="/forgotpassword" class="text-red-500 text-sm font-medium hover:underline">Forget Password?</a>
-                        </div>
-                        
-                        <!-- Login Button (Black) -->
-                         
+                            <a href="/forgotpassword" class="text-red-500 text-sm font-medium hover:underline">Forgot Password?</a>
+                        </div>  
+                        <!-- Login Button (Black) --> 
                         <button type="submit" class="w-full py-3 text-white bg-black hover:bg-gray-800 font-medium rounded-md transition duration-200 mt-4 shadow-md">
                             Login
                         </button>
-                        
                     </form>
-
                     <!-- Sign in with Google Button -->
                     <a href="/auth/google" class="w-full py-3 border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 font-medium rounded-md transition duration-200 flex items-center justify-center space-x-2 shadow-sm mt-4">
                         <!-- Google Icon SVG -->
@@ -94,7 +72,6 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
                         </svg> -->
                         <span>Sign in with Google</span>
                     </a>
-                    
                     <!-- Sign Up Link -->
                     <p class="text-center text-gray-600 mt-8">
                         Don't have account? 
@@ -102,10 +79,8 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
                     </p>
                 </div>
             </div>
-
         </div>
     </div>
-
     <script src="/js/user/signinPage.js"></script>
 </body>
 </html>
