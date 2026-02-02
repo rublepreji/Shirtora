@@ -1,12 +1,34 @@
 import Product from '../../model/productSchema.js';
-import Category from '../../model/categorySchema.js';
 import Brand from '../../model/brandSchema.js';
 import {STATUS} from '../../utils/statusCode.js'
-import { json } from 'stream/consumers';
 import {logger} from '../../logger/logger.js'
 import ProductService from '../../services/adminService/productService.js'
 import productService from '../../services/adminService/productService.js';
 
+
+async function deleteProductImage(req,res) {
+  try {
+    const { productId, image } = req.body;
+
+    const product = await Product.findById(productId);
+
+    if (product.productImage.length <= 3) {
+      return res.json({
+        success: false,
+        message: "Minimum 3 images required",
+      });
+    }
+
+    await productService.removeImage(image, productId);
+
+    return res.json({
+      success: true,
+    });
+  } catch (error) {
+    logger.error("Delete image error",error)
+    return res.status(STATUS.INTERNAL_SERVER_ERROR).json({success:false,message:"server error"})
+  }
+}
 
 async function dataForProductPage(req,res) {
   try {    
@@ -97,7 +119,8 @@ async function removeImage(req,res) {
 
 async function editproduct(req,res) {
   try {    
-    const {productId,productName,description,category,brand,colour,variants}= req.body    
+    const {productId,productName,description,category,brand,colour,variants}= req.body
+        
     const existingProduct= await productService.findExistingProduct(productName,productId)
     
     if(existingProduct){
@@ -131,6 +154,7 @@ async function loadeditproduct(req,res) {
 async function addProduct(req, res) {
   try {
     const product = req.body;
+    
     const existProduct = await productService.productExisting(product.name)
     if (existProduct) {
       return res.status(STATUS.BAD_REQUEST).json({ success: false, message: 'Product already exist' });
@@ -173,4 +197,4 @@ async function loadProductpage(req, res) {
   }
 }
 
-export { loadProductpage, loadAddProduct, addProduct, loadeditproduct, editproduct,removeImage, imageChanges, blockProduct, unblockProduct ,dataForProductPage};
+export { loadProductpage, loadAddProduct, addProduct, loadeditproduct, editproduct,removeImage, imageChanges, blockProduct, unblockProduct ,dataForProductPage, deleteProductImage};

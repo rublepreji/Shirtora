@@ -64,7 +64,7 @@ async function updateProducts(productId,productName,description,category,brand,c
           category,
           brand,
           colour,
-          variants:variants
+          variants:variants 
         }
     return await Product.findByIdAndUpdate(productId,updateFields,{new:true})
 }

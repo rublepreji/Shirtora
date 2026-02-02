@@ -179,7 +179,13 @@
               <div class="grid grid-cols-2 gap-4 mb-4">
     <% for(let i=0; i<4; i++){ %>
     <div class="relative group w-32 h-40">
-      <!-- Image Preview -->
+      <button
+    type="button"
+    onclick="deleteImage('<%=product.productImage[i]%>', '<%=i+1%>')"
+    class="absolute top-1 right-1 bg-red-500 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition"
+  >
+    ✕
+  </button>
       <img
         id="img<%=i+1%>Preview"
         class="w-full h-full rounded-md shadow object-cover cursor-pointer"

@@ -54,12 +54,13 @@ async function dataForCategory(req,res) {
 async function editCategory(req, res) {
   try {
     const { name, description, id } = req.body;
-
+    console.log(name);
+    
     const existCategory = await Category.findById(id);
     if (!existCategory) {
       return res.status(STATUS.NOT_FOUND).json({success:false, message: 'Category not found' });
     }
-    const categoryWithSameName=await Category.findOne({name})
+    const categoryWithSameName=await categoryService.findCategory(name)
     if(categoryWithSameName){
       return res.status(STATUS.BAD_REQUEST).json({success:false, message:"This category already exist!"})
     }

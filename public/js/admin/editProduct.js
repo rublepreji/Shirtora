@@ -224,3 +224,126 @@ cropButton.addEventListener("click", () => {
     cropperModal.classList.add("hidden");
   });
 });
+
+// =========================
+// DELETE IMAGE (MIN 3)
+// =========================
+
+async function deleteImage(imageUrl, index) {
+  const totalImages = document.querySelectorAll('[id$="Preview"]').length;
+
+  if (totalImages <= 3) {
+    Swal.fire({
+      icon: "warning",
+      title: "Minimum 3 images required",
+    });
+    return;
+  }
+
+  const confirm = await Swal.fire({
+    title: "Delete this image?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Yes, delete",
+  });
+
+  if (!confirm.isConfirmed) return;
+
+  try {
+    const res = await fetch("/admin/deleteimage", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        productId: originalProduct.id,
+        image: imageUrl,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      document.getElementById(`img${index}Preview`).remove();
+
+      Swal.fire({
+        icon: "success",
+        title: "Deleted",
+        timer: 1000,
+        showConfirmButton: false,
+      });
+
+      location.reload(); // refresh previews
+    } else {
+      Swal.fire({
+        icon: "error",
+        text: data.message,
+      });
+    }
+  } catch {
+    Swal.fire({
+      icon: "error",
+      text: "Something went wrong",
+    });
+  }
+}
+
+
+// =========================
+// ADD MORE VARIANTS (MAX 3)
+// =========================
+
+const addVariantBtn = document.getElementById("addVariantBtn");
+const variantSection = document.getElementById("variantSection");
+
+const MAX_VARIANTS = 3;
+
+addVariantBtn.addEventListener("click", () => {
+  const existingVariants = document.querySelectorAll(".variant").length;
+
+  if (existingVariants >= MAX_VARIANTS) {
+    Swal.fire({
+      icon: "warning",
+      title: "Limit reached",
+      text: "You can add maximum 3 variants only.",
+    });
+    return;
+  }
+
+  const div = document.createElement("div");
+  div.className = "grid grid-cols-3 gap-4 variant";
+
+  div.innerHTML = `
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Size</label>
+      <select class="variant-size w-full mt-1 border border-gray-300 rounded-md px-3 py-2">
+        <option value="">Select</option>
+        <option>S</option>
+        <option>M</option>
+        <option>L</option>
+        <option>XL</option>
+      </select>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Price</label>
+      <input
+        type="text"
+        placeholder="Price"
+        class="variant-price w-full mt-1 border border-gray-300 rounded-md px-3 py-2"
+      />
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Stock</label>
+      <input
+        type="text"
+        placeholder="Stock"
+        class="variant-stock w-full mt-1 border border-gray-300 rounded-md px-3 py-2"
+      />
+    </div>
+  `;
+
+  variantSection.appendChild(div);
+});
+
+
+

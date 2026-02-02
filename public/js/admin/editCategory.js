@@ -16,9 +16,9 @@ function validateName() {
     errorName.innerHTML = "Category name should contain only letters";
     return false;
     }
-    else if (name.length>10){
+    else if (name.length>20){
       errorName.style.display = "block";
-      errorName.innerHTML = "Text content is limited to ten letters";
+      errorName.innerHTML = "Text content is limited to Twenty letters";
       return false;
     }
     return true;

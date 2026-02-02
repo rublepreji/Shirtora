@@ -131,7 +131,7 @@ async function updateReturnStatus(req, res) {
     }
 
     const item = order.items[itemIndex]
-
+    
     if(!item){
       return res.status(STATUS.NOT_FOUND).json({success:false,message:"Item not found"})
     }
@@ -147,13 +147,20 @@ async function updateReturnStatus(req, res) {
       const discountShare= itemShare * order.discountAmount
       const refundAmount= Math.round(item.totalPrice- discountShare)
 
+      console.log("order paymentstatus",order.paymentStatus);
+      console.log("item isRefunded",item.isRefunded);
+      
+
       if(order.paymentStatus ==="Paid" && !item.isRefunded){
+        console.log("Inside credit wallet");
+        
         await creditWallet({
           userId:order.userId,
           amount:refundAmount,
           source:"ORDER_RETURN_REFUND",
           orderId:order.orderId,
           reason:"Return approved",
+          itemIndex,
           session
         })
         item.isRefunded=true

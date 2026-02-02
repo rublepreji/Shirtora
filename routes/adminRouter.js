@@ -32,7 +32,8 @@ import {
     imageChanges,
     blockProduct,
     unblockProduct,
-    dataForProductPage
+    dataForProductPage,
+    deleteProductImage
     } from '../controller/admin/productController.js';
 import {
     loadAddbrand,
@@ -131,6 +132,7 @@ router.put('/imagechanges',adminAuth,uploadTo('products').single('image') , imag
 router.put('/blockproduct',adminAuth ,blockProduct)
 router.put('/unblockproduct',adminAuth,unblockProduct)
 router.get('/dataforproductpage',adminAuth,dataForProductPage)
+router.put('/deleteimage',adminAuth,deleteProductImage)
 
 //Order management
 router.get('/orderlist',adminAuth,loadOrderList)

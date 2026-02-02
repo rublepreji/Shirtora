@@ -44,9 +44,7 @@ async function cancelItemService(orderId, itemIndex, userId) {
         if(item.isRefunded){
           throw {status:STATUS.BAD_REQUEST, success:false, message:"Already Refunded"}
         }
-        item.itemStatus="Cancelled"
-        console.log(item.productId);
-         
+        item.itemStatus="Cancelled"         
         const product=await Product.findById(item.productId).session(session)
         
         product.variants[item.variantIndex].stock+=item.quantity
@@ -198,8 +196,8 @@ return true;
   const itemTotal = parseFloat(order.totalAmount) || 0;
   const Discount = order.discountAmount;
   const taxAndOthers = 0.00;
-  const grandTotal = itemTotal - order.discountAmount;
-
+  // const grandTotal = itemTotal - order.discountAmount;
+    const grandTotal = order.offerAmount
   // Page dimension
   const pageMargin = 50;
   const pageWidth = 612;
